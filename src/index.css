@@ -51,6 +51,16 @@
   }
 }
 
+/* 게임 속 상태바 높이 — 휴대폰은 실제 상태바가 있으므로 여백 없음(홈 화면 앱이면 실제 상태바 높이만큼), 데스크톱 프레임은 아이폰처럼 54px */
+:root {
+  --status-h: env(safe-area-inset-top, 0px);
+}
+@media (min-width: 640px) and (min-height: 640px) {
+  :root {
+    --status-h: 54px;
+  }
+}
+
 @layer base {
   html,
   body,

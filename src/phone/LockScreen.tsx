@@ -79,7 +79,7 @@ export function LockScreen({ date, released, onUnlock }: LockScreenProps) {
 
       {/* 잠금화면: 시계 + 날짜 + 음악 플레이어 */}
       <div
-        className="absolute inset-0 flex touch-none flex-col items-center pt-[54px]"
+        className="absolute inset-0 flex touch-none flex-col items-center pt-[var(--status-h)]"
         inert={passcode}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -137,7 +137,7 @@ export function LockScreen({ date, released, onUnlock }: LockScreenProps) {
         }}
       >
         <Wallpaper config={wallpaper} blur={cfg.passcodeBlur} extraDim={cfg.passcodeDim} />
-        <div className="relative h-full pt-[54px]">
+        <div className="relative h-full pt-[var(--status-h)]">
           <PasscodePad key={padKey} active={passcode} onSuccess={onUnlock} onCancel={() => setMode('idle')} />
         </div>
       </div>

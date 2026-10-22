@@ -16,7 +16,7 @@ export function StatusBar({ variant = 'default', color = '#ffffff' }: StatusBarP
   return (
     <div className="pointer-events-none shrink-0 select-none">
       <div
-        className="invisible flex h-[max(54px,env(safe-area-inset-top))] items-center justify-between px-8 pt-1 desk:visible desk:h-[54px]"
+        className="invisible flex h-[var(--status-h)] items-center justify-between px-8 pt-1 desk:visible"
         style={{ color }}
       >
         {variant === 'lock' ? (

@@ -12,7 +12,7 @@ export function Toast({ message, lastMessage }: ToastProps) {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none absolute inset-x-0 top-[58px] z-40 flex justify-center px-4"
+      className="pointer-events-none absolute inset-x-0 top-[calc(var(--status-h)+4px)] z-40 flex justify-center px-4"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(-12px)',

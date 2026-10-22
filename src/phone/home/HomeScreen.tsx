@@ -68,7 +68,7 @@ export function HomeScreen({ onLaunch }: HomeScreenProps) {
 
         <div
           className="grid grid-cols-4 items-start"
-          style={{ width: u(90), columnGap: u(5.6), rowGap: u(3.6), marginTop: u(1.5) }}
+          style={{ width: u(92), columnGap: u(5), rowGap: u(3.6), marginTop: u(2) }}
         >
           <WidgetCell label={homeContent.todoWidgetLabel}>
             <TodoWidget onOpen={(el) => onLaunch('todo', el)} />
@@ -97,7 +97,7 @@ function WidgetCell({ label, children }: { label: string; children: ReactNode })
   return (
     <div className="col-span-2 flex flex-col items-center">
       {/* 위젯 = 아이콘 칸 2개 + 칸 사이 간격 */}
-      <div style={{ width: u(42.2), height: u(42.2) }}>{children}</div>
+      <div style={{ width: u(43.5), height: u(43.5) }}>{children}</div>
       <span
         className="w-full truncate text-center leading-tight font-medium [text-shadow:0_1px_3px_rgba(0,0,0,0.35)]"
         style={{ fontSize: u(3.05), marginTop: u(1.4) }}
