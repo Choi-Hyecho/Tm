@@ -23,7 +23,7 @@ export function AppIcon({ app, badge = 0, showLabel = true, onPress }: AppIconPr
     >
       <div
         className="relative transition-[transform,filter] duration-150 group-active:scale-90 group-active:brightness-75"
-        style={{ width: u(15.4), height: u(15.4) }}
+        style={{ width: u(16.5), height: u(16.5) }}
       >
         <IconTile app={app} />
         {badge > 0 && <Badge count={badge} />}

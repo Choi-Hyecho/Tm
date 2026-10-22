@@ -185,7 +185,14 @@ export function ChatRoom({ chatId, onBack }: ChatRoomProps) {
           onSendFile={(id) => dispatch({ type: 'SEND_ATTACHMENT', chatId, kind: 'file', attachmentId: id, now: Date.now() })}
         />
       )}
-      {viewingPhoto && <PhotoViewer photoId={viewingPhoto} onClose={() => setViewingPhoto(null)} />}
+      {viewingPhoto && (
+        <PhotoViewer
+          // 이 채팅방에서 주고받은 사진들을 넘겨 볼 수 있음
+          photoIds={messages.flatMap((m) => (m.kind === 'image' && m.attachmentId ? [m.attachmentId] : []))}
+          initialId={viewingPhoto}
+          onClose={() => setViewingPhoto(null)}
+        />
+      )}
     </div>
   )
 }

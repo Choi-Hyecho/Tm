@@ -93,13 +93,14 @@ export function LockScreen({ date, released, onUnlock }: LockScreenProps) {
       >
         <div className="mt-[2cqh] flex flex-col items-center" style={{ textShadow: cfg.textShadow }}>
           {cfg.showDate && (
-            <p className="text-[20px] font-semibold" style={{ color: cfg.dateColor }}>
+            <p className="text-[min(22px,5.6cqw)] font-semibold" style={{ color: cfg.dateColor }}>
               {formatDate(date, cfg.dateFormat)}
             </p>
           )}
           {cfg.showTime && (
             <p
-              className="text-[min(92px,11cqh)] leading-[1.05] font-semibold tracking-[-0.02em]"
+              // 화면 폭 기준 — 세로가 짧은 Safari에서도 작아지지 않도록
+              className="text-[min(138px,35cqw)] leading-[1.05] font-semibold tracking-[-0.02em]"
               style={{ color: cfg.clockColor }}
             >
               {formatClock(now, theme.clockFormat)}

@@ -22,7 +22,9 @@ export function PhotosApp() {
         </div>
         <p className="py-4 text-center text-[12px] text-black/40">사진 {galleryPhotos.length}장</p>
       </div>
-      {viewing && <PhotoViewer photoId={viewing} onClose={() => setViewing(null)} />}
+      {viewing && (
+        <PhotoViewer photoIds={galleryPhotos.map((p) => p.id)} initialId={viewing} onClose={() => setViewing(null)} />
+      )}
     </div>
   )
 }

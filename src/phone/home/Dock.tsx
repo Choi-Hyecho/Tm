@@ -11,7 +11,7 @@ export function Dock({ badgeOf, onPress }: DockProps) {
   return (
     <div
       className="grid grid-cols-4 items-center justify-items-center bg-white/25 backdrop-blur-2xl backdrop-saturate-150"
-      style={{ width: u(93.5), height: u(24), borderRadius: u(8.5), paddingInline: u(3.6), columnGap: u(6.8) }}
+      style={{ width: u(95), height: u(25), borderRadius: u(8.5), paddingInline: u(2.5), columnGap: u(5.6) }}
     >
       {dockApps.map((id) => (
         <AppIcon key={id} app={apps[id]} badge={badgeOf(apps[id])} showLabel={false} onPress={onPress} />

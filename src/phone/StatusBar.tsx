@@ -8,25 +8,27 @@ interface StatusBarProps {
   color?: string
 }
 
-// 휴대폰에서는 실제 상태바(시계·배터리)와 겹치지 않도록 내용은 숨기고 높이만 비워 둠.
+// 휴대폰에서는 실제 상태바(시계·배터리)와 겹치지 않도록 내용은 숨기고, 영역을 까맣게 칠해 실제 상태바와 이어지게 함.
 // 데스크톱 아이폰 프레임(desk)에서만 게임 속 상태바를 표시
 export function StatusBar({ variant = 'default', color = '#ffffff' }: StatusBarProps) {
   const now = useClock()
 
   return (
-    <div
-      className="pointer-events-none invisible flex h-[54px] shrink-0 items-center justify-between px-8 pt-1 select-none desk:visible"
-      style={{ color }}
-    >
-      {variant === 'lock' ? (
-        <span className="text-[15px] font-medium">{theme.statusBar.carrier}</span>
-      ) : (
-        <span className="w-16 text-center text-[16px] font-semibold">{formatClock(now, theme.clockFormat)}</span>
-      )}
-      <div className="flex items-center gap-[6px]">
-        <SignalIcon />
-        <WifiIcon />
-        <BatteryIcon level={theme.statusBar.battery} />
+    <div className="pointer-events-none shrink-0 bg-black select-none desk:bg-transparent">
+      <div
+        className="invisible flex h-[max(54px,env(safe-area-inset-top))] items-center justify-between px-8 pt-1 desk:visible desk:h-[54px]"
+        style={{ color }}
+      >
+        {variant === 'lock' ? (
+          <span className="text-[15px] font-medium">{theme.statusBar.carrier}</span>
+        ) : (
+          <span className="w-16 text-center text-[16px] font-semibold">{formatClock(now, theme.clockFormat)}</span>
+        )}
+        <div className="flex items-center gap-[6px]">
+          <SignalIcon />
+          <WifiIcon />
+          <BatteryIcon level={theme.statusBar.battery} />
+        </div>
       </div>
     </div>
   )

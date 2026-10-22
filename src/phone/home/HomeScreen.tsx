@@ -68,7 +68,7 @@ export function HomeScreen({ onLaunch }: HomeScreenProps) {
 
         <div
           className="grid grid-cols-4 items-start"
-          style={{ width: u(86.2), columnGap: u(6.8), rowGap: u(5.2), marginTop: u(2.5) }}
+          style={{ width: u(90), columnGap: u(5.6), rowGap: u(3.6), marginTop: u(1.5) }}
         >
           <WidgetCell label={homeContent.todoWidgetLabel}>
             <TodoWidget onOpen={(el) => onLaunch('todo', el)} />
@@ -82,7 +82,7 @@ export function HomeScreen({ onLaunch }: HomeScreenProps) {
           ))}
         </div>
 
-        <div className="mt-auto" style={{ marginBottom: u(5.5) }}>
+        <div className="mt-auto" style={{ marginBottom: u(4.5) }}>
           <Dock badgeOf={badgeOf} onPress={handlePress} />
         </div>
       </div>
@@ -96,7 +96,8 @@ export function HomeScreen({ onLaunch }: HomeScreenProps) {
 function WidgetCell({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="col-span-2 flex flex-col items-center">
-      <div style={{ width: u(39.7), height: u(39.7) }}>{children}</div>
+      {/* 위젯 = 아이콘 칸 2개 + 칸 사이 간격 */}
+      <div style={{ width: u(42.2), height: u(42.2) }}>{children}</div>
       <span
         className="w-full truncate text-center leading-tight font-medium [text-shadow:0_1px_3px_rgba(0,0,0,0.35)]"
         style={{ fontSize: u(3.05), marginTop: u(1.4) }}
