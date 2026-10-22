@@ -24,6 +24,8 @@ export interface RespondResult {
   /** 멤버 업무 시작 — replies[missionRequestIndex]가 도착할 때 TODO에 공개 */
   startMission?: boolean
   missionRequestIndex?: number
+  /** 첫 답장 전에 '입력 중…'이 사라졌다 다시 나오는 고민 연출 */
+  hesitate?: boolean
 }
 
 type Responder = (input: RespondInput) => RespondResult
@@ -85,14 +87,14 @@ const memberResponder =
     if (flow === 'awaitingGreeting') {
       if (isGreeting(text)) return withRequest(lines.greeting)
       // 인사도 안 했는데 애정 표현부터 — "갑자기요?"
-      if (isAffection(text)) return { replies: [pick(lines.affection, turn)], flow, conversationContext: null }
+      if (isAffection(text)) return { replies: [pick(lines.affection, turn)], flow, conversationContext: null, hesitate: true }
       return { replies: [lines.beforeGreeting], flow, conversationContext: null }
     }
     // 인사는 했지만 업무를 아직 못 받은 경우 — 바로 업무 요청
     if (!requested) return withRequest([])
 
     if (isGreeting(text)) return { replies: [pick(lines.greetAgain, turn)], flow, conversationContext: null }
-    if (isAffection(text)) return { replies: [pick(lines.affection, turn)], flow, conversationContext: null }
+    if (isAffection(text)) return { replies: [pick(lines.affection, turn)], flow, conversationContext: null, hesitate: true }
     if (isMealQuestion(text)) return { replies: [pick(lines.meal, turn)], flow, conversationContext: null }
     const pool = status === 'completed' ? lines.afterMission : lines.missionIdle
     return { replies: [pick(pool, turn)], flow, conversationContext: null }

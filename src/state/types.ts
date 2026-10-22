@@ -35,6 +35,8 @@ export interface ScheduledMessage {
   deliverAt: number
   /** 이 메시지가 도착할 때 해당 멤버 업무를 TODO에 공개 */
   revealMission?: MemberId
+  /** '입력 중…' 표시 구간 [시작, 끝] — 없으면 도착할 때까지 계속 표시 */
+  typingWindows?: [number, number][]
 }
 
 /**

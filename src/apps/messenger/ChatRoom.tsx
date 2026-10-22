@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { chatContent, chats, type ChatId } from '../../content/chats'
 import { findPhoto } from '../../content/gallery'
 import { findFile } from '../../content/gameFiles'
+import { useTypingIndicator } from '../../hooks/useTypingIndicator'
 import { formatDate } from '../../lib/date'
 import { StatusBar } from '../../phone/StatusBar'
 import { useGame } from '../../state/context'
@@ -27,7 +28,8 @@ export function ChatRoom({ chatId, onBack }: ChatRoomProps) {
   const { state, dispatch } = useGame()
   const chat = chats[chatId]
   const { messages } = state.chats[chatId]
-  const typing = state.scheduled.some((s) => s.chatId === chatId)
+  const scheduledHere = useMemo(() => state.scheduled.filter((s) => s.chatId === chatId), [state.scheduled, chatId])
+  const typing = useTypingIndicator(scheduledHere)
   const [draft, setDraft] = useState('')
   const [attachOpen, setAttachOpen] = useState(false)
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null)

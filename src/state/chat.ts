@@ -6,7 +6,7 @@ import { attachmentReplies, chatContent, type ChatId, type MemberId } from '../c
 import { findPhoto } from '../content/gallery'
 import { findFile } from '../content/gameFiles'
 import { affectionWarning } from '../content/managerReplies'
-import { memberGreetings } from '../content/memberGreetings'
+import { affectionHesitation, memberGreetings } from '../content/memberGreetings'
 import { isMemberMission, type MissionId } from '../content/missions'
 import { attachmentChecks } from '../missions/attachmentChecks'
 import { getActiveMissions, getMissionStatus, getProgress } from './selectors'
@@ -52,18 +52,30 @@ export function deliverMessage(state: GameState, chatId: ChatId, text: string, n
   }
 }
 
+/** 고민 연출: 입력 중이 뜨기까지 잠깐 텀 */
+const HESITATE_START_MS = 500
+
 /** 답장 예약 — 이미 예약된 답장 뒤로 이어서 도착 */
 export function scheduleReplies(
   state: GameState,
   chatId: ChatId,
   replies: string[],
   now: number,
-  reveal?: { missionId: MemberId; index: number },
+  options: { reveal?: { missionId: MemberId; index: number }; hesitate?: boolean } = {},
 ): GameState {
+  const { reveal, hesitate } = options
   let time = Math.max(now, ...state.scheduled.filter((s) => s.chatId === chatId).map((s) => s.deliverAt))
   const scheduled: ScheduledMessage[] = replies.map((text, i) => {
+    const base = { chatId, text, revealMission: reveal?.index === i ? reveal.missionId : undefined }
+    if (hesitate && i === 0) {
+      // 입력 중… → 사라짐(고민) → 다시 입력 중… → 도착
+      const start = time + HESITATE_START_MS
+      const resume = start + affectionHesitation.typingMs + affectionHesitation.pauseMs
+      time = resume + typingDelay(text)
+      return { ...base, deliverAt: time, typingWindows: [[start, start + affectionHesitation.typingMs], [resume, time]] }
+    }
     time += typingDelay(text)
-    return { chatId, text, deliverAt: time, revealMission: reveal?.index === i ? reveal.missionId : undefined }
+    return { ...base, deliverAt: time }
   })
   return { ...state, scheduled: [...state.scheduled, ...scheduled] }
 }
@@ -101,7 +113,7 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
         : undefined
 
     const repeated = !reveal && result.replies.length === 1 && result.replies[0] === lastReply
-    if (!repeated) next = scheduleReplies(next, chatId, result.replies, now, reveal)
+    if (!repeated) next = scheduleReplies(next, chatId, result.replies, now, { reveal, hesitate: result.hesitate })
     lastReply = result.replies.at(-1)
   }
   return next
@@ -117,7 +129,7 @@ function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessag
   if (check && check.kind === kind && getMissionStatus(state, chatId as MemberId) === 'active') {
     return message.attachmentId === check.correctId
       ? completeMission(state, chatId as MemberId, now)
-      : scheduleReplies(state, chatId, [check.wrongReply], now)
+      : scheduleReplies(state, chatId, [check.wrongReply(message.attachmentId)], now)
   }
   const lines = chatId === 'manager' ? attachmentReplies.manager : attachmentReplies.member
   return scheduleReplies(state, chatId, [lines[kind]], now)
@@ -179,7 +191,10 @@ function countAffection(state: GameState, chatId: ChatId, text: string, now: num
   const count = state.affection.count + 1
   const warn = !state.affection.warned && count >= affectionWarning.threshold
   const next: GameState = { ...state, affection: { count, warned: state.affection.warned || warn } }
-  return warn ? scheduleReplies(next, 'manager', [affectionWarning.message], now + affectionWarning.delayMs) : next
+  if (!warn) return next
+  // 멤버 반응(고민 연출 포함)이 도착한 뒤에 경고가 오도록
+  const memberReplyAt = Math.max(now, ...next.scheduled.filter((s) => s.chatId === chatId).map((s) => s.deliverAt))
+  return scheduleReplies(next, 'manager', [affectionWarning.message], memberReplyAt + affectionWarning.delayMs)
 }
 
 /** 보류된 내 메시지를 읽음 처리하고 답장 시작 — 상대가 이제 바쁘지 않을 때만 (채팅방에 들어왔을 때 호출) */

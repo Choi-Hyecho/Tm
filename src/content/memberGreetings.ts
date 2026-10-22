@@ -2,6 +2,14 @@
 // 인사 → 업무 요청 → (미션 진행) → 완료 인사 순서로 사용. 실제 미니게임 대사는 다음 단계에서 추가
 import type { MemberId } from './chats'
 
+/** 애정 표현에 답할 때 '입력 중…'이 보였다가 사라졌다가 다시 나오는 고민 연출 */
+export const affectionHesitation = {
+  /** 처음 '입력 중…'이 보이는 시간 */
+  typingMs: 1500,
+  /** 사라져 있는 시간 (고민 중) */
+  pauseMs: 4000,
+}
+
 export interface MemberGreeting {
   /** 사용자가 처음 인사했을 때 — 순서대로 전송 (한 번만) */
   greeting: string[]
