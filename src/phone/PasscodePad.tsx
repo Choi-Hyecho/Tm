@@ -101,7 +101,7 @@ export function PasscodePad({ active, onSuccess, onCancel }: PasscodePadProps) {
         <span />
       </div>
 
-      <div className="flex w-full flex-1 items-end justify-between px-[13cqw] pb-[6cqh] text-[17px]">
+      <div className="flex w-full flex-1 items-end justify-between px-[13cqw] pb-[calc(6cqh+var(--ui-bottom,0px))] text-[17px]">
         <span className="text-white/90">{lockContent.emergencyLabel}</span>
         <button type="button" onClick={backspace} className="active:opacity-50">
           {entered ? lockContent.deleteLabel : lockContent.cancelLabel}

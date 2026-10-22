@@ -15,7 +15,7 @@ interface TabBarProps {
 // 아래 34px은 홈 인디케이터 영역
 export function TabBar({ tab, onChange, unread }: TabBarProps) {
   return (
-    <nav className="grid shrink-0 grid-cols-4 border-t border-black/5 bg-white pb-[34px]">
+    <nav className="grid shrink-0 grid-cols-4 border-t border-black/5 bg-white pb-[calc(34px+var(--ui-bottom,0px))]">
       {TAB_ORDER.map((id) => {
         const active = tab === id
         return (

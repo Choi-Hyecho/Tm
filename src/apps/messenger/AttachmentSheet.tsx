@@ -107,7 +107,7 @@ const MENU_ITEMS: { id: 'album' | 'files' | 'camera'; label: string; color: stri
 
 function Menu({ onSelect, onCancel }: { onSelect: (view: View) => void; onCancel: () => void }) {
   return (
-    <div className="pb-[34px]">
+    <div className="pb-[calc(34px+var(--ui-bottom,0px))]">
       <div className="mx-auto mt-2 h-1 w-9 rounded-full bg-black/15" aria-hidden />
       <div className="grid grid-cols-3 gap-2 px-6 pt-5 pb-4">
         {MENU_ITEMS.map((item) => (
@@ -153,7 +153,7 @@ function SheetHeader({ title, onBack }: { title: string; onBack: () => void }) {
 
 function SendBar({ onReselect, onSend }: { onReselect: () => void; onSend: () => void }) {
   return (
-    <div className="flex shrink-0 gap-2 border-t border-black/5 px-4 pt-3 pb-[34px]">
+    <div className="flex shrink-0 gap-2 border-t border-black/5 px-4 pt-3 pb-[calc(34px+var(--ui-bottom,0px))]">
       <button type="button" onClick={onReselect} className="flex-1 rounded-xl bg-black/5 py-3 text-[14px] font-medium active:bg-black/10">
         {chatContent.attach.reselect}
       </button>
@@ -184,7 +184,7 @@ function AlbumPicker({ onBack, onSend }: { onBack: () => void; onSend: (id: stri
   return (
     <>
       <SheetHeader title={chatContent.attach.album} onBack={onBack} />
-      <div className="flex-1 overflow-y-auto pb-[34px]">
+      <div className="flex-1 overflow-y-auto pb-[calc(34px+var(--ui-bottom,0px))]">
         <div className="grid grid-cols-3 gap-0.5">
           {galleryPhotos.map((p) => (
             <button key={p.id} type="button" onClick={() => setSelected(p.id)} aria-label={p.fileName} className="active:opacity-70">
@@ -225,7 +225,7 @@ function FilePicker({ onBack, onSend }: { onBack: () => void; onSend: (id: strin
   return (
     <>
       <SheetHeader title={chatContent.attach.file} onBack={onBack} />
-      <ul className="flex-1 overflow-y-auto pb-[34px]">
+      <ul className="flex-1 overflow-y-auto pb-[calc(34px+var(--ui-bottom,0px))]">
         {gameFiles.map((f) => (
           <li key={f.id}>
             <div

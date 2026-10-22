@@ -3,6 +3,7 @@ import { AppScreen, type OpenAppRequest } from './apps/renderApp'
 import { theme } from './config/theme'
 import { chats } from './content/chats'
 import { DevPanel } from './dev/DevPanel'
+import { useBrowserChromeColor } from './hooks/useBrowserChromeColor'
 import { AppLayer } from './phone/AppLayer'
 import { HomeScreen } from './phone/home/HomeScreen'
 import { LockScreen } from './phone/LockScreen'
@@ -28,6 +29,10 @@ function App() {
   >(null)
   const [appVisible, setAppVisible] = useState(false)
   const closeTimer = useRef<number>(undefined)
+
+  // Safari 상단 영역 색 — 잠금/홈 화면은 배경 사진 맨 위 색, 앱이 열려 있으면 그 앱의 상단 색
+  const { lockAndHome, apps: appChromeColors, appDefault } = theme.browserChrome
+  useBrowserChromeColor(openApp && appVisible ? (appChromeColors[openApp.id] ?? appDefault) : lockAndHome)
 
   const { animation, durationMs, easing } = theme.unlock
   const preset = unlockTransitions[animation]

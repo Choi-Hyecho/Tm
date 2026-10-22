@@ -53,7 +53,7 @@ export function AppLayer({ origin, visible, onClose, children }: AppLayerProps) 
       {children}
       <div
         aria-label="홈으로"
-        className="absolute inset-x-0 bottom-0 z-40 h-[34px] touch-none"
+        className="absolute inset-x-0 bottom-[var(--ui-bottom,0px)] z-40 h-[34px] touch-none"
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerCancel={() => (dragStart.current = null)}

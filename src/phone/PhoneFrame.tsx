@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react'
 import { useViewportHeight } from '../hooks/useViewportHeight'
 
-// 모바일: 화면 전체(키보드가 올라오면 보이는 영역만큼) / 데스크톱(desk): 가운데 아이폰 프레임
+// 모바일: 페이지 전체(Safari 하단 툴바 뒤까지, 입력 중에는 보이는 영역만큼) / 데스크톱(desk): 가운데 아이폰 프레임
 export function PhoneFrame({ children }: { children: ReactNode }) {
   useViewportHeight()
 
   return (
-    <div className="flex h-[var(--app-height,100dvh)] w-full items-center justify-center overflow-hidden bg-ice-50 desk:bg-[radial-gradient(60%_60%_at_50%_40%,#ffffff_0%,#c8e0ff_100%)]">
+    <div className="flex h-[var(--app-height,100%)] w-full items-center justify-center overflow-hidden bg-black desk:h-dvh desk:bg-[radial-gradient(60%_60%_at_50%_40%,#ffffff_0%,#c8e0ff_100%)]">
       <div
         data-screen
         className="relative h-full w-full overflow-hidden bg-black desk:aspect-[390/844] desk:h-[min(844px,calc(100dvh-48px))] desk:w-auto desk:rounded-[54px] desk:shadow-[0_0_0_11px_#111,0_0_0_13px_#3a3d4a,0_30px_80px_rgba(15,44,94,0.35)]"

@@ -113,7 +113,7 @@ export function LockScreen({ date, released, onUnlock }: LockScreenProps) {
             <NowPlaying />
           </div>
           <p className="animate-hint mb-[3cqh] text-center text-[13px] font-medium">{lockContent.swipeHint}</p>
-          <div className="flex justify-between px-[12cqw] pb-[5.5cqh]">
+          <div className="flex justify-between px-[12cqw] pb-[calc(5.5cqh+var(--ui-bottom,0px))]">
             <QuickAction label="손전등" onPress={openPasscode}>
               <path d="M9 3h6v3l-1.5 3v10.5a1.5 1.5 0 0 1-3 0V9L9 6Z" />
               <path d="M9 6h6" />

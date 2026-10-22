@@ -114,7 +114,7 @@ export function PhotoViewer({ photoIds, initialId, onClose }: PhotoViewerProps) 
         </div>
       </div>
 
-      <div className="h-[34px] shrink-0" />
+      <div className="h-[calc(34px+var(--ui-bottom,0px))] shrink-0" />
     </div>
   )
 }

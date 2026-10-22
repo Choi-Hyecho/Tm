@@ -1,6 +1,8 @@
 // 디자인 설정 — 색상/표시 형식/애니메이션은 이 파일에서 수정합니다.
 // 배경화면 이미지와 음원 링크는 config/media.ts에서 관리합니다.
 
+import type { AppId } from './apps'
+
 export type ClockFormat = '12h' | '24h'
 export type UnlockAnimation = 'slideUp' | 'fade' | 'zoom'
 
@@ -32,6 +34,16 @@ export const theme = {
     /** 암호 입력 화면 배경 흐림/어두움 */
     passcodeBlur: 28,
     passcodeDim: 0.35,
+  },
+
+  /**
+   * 휴대폰 Safari 상단(상태바 영역) 색 — Safari는 이 영역을 사진이 아닌 단색으로 칠하므로 화면 맨 위와 같은 색으로 맞춤.
+   * 잠금/홈 배경 사진을 바꾸면 lockAndHome도 사진 맨 위 색에 맞춰 주세요.
+   */
+  browserChrome: {
+    lockAndHome: '#1a1a1a',
+    apps: { kakaotalk: '#ffffff', photos: '#ffffff', todo: '#f3f8ff' } as Partial<Record<AppId, string>>,
+    appDefault: '#f3f8ff',
   },
 
   unlock: {

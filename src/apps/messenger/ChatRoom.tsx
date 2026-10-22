@@ -136,7 +136,7 @@ export function ChatRoom({ chatId, onBack }: ChatRoomProps) {
       </div>
 
       {/* 입력창 — 아래 34px은 홈 인디케이터 영역 */}
-      <div className="shrink-0 bg-white pb-[34px]">
+      <div className="shrink-0 bg-white pb-[calc(34px+var(--ui-bottom,0px))]">
         <div className="flex items-center gap-2 px-2 py-2">
           <button
             type="button"

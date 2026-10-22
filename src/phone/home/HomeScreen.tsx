@@ -82,7 +82,7 @@ export function HomeScreen({ onLaunch }: HomeScreenProps) {
           ))}
         </div>
 
-        <div className="mt-auto" style={{ marginBottom: u(4.5) }}>
+        <div className="mt-auto" style={{ marginBottom: `calc(${u(4.5)} + var(--ui-bottom,0px))` }}>
           <Dock badgeOf={badgeOf} onPress={handlePress} />
         </div>
       </div>
