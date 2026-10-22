@@ -30,6 +30,8 @@ export const chatContent = {
   /** 알림 배너 시간 표시 */
   justNow: '지금',
   linkNotReady: '준비 중이에요. 곧 연결될 예정이에요!',
+  /** 채팅 목록이 비어 있을 때 (첫 카톡 도착 전) */
+  noChats: '아직 대화가 없어요',
   /** 첨부 메뉴 */
   attach: {
     album: '앨범',

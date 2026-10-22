@@ -1,4 +1,4 @@
-import { chatOrder, chats, type ChatId } from '../../content/chats'
+import { chatContent, chatOrder, chats, type ChatId } from '../../content/chats'
 import { kakaoTabsContent } from '../../content/kakaoTabs'
 import { useClock } from '../../hooks/useClock'
 import { useGame } from '../../state/context'
@@ -26,10 +26,11 @@ export function ChatsTab({ onOpenChat, onToast }: ChatsTabProps) {
   const { state } = useGame()
   const now = useClock()
 
-  // 최근 메시지 순 (대화가 없는 방은 기본 순서로 아래에)
+  // 대화를 주고받은 방만 최근 메시지 순으로 — 멤버 방은 친구 탭에서 대화를 시작하면 생김
   const rows = chatOrder
-    .map((id, order) => ({ id, order, thread: state.chats[id], last: state.chats[id].messages.at(-1) }))
-    .sort((a, b) => (b.last?.at ?? -1) - (a.last?.at ?? -1) || a.order - b.order)
+    .map((id) => ({ id, thread: state.chats[id], last: state.chats[id].messages.at(-1) }))
+    .filter((row) => row.last)
+    .sort((a, b) => (b.last?.at ?? 0) - (a.last?.at ?? 0))
 
   return (
     <>
@@ -41,6 +42,7 @@ export function ChatsTab({ onOpenChat, onToast }: ChatsTabProps) {
 
       <PromoBanner onToast={onToast} />
 
+      {rows.length === 0 && <p className="py-16 text-center text-[13px] text-black/35">{chatContent.noChats}</p>}
       <ul className="mt-1">
         {rows.map(({ id, thread, last }) => (
           <li key={id}>
