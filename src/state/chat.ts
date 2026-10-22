@@ -1,6 +1,6 @@
 // 채팅 관련 상태 변경 도우미 (reducer에서 사용하는 순수 함수)
 import { isAffection } from '../chat/intent'
-import type { ReplyContext } from '../chat/ruleEngine'
+import { pickFresh, type LinePicker, type ReplyContext } from '../chat/ruleEngine'
 import { responders } from '../chat/scripts'
 import { attachmentReplies, chatContent, type ChatId, type MemberId } from '../content/chats'
 import { findPhoto } from '../content/gallery'
@@ -10,6 +10,30 @@ import { affectionHesitation, memberScripts } from '../content/members'
 
 /** 반복 방지에 참고할 상대의 최근 메시지 수 */
 const RECENT_LIMIT = 8
+
+/** 곧 도착할 상대의 답장 */
+const upcomingReplies = (state: GameState, chatId: ChatId) =>
+  state.scheduled.filter((s) => s.chatId === chatId).map((s) => s.text)
+
+/** 상대가 최근에 한 말 + 곧 도착할 말 — 같은 대사가 반복되지 않도록 */
+const recentReplies = (state: GameState, chatId: ChatId) => [
+  ...state.chats[chatId].messages
+    .filter((m) => m.from === chatId)
+    .slice(-RECENT_LIMIT)
+    .map((m) => m.text),
+  ...upcomingReplies(state, chatId),
+]
+
+/** 최근에 한 말을 피해서 고르는 picker — 같은 picker로 여러 줄을 고르면 서로도 겹치지 않음 */
+function pickerFor(state: GameState, chatId: ChatId): LinePicker {
+  const recent = recentReplies(state, chatId)
+  let seed = state.chats[chatId].messages.length + recent.length
+  return (lines) => {
+    const line = pickFresh(lines, recent, seed++)
+    recent.push(line)
+    return line
+  }
+}
 import { isMemberMission, missionLabel, missions, todoContent, type MissionId } from '../content/missions'
 import { attachmentChecks } from '../missions/attachmentChecks'
 import { getActiveMissions, getMissionStatus, getProgress } from './selectors'
@@ -122,14 +146,14 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
 
     const text = message.text
     const thread = next.chats[chatId]
-    const upcoming = next.scheduled.filter((s) => s.chatId === chatId).map((s) => s.text)
+    const upcoming = upcomingReplies(next, chatId)
     const result = responders[chatId]({
       flow: thread.flow,
       conversationContext: thread.conversationContext ?? null,
       text,
       turn: thread.messages.length + upcoming.length,
       // 상대가 최근에 한 말 + 곧 도착할 말 — 같은 대사가 반복되지 않도록
-      recent: [...thread.messages.filter((m) => m.from === chatId).slice(-RECENT_LIMIT).map((m) => m.text), ...upcoming],
+      recent: recentReplies(next, chatId),
       game: getReplyContext(next),
     })
 
@@ -165,7 +189,7 @@ function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessag
   if (check && check.kind === kind && getMissionStatus(state, chatId as MemberId) === 'active') {
     return message.attachmentId === check.correctId
       ? completeMission(state, chatId as MemberId, now)
-      : scheduleReplies(state, chatId, [check.wrongReply(message.attachmentId)], now)
+      : scheduleReplies(state, chatId, check.wrongReplies(message.attachmentId, pickerFor(state, chatId)), now)
   }
   const lines = chatId === 'manager' ? attachmentReplies.manager : attachmentReplies.member
   return scheduleReplies(state, chatId, [lines[kind]], now)
