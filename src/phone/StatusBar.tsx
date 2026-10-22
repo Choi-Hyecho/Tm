@@ -8,13 +8,13 @@ interface StatusBarProps {
   color?: string
 }
 
-// 휴대폰에서는 실제 상태바(시계·배터리)와 겹치지 않도록 내용은 숨기고, 영역을 까맣게 칠해 실제 상태바와 이어지게 함.
+// 휴대폰에서는 실제 상태바(시계·배터리)와 겹치지 않도록 내용만 숨기고 배경은 투명하게 둠 (배경화면이 위까지 꽉 차게).
 // 데스크톱 아이폰 프레임(desk)에서만 게임 속 상태바를 표시
 export function StatusBar({ variant = 'default', color = '#ffffff' }: StatusBarProps) {
   const now = useClock()
 
   return (
-    <div className="pointer-events-none shrink-0 bg-black select-none desk:bg-transparent">
+    <div className="pointer-events-none shrink-0 select-none">
       <div
         className="invisible flex h-[max(54px,env(safe-area-inset-top))] items-center justify-between px-8 pt-1 desk:visible desk:h-[54px]"
         style={{ color }}
