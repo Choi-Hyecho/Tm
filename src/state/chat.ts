@@ -55,6 +55,12 @@ export function deliverMessage(state: GameState, chatId: ChatId, text: string, n
 /** 고민 연출: 입력 중이 뜨기까지 잠깐 텀 */
 const HESITATE_START_MS = 500
 
+/** 고민하는 시간 — 범위 안에서 랜덤. reducer가 순수하도록 Math.random 대신 보낸 시각으로 섞음 */
+function hesitationPause(now: number) {
+  const { pauseMinMs, pauseMaxMs } = affectionHesitation
+  return pauseMinMs + ((now * 7919) % (pauseMaxMs - pauseMinMs + 1))
+}
+
 /** 답장 예약 — 이미 예약된 답장 뒤로 이어서 도착 */
 export function scheduleReplies(
   state: GameState,
@@ -70,7 +76,7 @@ export function scheduleReplies(
     if (hesitate && i === 0) {
       // 입력 중… → 사라짐(고민) → 다시 입력 중… → 도착
       const start = time + HESITATE_START_MS
-      const resume = start + affectionHesitation.typingMs + affectionHesitation.pauseMs
+      const resume = start + affectionHesitation.typingMs + hesitationPause(now)
       time = resume + typingDelay(text)
       return { ...base, deliverAt: time, typingWindows: [[start, start + affectionHesitation.typingMs], [resume, time]] }
     }

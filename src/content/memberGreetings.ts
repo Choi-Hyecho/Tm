@@ -6,8 +6,9 @@ import type { MemberId } from './chats'
 export const affectionHesitation = {
   /** 처음 '입력 중…'이 보이는 시간 */
   typingMs: 1500,
-  /** 사라져 있는 시간 (고민 중) */
-  pauseMs: 4000,
+  /** 사라져 있는 시간 (고민 중) — 이 범위에서 매번 랜덤 */
+  pauseMinMs: 3000,
+  pauseMaxMs: 5000,
 }
 
 export interface MemberGreeting {
