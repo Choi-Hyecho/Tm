@@ -8,5 +8,5 @@ export const yunminQuest = {
   wrongReply: '어? 매니저님 이거 제 사진 아닌데요? ㅋㅋㅋ',
   /** 윤민 사진이지만 예전 앨범 */
   otherAlbumReply: '앗 이건 예전 앨범 사진이에요 ㅋㅋ 이번 극야 자켓 사진으로 부탁드려요!',
-  // 정답일 때는 memberGreetings.yunmin.missionDone 대사가 전송됨
+  // 정답일 때는 content/members/yunmin.ts의 missionDone 대사가 전송됨
 }

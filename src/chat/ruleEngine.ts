@@ -44,9 +44,22 @@ export function findRule(rules: ReplyRule[], text: string): ReplyRule | null {
   return rules.find((rule) => matches(rule.patterns, t) && !(rule.exclude && matches(rule.exclude, t))) ?? null
 }
 
-export function resolveReply(rule: ReplyRule, context: ReplyContext, turn: number) {
+/** 여러 대사 중 하나를 고르는 함수 */
+export type LinePicker = (lines: string[]) => string
+
+/**
+ * 최근에 한 말은 피해서 고름 — 같은 대사 반복 방지. 모두 최근에 썼으면 가장 오래전에 쓴 대사 (한 바퀴 돌기 전엔 반복 없음).
+ * reducer가 순수하도록 Math.random 대신 seed(대화 순서 등)로 섞음
+ */
+export function pickFresh(lines: string[], recent: string[], seed: number) {
+  const fresh = lines.filter((line) => !recent.includes(line))
+  if (fresh.length > 0) return fresh[Math.abs(seed * 7919 + 13) % fresh.length]
+  return [...lines].sort((a, b) => recent.lastIndexOf(a) - recent.lastIndexOf(b))[0]
+}
+
+export function resolveReply(rule: ReplyRule, context: ReplyContext, pick: LinePicker) {
   if (typeof rule.reply === 'function') return rule.reply(context)
-  if (Array.isArray(rule.reply)) return rule.reply[turn % rule.reply.length]
+  if (Array.isArray(rule.reply)) return pick(rule.reply)
   return rule.reply
 }
 

@@ -6,7 +6,10 @@ import { attachmentReplies, chatContent, type ChatId, type MemberId } from '../c
 import { findPhoto } from '../content/gallery'
 import { findFile } from '../content/gameFiles'
 import { affectionWarning } from '../content/managerReplies'
-import { affectionHesitation, memberGreetings } from '../content/memberGreetings'
+import { affectionHesitation, memberScripts } from '../content/members'
+
+/** 반복 방지에 참고할 상대의 최근 메시지 수 */
+const RECENT_LIMIT = 8
 import { isMemberMission, type MissionId } from '../content/missions'
 import { attachmentChecks } from '../missions/attachmentChecks'
 import { getActiveMissions, getMissionStatus, getProgress } from './selectors'
@@ -86,25 +89,30 @@ export function scheduleReplies(
   return { ...state, scheduled: [...state.scheduled, ...scheduled] }
 }
 
-/** 상대가 내 메시지들을 읽고 답장 — 여러 개면 순서대로 대화 흐름을 이어서 처리 (같은 답이 연달아 나오면 한 번만) */
+/** 상대가 내 메시지들을 읽고 답장 — 여러 개면 순서대로 대화 흐름을 이어서 처리 (같은 종류가 연달아 나오면 한 번만) */
 function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now: number): GameState {
   let next = state
   let lastReply: string | undefined
+  let lastCategory: string | undefined
   for (const message of messages) {
     // 사진/파일 — 미션 판별 또는 일반 답장
     if (message.kind === 'image' || message.kind === 'file') {
       next = respondAttachment(next, chatId, message, now)
       lastReply = undefined
+      lastCategory = undefined
       continue
     }
 
     const text = message.text
     const thread = next.chats[chatId]
+    const upcoming = next.scheduled.filter((s) => s.chatId === chatId).map((s) => s.text)
     const result = responders[chatId]({
       flow: thread.flow,
       conversationContext: thread.conversationContext ?? null,
       text,
-      turn: thread.messages.length,
+      turn: thread.messages.length + upcoming.length,
+      // 상대가 최근에 한 말 + 곧 도착할 말 — 같은 대사가 반복되지 않도록
+      recent: [...thread.messages.filter((m) => m.from === chatId).slice(-RECENT_LIMIT).map((m) => m.text), ...upcoming],
       game: getReplyContext(next),
     })
 
@@ -118,9 +126,14 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
         ? { missionId: chatId as MemberId, index: result.missionRequestIndex }
         : undefined
 
-    const repeated = !reveal && result.replies.length === 1 && result.replies[0] === lastReply
+    // 한꺼번에 읽은 메시지가 같은 종류로 이어지면(예: 애정 표현 여러 번) 답은 한 번만
+    const repeated =
+      !reveal &&
+      result.replies.length === 1 &&
+      (result.category !== undefined ? result.category === lastCategory : result.replies[0] === lastReply)
     if (!repeated) next = scheduleReplies(next, chatId, result.replies, now, { reveal, hesitate: result.hesitate })
     lastReply = result.replies.at(-1)
+    lastCategory = result.category
   }
   return next
 }
@@ -151,7 +164,7 @@ export function completeMission(state: GameState, id: MissionId, now: number): G
   if (!isMemberMission(id)) return next
 
   next = { ...next, activeMissionId: next.activeMissionId === id ? null : next.activeMissionId }
-  next = scheduleReplies(next, id, [memberGreetings[id].missionDone], now)
+  next = scheduleReplies(next, id, [memberScripts[id].missionDone], now)
   // 다른 멤버들이 한꺼번에 답장하지 않도록, 지금 보고 있는 채팅방만 보류 메시지 처리
   if (next.activeChat && next.activeChat !== id) next = readPending(next, next.activeChat, now)
   return next
