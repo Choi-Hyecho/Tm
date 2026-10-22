@@ -105,8 +105,8 @@ function App() {
         )}
       </PhoneFrame>
 
-      {/* 개발 서버에서만 표시 — 배포 빌드에서는 제거됨 */}
-      {import.meta.env.DEV && <DevPanel />}
+      {/* 개발 서버, 또는 테스트 배포에서 VITE_DEV_PANEL=true일 때만 표시 — 정식 배포에서는 이 변수를 두지 말 것 */}
+      {(import.meta.env.DEV || import.meta.env.VITE_DEV_PANEL === 'true') && <DevPanel />}
     </>
   )
 }
