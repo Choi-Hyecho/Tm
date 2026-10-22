@@ -42,4 +42,23 @@ export const todoContent = {
   missionActive: '진행 중',
   missionCompleted: '완료 ✓',
   notice: '업무를 실제로 마치면 자동으로 체크돼요. 멤버 업무는 직접 연락해서 요청을 받으면 공개돼요.',
+  /** 위에서 내려오는 TODO 알림 */
+  notifications: {
+    appName: 'TODO',
+    /** 팀장님 첫 카톡 직후 */
+    intro: { title: '오늘의 업무', body: '오늘 일정을 확인해 주세요!' },
+    /** 멤버에게 업무 요청을 받아 TODO에 공개될 때 (본문은 업무 이름) */
+    addedTitle: '새 업무가 등록됐어요',
+    /** 업무 완료 (본문은 업무 이름) */
+    completedTitle: '업무 완료 ✓',
+    /** 선행 업무를 끝내 트랙리스트/최종 보고가 열릴 때 */
+    unlockedTitle: '새 업무가 열렸어요',
+  },
+}
+
+/** 알림/목록에 보일 업무 이름 — 멤버 업무는 "윤민 - 앨범 자켓 사진 전달" */
+export function missionLabel(id: MissionId) {
+  const mission = missions.find((m) => m.id === id)
+  if (!mission) return ''
+  return mission.assignee ? `${mission.assignee} - ${mission.title}` : mission.title
 }

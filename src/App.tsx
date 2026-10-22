@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { AppScreen, type OpenAppRequest } from './apps/renderApp'
 import { theme } from './config/theme'
-import { chats } from './content/chats'
+import { chatContent, chats } from './content/chats'
+import { todoContent } from './content/missions'
 import { DevPanel } from './dev/DevPanel'
 import { useBrowserChromeColor } from './hooks/useBrowserChromeColor'
 import { AppLayer } from './phone/AppLayer'
@@ -69,8 +70,18 @@ function App() {
     closeTimer.current = window.setTimeout(() => setOpenApp(null), APP_CLOSE_MS)
   }
 
-  const banner = state.banner
-  const bannerMessage = banner && state.chats[banner.chatId].messages.find((m) => m.id === banner.messageId)
+  // 알림은 앞에서부터 하나씩 — 카톡 새 메시지 / TODO 업무 변경
+  const banner = state.banners[0]
+  const bannerView =
+    banner &&
+    (banner.kind === 'chat'
+      ? {
+          appId: 'kakaotalk' as const,
+          appName: chatContent.appName,
+          title: chats[banner.chatId].name,
+          message: state.chats[banner.chatId].messages.find((m) => m.id === banner.messageId)?.text ?? '',
+        }
+      : { appId: 'todo' as const, appName: todoContent.notifications.appName, title: banner.title, message: banner.body })
 
   return (
     <>
@@ -90,13 +101,16 @@ function App() {
           </AppLayer>
         )}
 
-        {lockState === 'unlocked' && banner && bannerMessage && (
+        {lockState === 'unlocked' && banner && bannerView && (
           <NotificationBanner
-            key={banner.messageId}
-            sender={chats[banner.chatId].name}
-            message={bannerMessage.text}
-            onOpen={(el) => launchApp({ id: 'kakaotalk', chatId: banner.chatId }, el)}
-            onDismiss={() => dispatch({ type: 'DISMISS_BANNER' })}
+            key={banner.id}
+            {...bannerView}
+            onOpen={(el) => {
+              // 카톡 알림은 채팅방을 열면 저절로 정리됨, TODO 알림은 여기서 정리
+              if (banner.kind === 'todo') dispatch({ type: 'DISMISS_BANNER', id: banner.id })
+              launchApp(banner.kind === 'chat' ? { id: 'kakaotalk', chatId: banner.chatId } : { id: 'todo' }, el)
+            }}
+            onDismiss={() => dispatch({ type: 'DISMISS_BANNER', id: banner.id })}
           />
         )}
 

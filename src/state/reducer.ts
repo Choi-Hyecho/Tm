@@ -1,8 +1,8 @@
 import { chatOrder, managerScript, type ChatId } from '../content/chats'
-import { missions } from '../content/missions'
+import { missions, todoContent } from '../content/missions'
 import { initialFlows } from '../chat/scripts'
-import { completeMission, deliverDue, deliverMessage, readPending, sendAttachment, sendMessage } from './chat'
-import type { ChatThread, GameAction, GameState } from './types'
+import { completeMission, deliverDue, deliverMessage, pushTodoNotice, readPending, sendAttachment, sendMessage } from './chat'
+import type { Banner, ChatThread, GameAction, GameState } from './types'
 
 function createThread(id: ChatId): ChatThread {
   return { messages: [], unread: 0, flow: initialFlows[id], conversationContext: null }
@@ -16,7 +16,7 @@ export function createInitialState(): GameState {
     chats: Object.fromEntries(chatOrder.map((id) => [id, createThread(id)])) as GameState['chats'],
     scheduled: [],
     pendingMessages: Object.fromEntries(chatOrder.map((id) => [id, []])) as unknown as GameState['pendingMessages'],
-    banner: null,
+    banners: [],
     activeChat: null,
     missionStatuses: {
       yunmin: 'hidden',
@@ -37,7 +37,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'START_INTRO': {
       if (state.intro.started) return state
-      const next = deliverMessage(state, 'manager', managerScript.intro, action.now)
+      const delivered = deliverMessage(state, 'manager', managerScript.intro, action.now)
+      // 팀장님 첫 카톡 다음으로 TODO 알림 — "오늘 일정을 확인해 주세요!"
+      const { intro } = todoContent.notifications
+      const next = pushTodoNotice(delivered, intro.title, intro.body, action.now)
       return { ...next, intro: { ...next.intro, started: true } }
     }
     case 'SEND_MESSAGE':
@@ -48,22 +51,33 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return deliverDue(state, action.now)
     case 'OPEN_CHAT': {
       const thread = state.chats[action.chatId]
-      const bannerForChat = state.banner?.chatId === action.chatId
+      const isThisChat = (b: Banner) => b.kind === 'chat' && b.chatId === action.chatId
       const opened: GameState = {
         ...state,
         activeChat: action.chatId,
         chats: { ...state.chats, [action.chatId]: { ...thread, unread: 0 } },
-        banner: bannerForChat ? null : state.banner,
-        intro: { ...state.intro, notificationSeen: state.intro.notificationSeen || bannerForChat },
+        // 이 채팅방 알림은 이제 필요 없음
+        banners: state.banners.filter((b) => !isThisChat(b)),
+        intro: {
+          ...state.intro,
+          notificationSeen: state.intro.notificationSeen || (action.chatId === 'manager' && state.banners.some(isThisChat)),
+        },
       }
       // 이전에 보내 둔 메시지가 있고 이제 답장할 수 있으면 읽고 답장 시작
       return readPending(opened, action.chatId, action.now)
     }
     case 'CLOSE_CHAT':
       return state.activeChat === action.chatId ? { ...state, activeChat: null } : state
-    case 'DISMISS_BANNER':
-      if (!state.banner) return state
-      return { ...state, banner: null, intro: { ...state.intro, notificationSeen: true } }
+    case 'DISMISS_BANNER': {
+      const banner = state.banners.find((b) => b.id === action.id)
+      if (!banner) return state
+      const managerSeen = banner.kind === 'chat' && banner.chatId === 'manager'
+      return {
+        ...state,
+        banners: state.banners.filter((b) => b.id !== action.id),
+        intro: { ...state.intro, notificationSeen: state.intro.notificationSeen || managerSeen },
+      }
+    }
     case 'COMPLETE_MISSION':
       return completeMission(state, action.id, action.now)
     case 'RELEASE': {

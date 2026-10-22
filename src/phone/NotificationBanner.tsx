@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useRef, useState, type PointerEvent } from 'react'
-import { apps } from '../config/apps'
+import { apps, type AppId } from '../config/apps'
 import { chatContent } from '../content/chats'
 import { IconTile } from './home/AppIcon'
 
@@ -8,7 +8,11 @@ const EXIT_MS = 350
 const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
 interface NotificationBannerProps {
-  sender: string
+  /** 알림을 보낸 앱 — 아이콘 표시 */
+  appId: AppId
+  appName: string
+  /** 굵은 제목 (카톡: 보낸 사람 / TODO: '새 업무가 등록됐어요' 등) */
+  title: string
   message: string
   /** 배너를 눌렀을 때 — el은 앱 열림 애니메이션 시작 위치 */
   onOpen: (el: HTMLElement) => void
@@ -17,7 +21,7 @@ interface NotificationBannerProps {
 }
 
 // 웹페이지 안에서만 보이는 가상 알림 (실제 푸시 알림 권한 사용 안 함)
-export function NotificationBanner({ sender, message, onOpen, onDismiss }: NotificationBannerProps) {
+export function NotificationBanner({ appId, appName, title, message, onOpen, onDismiss }: NotificationBannerProps) {
   const [shown, setShown] = useState(false)
   const [dragY, setDragY] = useState(0)
   const [dragging, setDragging] = useState(false)
@@ -66,7 +70,7 @@ export function NotificationBanner({ sender, message, onOpen, onDismiss }: Notif
       <div
         role="button"
         tabIndex={0}
-        aria-label={`${chatContent.appName} ${sender}: ${message}`}
+        aria-label={`${appName} ${title}: ${message}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -85,15 +89,15 @@ export function NotificationBanner({ sender, message, onOpen, onDismiss }: Notif
         }}
       >
         <div className="size-[38px] shrink-0">
-          <IconTile app={apps.kakaotalk} />
+          <IconTile app={apps[appId]} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
-            <p className="truncate text-[14px] font-semibold">{sender}</p>
+            <p className="truncate text-[14px] font-semibold">{title}</p>
             <span className="shrink-0 text-[12px] text-black/45">{chatContent.justNow}</span>
           </div>
           <p className="line-clamp-2 text-[14px] leading-snug text-black/85">{message}</p>
-          <p className="mt-0.5 text-[11px] text-black/40">{chatContent.appName}</p>
+          <p className="mt-0.5 text-[11px] text-black/40">{appName}</p>
         </div>
       </div>
     </div>

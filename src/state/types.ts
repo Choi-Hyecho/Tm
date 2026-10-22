@@ -39,6 +39,11 @@ export interface ScheduledMessage {
   typingWindows?: [number, number][]
 }
 
+/** 화면 위에서 내려오는 알림 — 카카오톡 새 메시지 / TODO 업무 변경 */
+export type Banner =
+  | { id: string; kind: 'chat'; chatId: ChatId; messageId: string }
+  | { id: string; kind: 'todo'; title: string; body: string }
+
 /**
  * hidden: 아직 업무 내용을 전달받지 않음 (멤버 업무)
  * locked: 선행 업무가 남아 잠김 (마지막 두 업무)
@@ -61,8 +66,8 @@ export interface GameState {
   scheduled: ScheduledMessage[]
   /** 상대가 아직 읽지 않은 내 메시지 id — 다른 멤버 업무가 끝나고 채팅방에 들어가면 읽고 답장 */
   pendingMessages: Record<ChatId, string[]>
-  /** 표시할 알림 배너 */
-  banner: { chatId: ChatId; messageId: string } | null
+  /** 표시할 알림 배너 — 앞에서부터 하나씩 표시 (카톡 + TODO) */
+  banners: Banner[]
   /** 지금 열려 있는 채팅방 — 화면 상태라 저장하지 않음 */
   activeChat: ChatId | null
   /** 업무별 상태. 마지막 두 업무는 저장값이 locked여도 선행 업무가 끝나면 active로 표시 (selectors) */
@@ -84,7 +89,7 @@ export type GameAction =
   | { type: 'DELIVER_DUE'; now: number }
   | { type: 'OPEN_CHAT'; chatId: ChatId; now: number }
   | { type: 'CLOSE_CHAT'; chatId: ChatId }
-  | { type: 'DISMISS_BANNER' }
+  | { type: 'DISMISS_BANNER'; id: string }
   /** 미션 성공 이벤트로만 호출 (TODO 직접 체크 없음) */
   | { type: 'COMPLETE_MISSION'; id: MissionId; now: number }
   | { type: 'RELEASE' }

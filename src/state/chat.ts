@@ -10,10 +10,10 @@ import { affectionHesitation, memberScripts } from '../content/members'
 
 /** 반복 방지에 참고할 상대의 최근 메시지 수 */
 const RECENT_LIMIT = 8
-import { isMemberMission, type MissionId } from '../content/missions'
+import { isMemberMission, missionLabel, missions, todoContent, type MissionId } from '../content/missions'
 import { attachmentChecks } from '../missions/attachmentChecks'
 import { getActiveMissions, getMissionStatus, getProgress } from './selectors'
-import type { ChatMessage, GameState, ScheduledMessage } from './types'
+import type { Banner, ChatMessage, GameState, ScheduledMessage } from './types'
 
 /** 답장 엔진에 넘기는 게임 상태 — TODO 진행도/미션 상태는 공통 게임 상태에서 계산 */
 export function getReplyContext(state: GameState): ReplyContext {
@@ -39,20 +39,37 @@ function typingDelay(text: string) {
 
 const messageId = (chatId: ChatId, index: number, now: number) => `${chatId}-${index}-${now}`
 
+/**
+ * 알림 추가 — 같은 채팅방 알림이 이미 기다리고 있으면 최신 메시지로 바꿔서 쌓이지 않게 함.
+ * 그 밖에는 뒤에 붙여 차례대로 표시
+ */
+function pushBanner(state: GameState, banner: Banner): GameState {
+  if (banner.kind === 'chat') {
+    const index = state.banners.findIndex((b) => b.kind === 'chat' && b.chatId === banner.chatId)
+    if (index >= 0) return { ...state, banners: state.banners.map((b, i) => (i === index ? banner : b)) }
+  }
+  return { ...state, banners: [...state.banners, banner] }
+}
+
+/** TODO 알림 — 업무 등록/완료/열림 */
+export function pushTodoNotice(state: GameState, title: string, body: string, now: number): GameState {
+  return pushBanner(state, { id: `todo-${state.banners.length}-${now}-${body}`, kind: 'todo', title, body })
+}
+
 /** 상대방 메시지 도착 — 보고 있는 채팅방이 아니면 안 읽음 + 알림 배너 */
 export function deliverMessage(state: GameState, chatId: ChatId, text: string, now: number): GameState {
   const thread = state.chats[chatId]
   const message: ChatMessage = { id: messageId(chatId, thread.messages.length, now), from: chatId, text, at: now }
   const isActive = state.activeChat === chatId
 
-  return {
+  const next: GameState = {
     ...state,
     chats: {
       ...state.chats,
       [chatId]: { ...thread, messages: [...thread.messages, message], unread: isActive ? 0 : thread.unread + 1 },
     },
-    banner: isActive ? state.banner : { chatId, messageId: message.id },
   }
+  return isActive ? next : pushBanner(next, { id: message.id, kind: 'chat', chatId, messageId: message.id })
 }
 
 /** 고민 연출: 입력 중이 뜨기까지 잠깐 텀 */
@@ -161,6 +178,15 @@ function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessag
 export function completeMission(state: GameState, id: MissionId, now: number): GameState {
   if (getMissionStatus(state, id) !== 'active') return state
   let next: GameState = { ...state, missionStatuses: { ...state.missionStatuses, [id]: 'completed' } }
+
+  // TODO 알림 — 완료, 그리고 이번 완료로 새로 열린 업무(트랙리스트/최종 보고)
+  const { notifications } = todoContent
+  next = pushTodoNotice(next, notifications.completedTitle, missionLabel(id), now)
+  for (const m of missions) {
+    if (getMissionStatus(state, m.id) === 'locked' && getMissionStatus(next, m.id) === 'active') {
+      next = pushTodoNotice(next, notifications.unlockedTitle, missionLabel(m.id), now)
+    }
+  }
   if (!isMemberMission(id)) return next
 
   next = { ...next, activeMissionId: next.activeMissionId === id ? null : next.activeMissionId }
@@ -243,7 +269,8 @@ export function deliverDue(state: GameState, now: number): GameState {
   return due.reduce((next, s) => {
     const delivered = deliverMessage(next, s.chatId, s.text, s.deliverAt)
     if (!s.revealMission || delivered.missionStatuses[s.revealMission] !== 'hidden') return delivered
-    return { ...delivered, missionStatuses: { ...delivered.missionStatuses, [s.revealMission]: 'active' } }
+    const revealed: GameState = { ...delivered, missionStatuses: { ...delivered.missionStatuses, [s.revealMission]: 'active' } }
+    return pushTodoNotice(revealed, todoContent.notifications.addedTitle, missionLabel(s.revealMission), s.deliverAt)
   }, { ...state, scheduled: rest })
 }
 
