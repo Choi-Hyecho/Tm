@@ -8,12 +8,14 @@ interface StatusBarProps {
   color?: string
 }
 
+// 휴대폰에서는 실제 상태바(시계·배터리)와 겹치지 않도록 내용은 숨기고 높이만 비워 둠.
+// 데스크톱 아이폰 프레임(desk)에서만 게임 속 상태바를 표시
 export function StatusBar({ variant = 'default', color = '#ffffff' }: StatusBarProps) {
   const now = useClock()
 
   return (
     <div
-      className="pointer-events-none flex h-[54px] shrink-0 items-center justify-between px-8 pt-1 select-none"
+      className="pointer-events-none invisible flex h-[54px] shrink-0 items-center justify-between px-8 pt-1 select-none desk:visible"
       style={{ color }}
     >
       {variant === 'lock' ? (
