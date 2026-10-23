@@ -49,9 +49,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'START_INTRO': {
       if (state.intro.started) return state
       const delivered = deliverMessage(state, 'manager', managerScript.intro, action.now)
-      // 팀장님 첫 카톡 다음으로 TODO 알림 — "오늘 일정을 확인해 주세요!"
+      // 팀장님 첫 카톡 다음으로 TODO 알림 — "오늘 일정을 확인해 주세요!" (팀장님 메시지를 읽을 틈을 두고)
       const { intro } = todoContent.notifications
-      const next = pushTodoNotice(delivered, intro.title, intro.body, action.now)
+      const next = pushTodoNotice(delivered, intro.title, intro.body, action.now, action.now + intro.delayMs)
       return { ...next, intro: { ...next.intro, started: true } }
     }
     case 'SEND_MESSAGE':

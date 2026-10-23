@@ -79,8 +79,8 @@ function pushBanner(state: GameState, banner: Banner): GameState {
 }
 
 /** TODO 알림 — 업무 등록/완료/열림 */
-export function pushTodoNotice(state: GameState, title: string, body: string, now: number): GameState {
-  return pushBanner(state, { id: `todo-${state.banners.length}-${now}-${body}`, kind: 'todo', title, body })
+export function pushTodoNotice(state: GameState, title: string, body: string, now: number, notBefore?: number): GameState {
+  return pushBanner(state, { id: `todo-${state.banners.length}-${now}-${body}`, kind: 'todo', title, body, notBefore })
 }
 
 /** 상대방 메시지 도착 — 보고 있는 채팅방이 아니면 안 읽음 + 알림 배너 */

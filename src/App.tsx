@@ -76,8 +76,18 @@ function App() {
     closeTimer.current = window.setTimeout(() => setOpenApp(null), APP_CLOSE_MS)
   }
 
-  // 알림은 앞에서부터 하나씩 — 카톡 새 메시지 / TODO 업무 변경
-  const banner = state.banners[0]
+  // 표시 시각(notBefore)이 남은 알림은 그때 다시 그림
+  const [bannerClock, setBannerClock] = useState(() => Date.now())
+  useEffect(() => {
+    const waits = state.banners.flatMap((b) => (b.kind === 'todo' && b.notBefore ? [b.notBefore] : []))
+    const next = Math.min(...waits.filter((t) => t > bannerClock))
+    if (!Number.isFinite(next)) return
+    const timer = window.setTimeout(() => setBannerClock(Date.now()), next - Date.now())
+    return () => window.clearTimeout(timer)
+  }, [state.banners, bannerClock])
+
+  // 알림은 앞에서부터 하나씩 — 카톡 새 메시지 / TODO 업무 변경 (표시 시각 전인 알림은 건너뜀)
+  const banner = state.banners.find((b) => b.kind === 'chat' || !b.notBefore || b.notBefore <= bannerClock)
   const bannerView =
     banner &&
     (banner.kind === 'chat'

@@ -66,7 +66,14 @@ export interface LyricsSubmission {
 /** 화면 위에서 내려오는 알림 — 카카오톡 새 메시지 / TODO 업무 변경 */
 export type Banner =
   | { id: string; kind: 'chat'; chatId: ChatId; messageId: string }
-  | { id: string; kind: 'todo'; title: string; body: string }
+  | {
+      id: string
+      kind: 'todo'
+      title: string
+      body: string
+      /** 이 시각(ms)이 지나야 표시 — 앞 알림과 너무 붙지 않게 */
+      notBefore?: number
+    }
 
 /**
  * hidden: 아직 업무 내용을 전달받지 않음 (멤버 업무)

@@ -45,8 +45,8 @@ export const todoContent = {
   /** 위에서 내려오는 TODO 알림 */
   notifications: {
     appName: 'TODO',
-    /** 팀장님 첫 카톡 직후 */
-    intro: { title: '오늘의 업무', body: '오늘 일정을 확인해 주세요!' },
+    /** 팀장님 첫 카톡 다음 — 카톡이 온 뒤 delayMs가 지나야 표시 */
+    intro: { title: '오늘의 업무', body: '오늘 일정을 확인해 주세요!', delayMs: 8000 },
     /** 멤버에게 업무 요청을 받아 TODO에 공개될 때 (본문은 업무 이름) */
     addedTitle: '새 업무가 등록됐어요',
     /** 업무 완료 (본문은 업무 이름) */
