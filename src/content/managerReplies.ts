@@ -6,6 +6,7 @@
 import { getHint, type MissionHint } from '../chat/hints'
 import type { ContextFollowup, ReplyRule } from '../chat/ruleEngine'
 import type { MissionId } from './missions'
+import { settingsContent } from './settings'
 
 /** 퇴근 질문 — TODO 진행도에 따라 */
 export const leaveReplies = {
@@ -73,6 +74,15 @@ const SUFFIX = '(?:이|님|씨|형|누나|오빠|쌤)?(?:은|는|이|가|도)?'
 const RICA = '(?:리카르도|(?<!메)리카)'
 
 export const managerReplyRules: ReplyRule[] = [
+  {
+    // "초기화하고 싶어요", "처음부터 다시 할래요", "다시 시작하고 싶어요" — 설정 앱 안내
+    id: 'reset-game',
+    patterns: [
+      /초기화|리셋|reset|재시작|새로시작|새로하고|처음부터(?:다시|할|하고|시작)/,
+      /다시(?:하고싶|하고시퍼|할래|할게|할수있|해도돼|해도되|시작)/,
+    ],
+    reply: `처음부터 다시 하시려면 설정 앱에서 '${settingsContent.reset.label}'를 누르시면 돼요! 대화랑 업무 진행 상황은 모두 지워지니 참고해주세요 ㅎㅎ`,
+  },
   // ── 연차/반차: 퇴근보다 구체적이므로 먼저 ──
   {
     // "반차 써도 돼요?", "오후 반차 쓸게요"
