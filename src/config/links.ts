@@ -8,7 +8,7 @@ export const albumLinks = {
   spotify: 'https://open.spotify.com/album/6kUmjbeGJaY3Q1uBY9jvf9',
   appleMusic: 'https://music.apple.com/us/artist/touched/1543982676',
   youtubeMusic: '',
-  bugs: '',
+  bugs: 'https://music.bugs.co.kr/album/20846623',
 }
 
 export const links = {
