@@ -379,10 +379,13 @@ export function submitTracklist(state: GameState, now: number): GameState {
   const pending = state.scheduled.some((s) => s.completeMission === 'tracklist')
   if (pending || getMissionStatus(state, 'tracklist') !== 'active') return state
   const thread = state.chats.manager
+  // 몇 번째 저장인지에 따라 말이 달라짐 (끝까지 가면 마지막 것)
+  const attempt = state.tracklist.submissions
+  const { mySubmit } = tracklistQuest
   const mine: ChatMessage = {
     id: messageId('manager', thread.messages.length, now),
     from: 'me',
-    text: tracklistQuest.mySubmit,
+    text: mySubmit[Math.min(attempt, mySubmit.length - 1)],
     at: now,
     read: true,
   }
@@ -393,9 +396,15 @@ export function submitTracklist(state: GameState, now: number): GameState {
   }
   const correct = state.tracklist.order.join() === tracklistQuest.correctOrder.join()
   const { manager } = tracklistQuest
-  return correct
-    ? scheduleReplies(next, 'manager', manager.correct, now, { completeAfter: 'tracklist' })
-    : scheduleReplies(next, 'manager', manager.wrong, now)
+  if (correct) {
+    // 한 번에 맞혔는지에 따라
+    const lines = manager.correct[attempt === 0 ? 0 : 1]
+    return scheduleReplies(next, 'manager', lines, now, { completeAfter: 'tracklist' })
+  }
+  // 오답 — 순서대로, 다 쓰면 마지막 두 개를 번갈아 (같은 말 연속 방지)
+  const { wrong } = manager
+  const index = attempt < wrong.length ? attempt : wrong.length - 2 + ((attempt - wrong.length) % 2)
+  return scheduleReplies(next, 'manager', wrong[Math.max(0, index)], now)
 }
 
 /** 내 메시지 추가 — 상대가 바쁘면 읽지 않음(1)으로 보류, 아니면 바로 읽고 답장 */
