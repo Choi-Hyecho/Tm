@@ -3,7 +3,7 @@ import { dohyunQuest } from '../quests/dohyun'
 import type { MemberScript } from './types'
 
 export const dohyun: MemberScript = {
-  names: ['채도현', '도현'],
+  names: ['채도현', '도현','도련님','채도','도현님','도현씨','도현이','도현이형','도현형','도현오빠','도현오빠님','도현형님','도현형씨'],
   greeting: ['안녕하세요!', '앞으로 잘 부탁드립니다 매니저님'],
   // 첫 줄이 도착하면 TODO 공개 + 메모 앱에 가사 메모 공유
   request: ['아 그리고 매니저님 부탁드릴 게 있는데요','가사 검수 좀 부탁드려도 될까요?', '메모 공유드렸으니까 확인 부탁드릴게요!'],

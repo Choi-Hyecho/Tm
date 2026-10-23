@@ -2,7 +2,7 @@
 import type { MemberScript } from './types'
 
 export const seungbin: MemberScript = {
-  names: ['김승빈', '승빈'],
+  names: ['김승빈', '승빈','승뷔','따순뷘','승빈오빠','승빈님','승빈씨','승빈이','승빈이형','승빈형','승빈오빠님','리다','북쟁아','북쟁'],
   greeting: ['안녕하세요', '잘 부탁드립니다.'],
   request: ['아 마침 잘 오셨어요!', '타이틀곡 때문에 고민인데… Fallen Angel이랑 이 별 중에 어떤 게 더 좋으세요?'],
   beforeGreeting: [

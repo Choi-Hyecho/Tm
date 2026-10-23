@@ -2,7 +2,7 @@
 import type { MemberScript } from './types'
 
 export const yunmin: MemberScript = {
-  names: ['윤민'],
+  names: ['윤민','민아','윤민아','윤민님','윤미나','윤민씨','윰미야','윰먀','막내' ,'공주','윤민공주', '마마', '여자의 악마'],
   greeting: ['안녕하세요 매니저님!', '앨범 발매 전날이라 정신없으시죠? 앞으로 잘 부탁드립니다!'],
   request: ['아 그리고 매니저님! 혹시 저희 앨범 자켓 사진 나왔을까요???', '사진첩에 있으시면 카톡으로 보내주세요!'],
   beforeGreeting: [

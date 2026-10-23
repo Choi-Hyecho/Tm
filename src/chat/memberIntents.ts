@@ -17,7 +17,9 @@ export type MemberIntent =
 
 /** 부르기만 한 경우 — "윤민님", "승빈아", "존비킴 계세요?" */
 function isCall(t: string, names: string[]) {
-  const name = `(?:${names.join('|')})`
+  // 호칭도 입력과 똑같이 정규화 — '여자의 악마'처럼 띄어쓰기가 있어도 인식. 긴 호칭부터 비교
+  const normalized = [...new Set(names.map(normalize).filter(Boolean))].sort((a, b) => b.length - a.length)
+  const name = `(?:${normalized.join('|')})`
   const call = new RegExp(`^(?:저기요|혹시)?${name}(?:아|야|이|님|씨|형|누나|오빠|쌤)?(?:님)?(?:있어요|계세요|계신가요|있나요|저기요|혹시|바쁘세요)?$`)
   return call.test(t)
 }
