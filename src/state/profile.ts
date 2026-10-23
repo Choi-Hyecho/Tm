@@ -8,13 +8,37 @@ export const PROFILE_LIMITS = { name: 12, status: 40 }
 
 /** 지금 보여줄 내 프로필 — 비워 둔 항목은 기본값 */
 export function getMyProfile(state: GameState) {
-  const { name, status, photoId } = state.profile
+  const { name, status, photoId, photoData } = state.profile
   const defaultStatus = state.released ? myProfile.statusMessageReleased : myProfile.statusMessage
   return {
     name: name || myProfile.name,
     status: status || defaultStatus,
-    avatar: findPhoto(photoId ?? undefined)?.src ?? myProfile.avatar,
+    avatar: photoData || findPhoto(photoId ?? undefined)?.src || myProfile.avatar,
   }
+}
+
+/** 휴대폰에서 고른 사진을 가운데 정사각형으로 잘라 size px JPEG data URL로 — 저장 용량을 작게 */
+export function resizeImageFile(file: File, size = 256): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      const side = Math.min(img.naturalWidth, img.naturalHeight)
+      const canvas = document.createElement('canvas')
+      canvas.width = size
+      canvas.height = size
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return reject(new Error('canvas'))
+      ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, size, size)
+      URL.revokeObjectURL(url)
+      resolve(canvas.toDataURL('image/jpeg', 0.82))
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('image'))
+    }
+    img.src = url
+  })
 }
 
 /**

@@ -138,7 +138,14 @@ export interface GameState {
    * 플레이어 카톡 프로필 — 비어 있으면 기본값(config/kakao.ts의 myProfile).
    * 이름을 정하면 대사 속 '매니저님'이 '○○님'으로 (state/profile.ts)
    */
-  profile: { name: string; status: string; photoId: string | null }
+  profile: {
+    name: string
+    status: string
+    /** 게임 속 사진 앱 사진 ID */
+    photoId: string | null
+    /** 휴대폰 사진첩에서 고른 사진 — 256px JPEG data URL (이 기기에만 저장). photoId보다 우선 */
+    photoData?: string | null
+  }
 }
 
 export interface UserNote {
@@ -156,7 +163,7 @@ export type GameAction =
   /** 카카오톡 첨부/공유 전송 — 전송했을 때만 미션 판별 (첨부 메뉴 열기/미리보기는 상태 변화 없음). memo는 메모 ID */
   | { type: 'SEND_ATTACHMENT'; chatId: ChatId; kind: ShareKind; attachmentId: string; now: number }
   /** 카톡 내 프로필 편집 — 이름/상태 메시지/프로필 사진(사진 앱 사진 ID, null이면 기본) */
-  | { type: 'SET_PROFILE'; name: string; status: string; photoId: string | null }
+  | { type: 'SET_PROFILE'; name: string; status: string; photoId: string | null; photoData?: string | null }
   /** 공유 시트로 보낸 뒤 알림 배너 (누르면 그 채팅방) */
   | { type: 'NOTIFY_SENT'; chatId: ChatId; now: number }
   /** 카톡으로 받은 파일을 파일 앱에 저장 */

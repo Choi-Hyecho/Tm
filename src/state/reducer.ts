@@ -154,6 +154,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           name: action.name.trim().slice(0, PROFILE_LIMITS.name),
           status: action.status.trim().slice(0, PROFILE_LIMITS.status),
           photoId: action.photoId,
+          // 이미지 data URL만 (너무 크면 저장 안 함 — 256px로 줄여서 보내므로 보통 20KB 안팎)
+          photoData:
+            action.photoData?.startsWith('data:image/') && action.photoData.length < 300_000 ? action.photoData : null,
         },
       }
     case 'NOTIFY_SENT':

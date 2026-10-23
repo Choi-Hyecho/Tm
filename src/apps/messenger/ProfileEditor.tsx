@@ -3,23 +3,42 @@ import { myProfile } from '../../config/kakao'
 import { findPhoto, galleryPhotos } from '../../content/gallery'
 import { kakaoTabsContent } from '../../content/kakaoTabs'
 import { useGame } from '../../state/context'
-import { PROFILE_LIMITS } from '../../state/profile'
+import { PROFILE_LIMITS, resizeImageFile } from '../../state/profile'
 import { PhotoTile } from '../photos/PhotoTile'
 import { Avatar } from './Avatar'
 
-// 카톡 내 프로필 편집 — 이름(멤버들이 '○○님'으로 부름), 상태 메시지, 프로필 사진(사진 앱 사진 중에서)
+// 카톡 내 프로필 편집 — 이름(멤버들이 '○○님'으로 부름), 상태 메시지, 프로필 사진(휴대폰 사진첩 또는 사진 앱 사진)
 export function ProfileEditor({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useGame()
   const t = kakaoTabsContent.profileEditor
   const [name, setName] = useState(state.profile.name)
   const [status, setStatus] = useState(state.profile.status)
   const [photoId, setPhotoId] = useState(state.profile.photoId)
+  const [photoData, setPhotoData] = useState(state.profile.photoData ?? null)
   const [picking, setPicking] = useState(false)
-  const avatar = findPhoto(photoId ?? undefined)?.src ?? myProfile.avatar
+  const [photoError, setPhotoError] = useState(false)
+  const avatar = photoData ?? findPhoto(photoId ?? undefined)?.src ?? myProfile.avatar
 
   function save() {
-    dispatch({ type: 'SET_PROFILE', name, status, photoId })
+    dispatch({ type: 'SET_PROFILE', name, status, photoId, photoData })
     onClose()
+  }
+
+  /** 휴대폰 사진첩에서 고른 사진 — 256px로 줄여 이 기기에만 저장 */
+  async function pickFromDevice(file: File | undefined) {
+    if (!file) return
+    try {
+      setPhotoData(await resizeImageFile(file))
+      setPhotoId(null)
+      setPhotoError(false)
+    } catch {
+      setPhotoError(true)
+    }
+  }
+
+  function pickGame(id: string | null) {
+    setPhotoId(id)
+    setPhotoData(null)
   }
 
   return (
@@ -42,11 +61,23 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
         </button>
         {picking && (
           <div className="mt-3 grid grid-cols-4 gap-1 rounded-xl bg-black/[0.03] p-1">
+            {/* 휴대폰 사진첩 — 사진은 서버로 보내지 않고 이 기기에만 저장 */}
+            <label
+              className={`flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg bg-white text-[11px] font-semibold text-[#3b86f5] active:bg-black/5 ${photoData ? 'ring-3 ring-[#3b86f5]' : ''}`}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden>
+                <rect x="3" y="5" width="18" height="14" rx="2.5" />
+                <circle cx="9" cy="10" r="1.6" />
+                <path d="m4 17 5-5 4 4 3-3 4 4" />
+              </svg>
+              {t.devicePhoto}
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => void pickFromDevice(e.target.files?.[0])} />
+            </label>
             <button
               type="button"
-              onClick={() => setPhotoId(null)}
-              aria-pressed={photoId === null}
-              className={`flex aspect-square items-center justify-center rounded-lg bg-[#9fb4cb] text-[11px] font-semibold text-white ${photoId === null ? 'ring-3 ring-[#3b86f5]' : ''}`}
+              onClick={() => pickGame(null)}
+              aria-pressed={photoId === null && !photoData}
+              className={`flex aspect-square items-center justify-center rounded-lg bg-[#9fb4cb] text-[11px] font-semibold text-white ${photoId === null && !photoData ? 'ring-3 ring-[#3b86f5]' : ''}`}
             >
               {t.defaultPhoto}
             </button>
@@ -54,16 +85,17 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
               <button
                 key={p.id}
                 type="button"
-                onClick={() => setPhotoId(p.id)}
-                aria-pressed={photoId === p.id}
+                onClick={() => pickGame(p.id)}
+                aria-pressed={photoId === p.id && !photoData}
                 aria-label={p.fileName}
-                className={`overflow-hidden rounded-lg ${photoId === p.id ? 'ring-3 ring-[#3b86f5]' : ''}`}
+                className={`overflow-hidden rounded-lg ${photoId === p.id && !photoData ? 'ring-3 ring-[#3b86f5]' : ''}`}
               >
                 <PhotoTile photo={p} className="aspect-square w-full" />
               </button>
             ))}
           </div>
         )}
+        {photoError && <p className="mt-2 text-center text-[12px] text-[#ff3b30]">{t.photoError}</p>}
 
         <label className="mt-6 block">
           <span className="text-[12px] font-semibold text-black/45">{t.nameLabel}</span>

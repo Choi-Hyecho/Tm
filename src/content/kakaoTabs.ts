@@ -13,6 +13,9 @@ export const kakaoTabsContent = {
     done: '완료',
     changePhoto: '프로필 사진 변경',
     defaultPhoto: '기본',
+    /** 휴대폰 사진첩에서 고르기 */
+    devicePhoto: '내 사진첩',
+    photoError: '사진을 불러오지 못했어요. 다른 사진을 골라주세요.',
     nameLabel: '이름',
     nameHint: '멤버들이 이 이름으로 불러요 (예: 하나 → 하나님)',
     statusLabel: '상태 메시지',
