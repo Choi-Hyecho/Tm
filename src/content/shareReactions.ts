@@ -62,4 +62,19 @@ export const shareReactions = {
       johnbekim: ['메모 받았어요~'],
     } satisfies PerChat,
   } as Record<string, PerChat>,
+
+  /**
+   * 멤버에게 메모를 보내면 멤버가 팀장님께 이른 것처럼 팀장님 카톡 — 메모 ID별.
+   * 멤버 답장이 도착하고 delayMs 뒤. {member}는 받은 멤버 이름. 최근에 한 말은 피해서 고름
+   */
+  memoTattle: {
+    athome: {
+      delayMs: 5000,
+      manager: [
+        ['매니저님… 방금 {member}님한테 들었는데요', '일이 많이 힘드세요? ㅎㅎ'],
+        ['{member}님이 매니저님 집에 가고 싶어 하신다던데…', '퇴근은 업무 다 끝나고요 ㅎㅎ'],
+        ['매니저님 혹시 많이 힘드세요? {member}님이 걱정하시던데요 ㅎㅎ', '조금만 힘내봐요!'],
+      ],
+    },
+  } as Record<string, { delayMs: number; manager: string[][] }>,
 }

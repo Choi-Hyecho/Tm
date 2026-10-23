@@ -2,7 +2,7 @@
 import { isAffection } from '../chat/intent'
 import { pickFresh, type LinePicker, type ReplyContext } from '../chat/ruleEngine'
 import { responders } from '../chat/scripts'
-import { chatContent, type ChatId, type MemberId } from '../content/chats'
+import { chatContent, chats, type ChatId, type MemberId } from '../content/chats'
 import { findPhoto, PHOTO_OWNER_LABELS } from '../content/gallery'
 import { findFile } from '../content/gameFiles'
 import { shareReactions } from '../content/shareReactions'
@@ -249,7 +249,30 @@ function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessag
       ? completeMission(state, chatId as MemberId, now)
       : scheduleReplies(state, chatId, check.wrongReplies(message.attachmentId, pickerFor(state, chatId)), now)
   }
-  return scheduleReplies(state, chatId, shareReaction(state, chatId, message), now)
+  const reacted = scheduleReplies(state, chatId, shareReaction(state, chatId, message), now)
+  return chatId === 'manager' ? reacted : scheduleMemoTattle(reacted, chatId, message)
+}
+
+/** 멤버가 받은 메모(At Home 등)를 팀장님께 이른 것처럼 — 멤버 답장 뒤 팀장님 카톡 (이미 예약돼 있으면 또 보내지 않음) */
+function scheduleMemoTattle(state: GameState, memberId: ChatId, message: ChatMessage): GameState {
+  const tattle = message.document && message.attachmentId ? shareReactions.memoTattle[message.attachmentId] : undefined
+  if (!tattle) return state
+  // 여러 멤버에게 연달아 보내도 팀장님은 한 번만 (아직 도착 안 한 같은 종류 카톡이 있으면 생략)
+  const isTattleLine = (text: string) =>
+    tattle.manager.flat().some((line) => {
+      const [before, after] = line.split('{member}')
+      return after === undefined ? text === line : text.startsWith(before) && text.endsWith(after)
+    })
+  if (upcomingReplies(state, 'manager').some(isTattleLine)) return state
+  // 최근에 안 한 말 묶음
+  const recent = recentReplies(state, 'manager')
+  const name = chats[memberId].name
+  const groups = tattle.manager.map((lines) => lines.map((l) => l.replaceAll('{member}', name)))
+  const fresh = groups.filter((g) => !g.some((l) => recent.includes(l)))
+  const pool = fresh.length > 0 ? fresh : groups
+  const lines = pool[(state.chats.manager.messages.length * 7919 + 13) % pool.length]
+  const memberReplyAt = Math.max(...state.scheduled.filter((s) => s.chatId === memberId).map((s) => s.deliverAt))
+  return scheduleReplies(state, 'manager', lines, memberReplyAt + tattle.delayMs)
 }
 
 /** 미션과 관계없이 사진/파일/메모를 받았을 때 반응 — 최근에 안 한 말로 */
