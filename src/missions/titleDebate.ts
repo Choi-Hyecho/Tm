@@ -91,6 +91,11 @@ export function detectSong(text: string): SongChoice {
   return { kind: 'ambiguous' }
 }
 
+/** 곡이나 이유가 들어간 토론 발언인지 — "이 별은 윤민이가 작곡해서 좋아요"처럼 다른 사람 이름이 있어도 미루기가 아님 */
+export function isDebateTalk(text: string) {
+  return detectSong(text).kind !== 'none' || reasonKey(normalize(text)) !== undefined
+}
+
 const reasonKey = (t: string) =>
   (Object.keys(seungbinQuest.reasonPatterns) as ReasonKey[]).find((key) => seungbinQuest.reasonPatterns[key].test(t))
 

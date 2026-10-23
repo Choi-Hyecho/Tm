@@ -5,7 +5,7 @@ import type { SharedFile } from '../state/types'
 import { contextFollowups, managerAck, managerFallback, managerReplyRules } from '../content/managerReplies'
 import { memberScripts } from '../content/members'
 import { isAffection, isAffirmative, isGreeting, isNegative, isYesOnly } from './intent'
-import { respondTitleDebate } from '../missions/titleDebate'
+import { isDebateTalk, respondTitleDebate } from '../missions/titleDebate'
 import { DEFAULT_CALL_NAMES } from '../content/members/types'
 import { askedAbout, detectMemberIntent, mentionsOthers } from './memberIntents'
 import { findRule, pickFresh, resolveFollowup, resolveReply, type LinePicker, type ReplyContext } from './ruleEngine'
@@ -128,7 +128,9 @@ const memberResponder =
     if (isAffection(text)) return reply(pick(script.affection), { hesitate: true, category: 'affection' })
 
     // 업무 중에 다른 사람 얘기/미루기 — "매니저님이 해주시면 안 돼요?"
-    if (status === 'active' && script.deflect && mentionsOthers(text, id)) {
+    // 승빈 토론 중 곡/이유가 들어간 말은 미루기가 아니라 토론 ("이 별은 윤민이가 작곡해서…")
+    const debateTalk = id === 'seungbin' && isDebateTalk(text)
+    if (status === 'active' && script.deflect && !debateTalk && mentionsOthers(text, id)) {
       return reply(pick(script.deflect), { category: 'deflect' })
     }
 
