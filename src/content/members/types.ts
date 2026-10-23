@@ -1,6 +1,16 @@
 import type { MemberIntent } from '../../chat/memberIntents'
 import type { ReplyRule } from '../../chat/ruleEngine'
 import type { SharedFile } from '../../state/types'
+import type { ChatId } from '../chats'
+
+/** 멤버끼리 부르는 기본 호칭 — 멤버별로 다르면 그 멤버 파일의 callNames */
+export const DEFAULT_CALL_NAMES: Record<ChatId, string> = {
+  manager: '팀장님',
+  yunmin: '윤민이',
+  seungbin: '승빈이',
+  dohyun: '도현이',
+  johnbekim: '병무',
+}
 
 /**
  * 멤버 한 명의 대사 — 팬메이드 게임 속 가상 대사이며 실제 멤버의 발언이 아님.
@@ -32,6 +42,10 @@ export interface MemberScript {
    * — 매니저에게 다시 부탁. 인식 규칙은 chat/memberIntents.ts의 mentionsOthers
    */
   deflect?: string[]
+  /** 다른 사람이 뭐 하는지 물으면("도현님 뭐해요?") — {other}에 그 사람을 부르는 호칭(callNames) */
+  aboutOther?: string[]
+  /** 이 멤버가 다른 사람을 부르는 호칭 — 없으면 DEFAULT_CALL_NAMES */
+  callNames?: Partial<Record<ChatId, string>>
   /** 업무 완료 직후 */
   missionDone: string
   /** 업무 완료 후(또는 업무와 무관할 때), 알아듣지 못한 말 */

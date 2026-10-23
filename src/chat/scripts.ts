@@ -6,7 +6,8 @@ import { contextFollowups, managerAck, managerFallback, managerReplyRules } from
 import { memberScripts } from '../content/members'
 import { isAffection, isAffirmative, isGreeting, isNegative, isYesOnly } from './intent'
 import { respondTitleDebate } from '../missions/titleDebate'
-import { detectMemberIntent, mentionsOthers } from './memberIntents'
+import { DEFAULT_CALL_NAMES } from '../content/members/types'
+import { askedAbout, detectMemberIntent, mentionsOthers } from './memberIntents'
 import { findRule, pickFresh, resolveFollowup, resolveReply, type LinePicker, type ReplyContext } from './ruleEngine'
 
 export interface RespondInput {
@@ -144,6 +145,13 @@ const memberResponder =
           managerFollowup: debate.managerFollowup,
         }
       }
+    }
+
+    // 다른 사람이 뭐 하는지 물어봄 — 자기 안부("뭐해요?")로 오해하지 않게 그 사람 이야기로
+    const other = script.aboutOther ? askedAbout(text, id) : null
+    if (other && script.aboutOther) {
+      const name = script.callNames?.[other] ?? DEFAULT_CALL_NAMES[other]
+      return reply(pick(script.aboutOther).replaceAll('{other}', name), { category: 'aboutOther' })
     }
 
     // 멤버 전용 이스터에그 → 상황별 반응 → 업무 중/후 기본 답

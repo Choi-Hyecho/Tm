@@ -15,6 +15,8 @@ export type MemberIntent =
   | 'tired'
   | 'howAreYou'
   | 'laugh'
+  | 'salary'
+  | 'leave'
 
 /** 부르기만 한 경우 — "윤민님", "승빈아", "존비킴 계세요?" */
 function isCall(t: string, names: string[]) {
@@ -27,6 +29,9 @@ function isCall(t: string, names: string[]) {
 
 // 배열 순서가 우선순위 — 구체적인 것부터
 const PATTERNS: [MemberIntent, RegExp][] = [
+  // 팀장님께 할 얘기를 멤버에게 — "월급 좀 올려주세요", "퇴근해도 될까요?"
+  ['salary', /월급|급여|봉급|연봉|보너스|성과급|인센티브|돈(?:을|좀)?(?:올려|주세|줘)/],
+  ['leave', /퇴근|칼퇴|조퇴|연차|반차|월차|휴가|집에?(?:가|들어가)(?:도|면)(?:돼|되|될|괜찮)/],
   ['sorry', /죄송|미안|쏘리|sorry/],
   ['thanks', /감사|고마|고맙|땡큐|thank|ㄱㅅ/],
   ['bye', /잘자|굿나잇|수고하셨|수고했|내일봐|이따봐|다음에봐|들어가세요|푹쉬|쉬세요|빠이|바이바이/],
@@ -50,6 +55,16 @@ const PEOPLE: Record<ChatId, RegExp> = {
   johnbekim: /존비|비킴|병무/,
 }
 const OTHERS = /다른(?:멤버|분|사람|애들)|멤버들|멤버한테|멤버분|애들한테|형들|물어보|물어봐|여쭤|대신(?:해|좀|부탁)/
+
+// 그 사람이 뭐 하는지/어떤지 묻는 말 — "도현님 뭐해요?", "승빈이 어디 있어요?"
+const ASKS_ABOUT = /뭐해|뭐하|어디|어딨|어딧|어때|바빠|바쁘|잘지내|괜찮|있어요|있나|계세|하고있|하는중|자요|자나|일어났|먹었|연락/
+
+/** 다른 사람(멤버/팀장님)이 지금 뭐 하는지 묻는 말이면 그 사람, 아니면 null */
+export function askedAbout(text: string, self: ChatId): ChatId | null {
+  const t = normalize(text)
+  if (!ASKS_ABOUT.test(t)) return null
+  return (Object.keys(PEOPLE) as ChatId[]).find((id) => id !== self && PEOPLE[id].test(t)) ?? null
+}
 
 /** 업무 중인 멤버에게 다른 사람 얘기를 하거나 미루는 말 — "다른 멤버한테 물어보세요", "도현이는 이 별이래요" */
 export function mentionsOthers(text: string, self: ChatId) {
