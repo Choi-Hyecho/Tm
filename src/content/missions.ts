@@ -20,7 +20,7 @@ export const memberMissionIds: MemberMissionId[] = ['yunmin', 'seungbin', 'dohyu
 
 export const missions: MissionDef[] = [
   { id: 'yunmin', assignee: '윤민', title: '앨범 자켓 사진 전달', requires: [] },
-  { id: 'seungbin', assignee: '승빈', title: '더블 타이틀곡 선정', requires: [] },
+  { id: 'seungbin', assignee: '승빈', title: '타이틀곡 선정', requires: [] },
   { id: 'dohyun', assignee: '도현', title: 'LIAR 가사 최종 검수', requires: [] },
   { id: 'johnbekim', assignee: '존비킴', title: '베이스 믹싱 파일 확인', requires: [] },
   { id: 'tracklist', title: '트랙리스트 최종 검수', requires: memberMissionIds },

@@ -5,6 +5,7 @@ import type { SharedFile } from '../state/types'
 import { contextFollowups, managerAck, managerFallback, managerReplyRules } from '../content/managerReplies'
 import { memberScripts } from '../content/members'
 import { isAffection, isAffirmative, isGreeting, isNegative, isYesOnly } from './intent'
+import { respondTitleDebate } from '../missions/titleDebate'
 import { detectMemberIntent } from './memberIntents'
 import { findRule, pickFresh, resolveFollowup, resolveReply, type LinePicker, type ReplyContext } from './ruleEngine'
 
@@ -34,6 +35,8 @@ export interface RespondResult {
   category?: string
   /** 답장 다음에 이어서 보내는 파일 */
   attachment?: SharedFile
+  /** 마지막 답장이 도착하면 이 멤버 업무 완료 (승빈 타이틀곡 토론) */
+  completeMission?: boolean
 }
 
 type Responder = (input: RespondInput) => RespondResult
@@ -120,6 +123,20 @@ const memberResponder =
 
     if (isGreeting(text)) return reply(pick(script.greetAgain), { category: 'greetAgain' })
     if (isAffection(text)) return reply(pick(script.affection), { hesitate: true, category: 'affection' })
+
+    // 승빈 타이틀곡 토론 — 곡을 고르면 반박, 끝나면 더블 타이틀로 업무 완료
+    if (id === 'seungbin' && status === 'active') {
+      const debate = respondTitleDebate(flow, text, pick)
+      if (debate) {
+        return {
+          replies: debate.replies,
+          flow: debate.flow,
+          conversationContext: null,
+          category: debate.category,
+          completeMission: debate.complete,
+        }
+      }
+    }
 
     // 멤버 전용 이스터에그 → 상황별 반응 → 업무 중/후 기본 답
     const extra = findRule(script.extraRules, text)

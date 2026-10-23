@@ -216,7 +216,8 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
       !reveal &&
       result.replies.length === 1 &&
       (result.category !== undefined ? result.category === lastCategory : result.replies[0] === lastReply)
-    if (!repeated) next = scheduleReplies(next, chatId, result.replies, now, { reveal, hesitate: result.hesitate })
+    const completeAfter = result.completeMission && chatId !== 'manager' ? (chatId as MemberId) : undefined
+    if (!repeated) next = scheduleReplies(next, chatId, result.replies, now, { reveal, hesitate: result.hesitate, completeAfter })
     // 답장 다음에 파일 (예: 도현의 가사 메모 파일)
     if (result.attachment) next = scheduleAttachment(next, chatId, result.attachment, now)
     lastReply = result.replies.at(-1)
