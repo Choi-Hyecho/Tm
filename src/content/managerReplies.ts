@@ -27,7 +27,7 @@ export const missionHints: Partial<Record<MissionId, MissionHint>> = {
     return '같은 단어가 두 번 들어가는 자리도 있어요! 하나씩 차근차근 다시 봐보세요 ㅎㅎ'
   },
   // 승빈 타이틀곡 선정 — 토론
-  seungbin: '승빈님이 토론을 좋아하세요 ㅎㅎ 이 별이랑 Fallen Angel 중에 하나 골라서 끝까지 의견 말씀드려 보세요!',
+  seungbin: '승빈님이 타이틀곡 선정 때문에 고민이 많으신 것 같던데요… 매니저님 생각을 한번 말씀드려 보세요 ㅎㅎ',
 }
 
 export const helpDefault = '어떤 부분이 어려우실까요? 확인해드릴게요!'

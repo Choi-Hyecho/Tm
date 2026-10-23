@@ -218,6 +218,11 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
       (result.category !== undefined ? result.category === lastCategory : result.replies[0] === lastReply)
     const completeAfter = result.completeMission && chatId !== 'manager' ? (chatId as MemberId) : undefined
     if (!repeated) next = scheduleReplies(next, chatId, result.replies, now, { reveal, hesitate: result.hesitate, completeAfter })
+    // 답장이 다 도착한 뒤 팀장님 카톡
+    if (result.managerFollowup && chatId !== 'manager') {
+      const lastAt = Math.max(now, ...next.scheduled.filter((s) => s.chatId === chatId).map((s) => s.deliverAt))
+      next = scheduleReplies(next, 'manager', [result.managerFollowup.text], lastAt + result.managerFollowup.delayMs)
+    }
     // 답장 다음에 파일 (예: 도현의 가사 메모 파일)
     if (result.attachment) next = scheduleAttachment(next, chatId, result.attachment, now)
     lastReply = result.replies.at(-1)

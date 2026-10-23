@@ -13,6 +13,8 @@ export interface DebateResult {
   category: string
   /** 마지막 답장이 도착하면 업무 완료 */
   complete?: boolean
+  /** 그다음 팀장님 카톡 */
+  managerFollowup?: { text: string; delayMs: number }
 }
 
 const roundsDone = (flow: string) => (flow.startsWith(FLOW_PREFIX) ? Number(flow.slice(FLOW_PREFIX.length)) || 0 : 0)
@@ -40,10 +42,17 @@ export function respondTitleDebate(flow: string, text: string, pick: LinePicker)
   const t = normalize(text)
   const done = roundsDone(flow)
   const { against, ending, bothTooEarly, whatever, bothPatterns, whateverPatterns } = seungbinQuest
-  const total = against.fallen.length
+  // 두 곡의 반박 묶음 수가 다르면 짧은 쪽에 맞춤
+  const total = Math.min(against.fallen.length, against.byeol.length)
   // 이미 더블 타이틀로 정함 (완료 답장이 도착하기 전) — 일반 대화로
   if (flow === FLOW_END) return null
-  const finish: DebateResult = { replies: ending, flow: FLOW_END, category: 'debateEnd', complete: true }
+  const finish: DebateResult = {
+    replies: ending,
+    flow: FLOW_END,
+    category: 'debateEnd',
+    complete: true,
+    managerFollowup: seungbinQuest.managerReaction,
+  }
 
   // "둘 다" — 토론 중엔 회피라며 거절, 토론이 끝났으면 본인이 정한 것처럼 더블 타이틀
   if (bothPatterns.some((p) => p.test(t))) {

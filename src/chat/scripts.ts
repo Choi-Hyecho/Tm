@@ -37,6 +37,8 @@ export interface RespondResult {
   attachment?: SharedFile
   /** 마지막 답장이 도착하면 이 멤버 업무 완료 (승빈 타이틀곡 토론) */
   completeMission?: boolean
+  /** 이 답장들이 도착하고 delayMs 뒤 팀장님 카톡 (승빈 더블 타이틀 선언 후) */
+  managerFollowup?: { text: string; delayMs: number }
 }
 
 type Responder = (input: RespondInput) => RespondResult
@@ -134,6 +136,7 @@ const memberResponder =
           conversationContext: null,
           category: debate.category,
           completeMission: debate.complete,
+          managerFollowup: debate.managerFollowup,
         }
       }
     }
