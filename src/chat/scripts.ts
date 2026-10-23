@@ -128,7 +128,7 @@ const memberResponder =
 
     // 승빈 타이틀곡 토론 — 곡을 고르면 반박, 끝나면 더블 타이틀로 업무 완료
     if (id === 'seungbin' && status === 'active') {
-      const debate = respondTitleDebate(flow, text, pick)
+      const debate = respondTitleDebate({ flow, text, recent: input.recent, turn: input.turn }, pick)
       if (debate) {
         return {
           replies: debate.replies,
