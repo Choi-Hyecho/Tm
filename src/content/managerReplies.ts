@@ -21,6 +21,8 @@ export const leaveReplies = {
 
 /** 도움 요청("어려워요", "힌트 주세요") — 지금 진행 중인 업무의 힌트를 안내 */
 export const missionHints: Partial<Record<MissionId, MissionHint>> = {
+  // 윤민 자켓 사진 — 사진 앱 → 카톡 + 버튼 → 앨범
+  yunmin: '윤민님이 이번 「극야」 자켓 사진 찾으시던데요? 사진 앱에 있을 거예요. 카톡 + 버튼 → 앨범으로 보내드리면 돼요 ㅎㅎ',
   // 도현 가사 검수 — 오답이 반복될수록 조금씩 구체적으로 (틀린 위치는 알려주지 않음)
   dohyun: ({ lyricsWrongCount }) => {
     if (lyricsWrongCount === 0) return '도현님 메모 받으셨죠? 파랗게 표시된 빈칸만 채워서 보내주시면 돼요 ㅎㅎ'
@@ -33,7 +35,7 @@ export const missionHints: Partial<Record<MissionId, MissionHint>> = {
   // 마지막 — 팀장님 채팅방의 '앨범 발매하기'
   report: '모든 업무 끝나셨네요! 이 채팅방 아래 \'앨범 발매하기\'를 눌러서 최종 보고해주세요 ㅎㅎ',
   // 승빈 타이틀곡 선정 — 토론
-  seungbin: '승빈님이 타이틀곡 선정 때문에 고민이 많으신 것 같던데요… 매니저님 생각을 한번 말씀드려 보세요 ㅎㅎ',
+  seungbin: '승빈님이 타이틀곡 선정 때문에 고민이 많으신 것 같던데요… Fallen Angel이랑 이 별 중에 하나 골라서 이유랑 같이 말씀드려 보세요 ㅎㅎ',
 }
 
 export const helpDefault = '어떤 부분이 어려우실까요? 확인해드릴게요!'
@@ -141,7 +143,7 @@ export const managerReplyRules: ReplyRule[] = [
     patterns: [/(?:답장|답|대답|회신|연락|톡)(?:이|을|도|은)?(?:계속|아직|좀|하나도)?(?:안|없|않|못받)/, /읽씹|안읽|읽고씹|씹혔|씹어/],
     reply: ({ activeMissionId }) =>
       activeMissionId
-        ? '다들 바쁘신가 봅니다 ㅎㅎ 지금 맡으신 업무부터 처리해주시면 될 것 같아요!'
+        ? `다른 분들은 다들 바쁘신가 봅니다 ㅎㅎ ${chats[activeMissionId].name}님 업무부터 마무리해주시면 연락 올 거예요!`
         : '지금은 다들 여유 있으실 텐데요? 채팅방에 다시 들어가서 한 번 더 연락해보시겠어요? ㅎㅎ',
   },
   {

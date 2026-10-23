@@ -1,4 +1,5 @@
 // 멤버 자유 대화 의도 판별 — 어떤 말이 어떤 상황인지(공통). 대사는 멤버별 파일(content/members/)에서 관리
+import type { ChatId } from '../content/chats'
 import { isMealQuestion, normalize } from './intent'
 
 export type MemberIntent =
@@ -39,6 +40,23 @@ const PATTERNS: [MemberIntent, RegExp][] = [
   ['tired', /피곤|졸려|졸리|힘들|지쳐|지친|잠와|잠온/],
   ['howAreYou', /뭐해|뭐하세요|뭐하고|바빠|바쁘|잘지내|괜찮아|괜찮으세요|컨디션|어떠세요|어때요/],
 ]
+
+// 다른 사람을 가리키는 말 — 흔한 단어와 겹치지 않게 짧은 애칭은 빼고 대표 이름만
+const PEOPLE: Record<ChatId, RegExp> = {
+  manager: /팀장/,
+  yunmin: /윤민/,
+  seungbin: /승빈/,
+  dohyun: /도현|채도/,
+  johnbekim: /존비|비킴|병무/,
+}
+const OTHERS = /다른(?:멤버|분|사람|애들)|멤버들|멤버한테|멤버분|애들한테|형들|물어보|물어봐|여쭤|대신(?:해|좀|부탁)/
+
+/** 업무 중인 멤버에게 다른 사람 얘기를 하거나 미루는 말 — "다른 멤버한테 물어보세요", "도현이는 이 별이래요" */
+export function mentionsOthers(text: string, self: ChatId) {
+  const t = normalize(text)
+  if (OTHERS.test(t)) return true
+  return (Object.keys(PEOPLE) as ChatId[]).some((id) => id !== self && PEOPLE[id].test(t))
+}
 
 /** 멤버에게 한 말의 의도 — 인사·애정 표현은 scripts.ts에서 먼저 처리 */
 export function detectMemberIntent(text: string, names: string[]): MemberIntent | null {

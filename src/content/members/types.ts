@@ -27,6 +27,11 @@ export interface MemberScript {
   extraRules: ReplyRule[]
   /** 업무 진행 중, 알아듣지 못한 말 */
   missionIdle: string[]
+  /**
+   * 업무 진행 중에 다른 사람 얘기를 하거나 미루면("다른 멤버한테 물어보세요", "팀장님한테 해달라고 하세요")
+   * — 매니저에게 다시 부탁. 인식 규칙은 chat/memberIntents.ts의 mentionsOthers
+   */
+  deflect?: string[]
   /** 업무 완료 직후 */
   missionDone: string
   /** 업무 완료 후(또는 업무와 무관할 때), 알아듣지 못한 말 */

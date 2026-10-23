@@ -6,7 +6,7 @@ import { contextFollowups, managerAck, managerFallback, managerReplyRules } from
 import { memberScripts } from '../content/members'
 import { isAffection, isAffirmative, isGreeting, isNegative, isYesOnly } from './intent'
 import { respondTitleDebate } from '../missions/titleDebate'
-import { detectMemberIntent } from './memberIntents'
+import { detectMemberIntent, mentionsOthers } from './memberIntents'
 import { findRule, pickFresh, resolveFollowup, resolveReply, type LinePicker, type ReplyContext } from './ruleEngine'
 
 export interface RespondInput {
@@ -125,6 +125,11 @@ const memberResponder =
 
     if (isGreeting(text)) return reply(pick(script.greetAgain), { category: 'greetAgain' })
     if (isAffection(text)) return reply(pick(script.affection), { hesitate: true, category: 'affection' })
+
+    // 업무 중에 다른 사람 얘기/미루기 — "매니저님이 해주시면 안 돼요?"
+    if (status === 'active' && script.deflect && mentionsOthers(text, id)) {
+      return reply(pick(script.deflect), { category: 'deflect' })
+    }
 
     // 승빈 타이틀곡 토론 — 곡을 고르면 반박, 끝나면 더블 타이틀로 업무 완료
     if (id === 'seungbin' && status === 'active') {
