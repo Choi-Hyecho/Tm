@@ -49,11 +49,7 @@ export const chatContent = {
   filePreview: (fileName: string) => `파일: ${fileName}`,
 }
 
-/** 미션과 관계없는 첨부를 받았을 때 답장 */
-export const attachmentReplies = {
-  manager: { image: '사진 잘 받았습니다 :)', file: '파일 잘 받았습니다! 확인해볼게요 :)' },
-  member: { image: '오 사진이네요 ㅎㅎ 잘 받았어요!', file: '파일 받았어요! 확인해볼게요' },
-}
+// 미션과 관계없는 첨부를 받았을 때 반응은 content/shareReactions.ts
 
 /** 팀장님 첫 대화 대사 — 자유 입력 답변(이스터에그)은 managerReplies.ts */
 export const managerScript = {

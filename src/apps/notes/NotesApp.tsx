@@ -1,6 +1,10 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { OpenAppRequest } from '../renderApp'
 import { staticNotes, type StaticNote } from '../../content/notes'
+import { shareContent } from '../../content/share'
+import { useToast } from '../../hooks/useToast'
+import { ShareIcon, ShareSheet } from '../../phone/ShareSheet'
+import { Toast } from '../../phone/Toast'
 import { dohyunQuest } from '../../content/quests/dohyun'
 import { allBlanksFilled, lyricLines } from '../../missions/lyricsCheck'
 import { StatusBar } from '../../phone/StatusBar'
@@ -74,30 +78,59 @@ function NoteList({ shared, onOpen }: { shared: boolean; onOpen: (id: string) =>
   )
 }
 
-function NoteHeader({ onBack }: { onBack: () => void }) {
+function NoteHeader({ onBack, children }: { onBack: () => void; children?: ReactNode }) {
   return (
-    <header className="flex h-11 shrink-0 items-center px-2" style={{ color: NOTE_YELLOW }}>
+    <header className="flex h-11 shrink-0 items-center justify-between px-2" style={{ color: NOTE_YELLOW }}>
       <button type="button" onClick={onBack} className="flex items-center gap-1 px-1 text-[16px] active:opacity-50">
         <svg width="11" height="18" viewBox="0 0 12 20" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden>
           <path d="M10 2 2 10l8 8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         {dohyunQuest.memo.listTitle}
       </button>
+      {children}
     </header>
   )
 }
 
-/** 일반 메모 — 읽기 전용 */
+/** 일반 메모 — 읽기 전용. 공유 버튼으로 카톡에 TXT로 보낼 수 있음 */
 function ReadOnlyNote({ note, onBack }: { note: StaticNote; onBack: () => void }) {
+  const [sharing, setSharing] = useState(false)
+  const { toast, showToast } = useToast()
+
   return (
     <>
-      <NoteHeader onBack={onBack} />
+      <NoteHeader onBack={onBack}>
+        <button
+          type="button"
+          onClick={() => setSharing(true)}
+          aria-label={shareContent.shareButton}
+          className="flex size-10 items-center justify-center active:opacity-50"
+        >
+          <ShareIcon />
+        </button>
+      </NoteHeader>
       <div className="flex-1 overflow-y-auto px-5 pb-[calc(34px+var(--ui-bottom,0px))]">
         <h1 className="text-[22px] font-bold">{note.title}</h1>
         <p className="mt-1 mb-4 text-[12px] text-black/40">{note.dateLabel}</p>
         <p className="text-[16px] leading-relaxed whitespace-pre-wrap">{note.body}</p>
       </div>
+      {sharing && (
+        <ShareSheet
+          item={{ kind: 'memo', id: note.id, title: note.title, preview: <NoteIcon /> }}
+          onClose={() => setSharing(false)}
+          onSent={(name) => showToast(shareContent.sent(name))}
+        />
+      )}
+      <Toast {...toast} />
     </>
+  )
+}
+
+function NoteIcon() {
+  return (
+    <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-[#fff3c4] text-[11px] font-bold text-[#a07800]" aria-hidden>
+      TXT
+    </span>
   )
 }
 

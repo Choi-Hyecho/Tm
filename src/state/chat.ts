@@ -2,9 +2,11 @@
 import { isAffection } from '../chat/intent'
 import { pickFresh, type LinePicker, type ReplyContext } from '../chat/ruleEngine'
 import { responders } from '../chat/scripts'
-import { attachmentReplies, chatContent, type ChatId, type MemberId } from '../content/chats'
-import { findPhoto } from '../content/gallery'
+import { chatContent, type ChatId, type MemberId } from '../content/chats'
+import { findPhoto, PHOTO_OWNER_LABELS } from '../content/gallery'
 import { findFile } from '../content/gameFiles'
+import { staticNotes } from '../content/notes'
+import { shareReactions } from '../content/shareReactions'
 import { affectionWarning } from '../content/managerReplies'
 import { affectionHesitation, memberScripts } from '../content/members'
 
@@ -39,7 +41,7 @@ import { dohyunQuest } from '../content/quests/dohyun'
 import { attachmentChecks } from '../missions/attachmentChecks'
 import { allBlanksFilled, isLyricsCorrect, lyricsFileName, renderLyrics } from '../missions/lyricsCheck'
 import { getActiveMissions, getMissionStatus, getProgress } from './selectors'
-import type { Banner, ChatMessage, GameState, ScheduledMessage, SharedFile } from './types'
+import type { Banner, ChatMessage, GameState, ScheduledMessage, ShareKind, SharedFile } from './types'
 
 /** 답장 엔진에 넘기는 게임 상태 — TODO 진행도/미션 상태는 공통 게임 상태에서 계산 */
 export function getReplyContext(state: GameState): ReplyContext {
@@ -98,11 +100,13 @@ export function deliverMessage(
     from: chatId,
     text,
     at: now,
-    ...(attachment && {
+    ...(attachment?.action === 'openNotes' && {
       kind: 'file' as const,
       document: { fileName: attachment.fileName, content: '' },
       action: attachment.action,
     }),
+    // 누르면 파일 앱에 저장되는 파일
+    ...(attachment?.action === 'download' && { kind: 'file' as const, attachmentId: attachment.fileId, action: attachment.action }),
   }
   const isActive = state.activeChat === chatId
 
@@ -119,9 +123,11 @@ export function deliverMessage(
 /** 파일 전송 예약 — 이미 예약된 답장 뒤에 잠깐 텀을 두고 도착 */
 function scheduleAttachment(state: GameState, chatId: ChatId, attachment: SharedFile, now: number): GameState {
   const after = Math.max(now, ...state.scheduled.filter((s) => s.chatId === chatId).map((s) => s.deliverAt))
+  const fileName = attachment.action === 'download' ? findFile(attachment.fileId)?.fileName : attachment.fileName
+  if (!fileName) return state
   const message: ScheduledMessage = {
     chatId,
-    text: chatContent.filePreview(attachment.fileName),
+    text: chatContent.filePreview(fileName),
     deliverAt: after + FILE_DELAY_MS,
     attachment,
   }
@@ -223,8 +229,8 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
       const lastAt = Math.max(now, ...next.scheduled.filter((s) => s.chatId === chatId).map((s) => s.deliverAt))
       next = scheduleReplies(next, 'manager', [result.managerFollowup.text], lastAt + result.managerFollowup.delayMs)
     }
-    // 답장 다음에 파일 (예: 도현의 가사 메모 파일)
-    if (result.attachment) next = scheduleAttachment(next, chatId, result.attachment, now)
+    // 답장 다음에 파일 (예: 도현의 가사 메모 파일, 존비킴의 믹싱 파일)
+    for (const attachment of result.attachments ?? []) next = scheduleAttachment(next, chatId, attachment, now)
     lastReply = result.replies.at(-1)
     lastCategory = result.category
   }
@@ -233,7 +239,7 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
 
 /**
  * 첨부 답장 — 이 멤버의 첨부 미션이 진행 중(active)일 때만 asset ID로 정답 판별.
- * 업무 공개 전(hidden)이거나 완료 후라면 미션에 영향 없이 일반 답장만
+ * 업무 공개 전(hidden)이거나 완료 후, 또는 다른 사람에게 보냈으면 받는 사람별 반응 (content/shareReactions.ts)
  */
 function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessage, now: number): GameState {
   const kind = message.kind === 'file' ? 'file' : 'image'
@@ -243,8 +249,36 @@ function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessag
       ? completeMission(state, chatId as MemberId, now)
       : scheduleReplies(state, chatId, check.wrongReplies(message.attachmentId, pickerFor(state, chatId)), now)
   }
-  const lines = chatId === 'manager' ? attachmentReplies.manager : attachmentReplies.member
-  return scheduleReplies(state, chatId, [lines[kind]], now)
+  return scheduleReplies(state, chatId, shareReaction(state, chatId, message), now)
+}
+
+/** 미션과 관계없이 사진/파일/메모를 받았을 때 반응 — 최근에 안 한 말로 */
+function shareReaction(state: GameState, chatId: ChatId, message: ChatMessage): string[] {
+  const { photo, file, memo } = shareReactions
+  const recent = recentReplies(state, chatId)
+  const pickLines = (lines: (string | string[])[]) => {
+    const groups = lines.map((l) => (Array.isArray(l) ? l : [l]))
+    const fresh = groups.filter((g) => !g.some((line) => recent.includes(line)))
+    const pool = fresh.length > 0 ? fresh : groups
+    return pool[(state.chats[chatId].messages.length * 7919 + 13) % pool.length]
+  }
+
+  // 메모 (메모 ID가 attachmentId)
+  if (message.document && message.attachmentId) {
+    return pickLines((memo[message.attachmentId] ?? memo.default)[chatId])
+  }
+  if (message.kind === 'file') return pickLines(file[chatId])
+
+  const shot = findPhoto(message.attachmentId)
+  const owner = shot?.owner
+  const label = owner ? PHOTO_OWNER_LABELS[owner] : ''
+  const lines =
+    chatId === 'manager'
+      ? owner === 'group' ? photo.managerGroup : photo.manager
+      : owner === 'group' ? photo.group
+      : owner === chatId ? photo.self[chatId]
+      : photo.other[chatId]
+  return pickLines(lines).map((line) => line.replaceAll('{owner}', label))
 }
 
 /**
@@ -278,7 +312,12 @@ export function completeMission(
 }
 
 /** 내 메시지 추가 — 상대가 바쁘면 읽지 않음(1)으로 보류, 아니면 바로 읽고 답장 */
-function addMyMessage(state: GameState, chatId: ChatId, content: Pick<ChatMessage, 'kind' | 'attachmentId' | 'text'>, now: number) {
+function addMyMessage(
+  state: GameState,
+  chatId: ChatId,
+  content: Pick<ChatMessage, 'kind' | 'attachmentId' | 'text' | 'document'>,
+  now: number,
+) {
   const busy = isBusy(state, chatId)
   const thread = state.chats[chatId]
   const message: ChatMessage = { id: messageId(chatId, thread.messages.length, now), from: 'me', at: now, read: !busy, ...content }
@@ -331,18 +370,23 @@ export function submitLyrics(state: GameState, now: number): GameState {
   return scheduleReplies(next, 'dohyun', [lines.wrong[Math.min(wrongCount, lines.wrong.length) - 1]], now)
 }
 
-/** 사진/파일 전송 — 존재하는 asset만 */
-export function sendAttachment(
-  state: GameState,
-  chatId: ChatId,
-  kind: 'image' | 'file',
-  attachmentId: string,
-  now: number,
-): GameState {
-  const preview = kind === 'image' ? findPhoto(attachmentId) && chatContent.photoPreview : findFile(attachmentId)?.fileName
-  if (!preview) return state
-  const text = kind === 'image' ? preview : chatContent.filePreview(preview)
-  return addMyMessage(state, chatId, { kind, attachmentId, text }, now)
+/** 사진/파일/메모 전송 (카톡 첨부 또는 공유 시트) — 존재하는 asset만 */
+export function sendAttachment(state: GameState, chatId: ChatId, kind: ShareKind, attachmentId: string, now: number): GameState {
+  if (kind === 'image') {
+    if (!findPhoto(attachmentId)) return state
+    return addMyMessage(state, chatId, { kind, attachmentId, text: chatContent.photoPreview }, now)
+  }
+  if (kind === 'file') {
+    const file = findFile(attachmentId)
+    if (!file) return state
+    return addMyMessage(state, chatId, { kind, attachmentId, text: chatContent.filePreview(file.fileName) }, now)
+  }
+  // 메모 — 보낸 당시 내용 그대로 TXT 파일로
+  const note = staticNotes.find((n) => n.id === attachmentId)
+  if (!note) return state
+  const fileName = `${note.title}.txt`
+  const document = { fileName, content: note.body }
+  return addMyMessage(state, chatId, { kind: 'file', attachmentId, document, text: chatContent.filePreview(fileName) }, now)
 }
 
 /** 멤버에게 애정 표현을 여러 번 하면 팀장님이 한 번 경고 (멤버 반응 뒤에 도착) */

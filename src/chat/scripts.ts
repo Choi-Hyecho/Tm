@@ -33,8 +33,8 @@ export interface RespondResult {
   hesitate?: boolean
   /** 답의 종류 — 한꺼번에 읽은 메시지가 같은 종류로 이어지면 답은 한 번만 (state/chat.ts) */
   category?: string
-  /** 답장 다음에 이어서 보내는 파일 */
-  attachment?: SharedFile
+  /** 답장 다음에 이어서 보내는 파일들 */
+  attachments?: SharedFile[]
   /** 마지막 답장이 도착하면 이 멤버 업무 완료 (승빈 타이틀곡 토론) */
   completeMission?: boolean
   /** 이 답장들이 도착하고 delayMs 뒤 팀장님 카톡 (승빈 더블 타이틀 선언 후) */
@@ -111,7 +111,7 @@ const memberResponder =
             conversationContext: null,
             startMission: true,
             missionRequestIndex: replies.length,
-            attachment: script.requestAttachment,
+            attachments: script.requestAttachments,
           }
 
     if (flow === 'awaitingGreeting') {

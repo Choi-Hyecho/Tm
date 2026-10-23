@@ -11,8 +11,11 @@ export interface ChatMessage {
   attachmentId?: string
   /** 텍스트 파일 (가사 검수 TXT) — 보낸 당시 내용 그대로 보관, 이후 메모를 고쳐도 바뀌지 않음 */
   document?: { fileName: string; content: string }
-  /** 파일을 눌렀을 때 — 'openNotes': 내용 보기 대신 메모 앱 열기 (도현이 공유한 가사 메모) */
-  action?: 'openNotes'
+  /**
+   * 파일을 눌렀을 때 — 'openNotes': 내용 보기 대신 메모 앱 열기 (도현이 공유한 가사 메모)
+   * 'download': 파일 앱에 저장 (존비킴이 보낸 믹싱 파일, attachmentId = 파일 ID)
+   */
+  action?: 'openNotes' | 'download'
   /** 텍스트 메시지 내용. 첨부는 채팅 목록/알림에 보일 미리보기 문구 */
   text: string
   /** 실제 시각 (ms) */
@@ -48,11 +51,11 @@ export interface ScheduledMessage {
 }
 
 /** 상대가 보내는 파일 메시지 */
-export interface SharedFile {
-  fileName: string
-  /** 'openNotes': 누르면 메모 앱으로 이동 */
-  action: 'openNotes'
-}
+export type SharedFile =
+  /** 누르면 메모 앱으로 이동 */
+  | { action: 'openNotes'; fileName: string }
+  /** 누르면 파일 앱에 저장 — 파일 정보는 content/gameFiles.ts */
+  | { action: 'download'; fileId: string }
 
 /** 도현 가사 검수 전송 기록 한 건 */
 export interface LyricsSubmission {
@@ -112,13 +115,20 @@ export interface GameState {
   affection: { count: number; warned: boolean }
   /** 보너스: 듀오링고 쇼츠 방문 여부 */
   duolingoVisited: boolean
+  /** 파일 앱에 저장한 파일 ID (카톡으로 받은 파일을 눌러서 저장) */
+  downloads: string[]
 }
+
+/** 공유 시트로 카톡에 보내는 것 — 사진 / 파일 / 메모 */
+export type ShareKind = 'image' | 'file' | 'memo'
 
 export type GameAction =
   | { type: 'START_INTRO'; now: number }
   | { type: 'SEND_MESSAGE'; chatId: ChatId; text: string; now: number }
-  /** 카카오톡 첨부 전송 — 전송했을 때만 미션 판별 (첨부 메뉴 열기/미리보기는 상태 변화 없음) */
-  | { type: 'SEND_ATTACHMENT'; chatId: ChatId; kind: 'image' | 'file'; attachmentId: string; now: number }
+  /** 카카오톡 첨부/공유 전송 — 전송했을 때만 미션 판별 (첨부 메뉴 열기/미리보기는 상태 변화 없음). memo는 메모 ID */
+  | { type: 'SEND_ATTACHMENT'; chatId: ChatId; kind: ShareKind; attachmentId: string; now: number }
+  /** 카톡으로 받은 파일을 파일 앱에 저장 */
+  | { type: 'DOWNLOAD_FILE'; fileId: string }
   | { type: 'DELIVER_DUE'; now: number }
   | { type: 'OPEN_CHAT'; chatId: ChatId; now: number }
   | { type: 'CLOSE_CHAT'; chatId: ChatId }

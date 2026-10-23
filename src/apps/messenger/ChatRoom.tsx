@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEve
 import { chatContent, chats, type ChatId } from '../../content/chats'
 import { findPhoto } from '../../content/gallery'
 import { findFile } from '../../content/gameFiles'
+import { filesContent } from '../../content/share'
 import { useTypingIndicator } from '../../hooks/useTypingIndicator'
 import { formatDate } from '../../lib/date'
 import { StatusBar } from '../../phone/StatusBar'
@@ -23,11 +24,14 @@ interface ChatRoomProps {
   onBack: () => void
   /** + 메뉴의 '메모' — 게임 속 메모 앱으로 이동 */
   onOpenNotes: () => void
+  /** 저장한 파일을 다시 누르면 파일 앱으로 이동 */
+  onOpenFiles: () => void
+  onToast: (text: string) => void
 }
 
 // 카카오톡 스타일 1:1 채팅방 (실제 카카오톡 서비스와 연결되지 않는 팬메이드 UI)
 // 채팅방이 바뀌면 KakaoApp이 key로 새로 그리므로 첨부 메뉴/사진 보기 상태도 함께 정리됨
-export function ChatRoom({ chatId, onBack, onOpenNotes }: ChatRoomProps) {
+export function ChatRoom({ chatId, onBack, onOpenNotes, onOpenFiles, onToast }: ChatRoomProps) {
   const { state, dispatch } = useGame()
   const chat = chats[chatId]
   const { messages } = state.chats[chatId]
@@ -81,6 +85,17 @@ export function ChatRoom({ chatId, onBack, onOpenNotes }: ChatRoomProps) {
     onBack()
   }
 
+  /** 받은 파일 — 처음 누르면 파일 앱에 저장, 이미 저장했으면 파일 앱 열기 */
+  function download(fileId: string) {
+    if (state.downloads.includes(fileId)) {
+      onOpenFiles()
+      return
+    }
+    dispatch({ type: 'DOWNLOAD_FILE', fileId })
+    const file = findFile(fileId)
+    if (file) onToast(filesContent.saved(file.fileName))
+  }
+
   function openAttach() {
     inputRef.current?.blur()
     setAttachOpen(true)
@@ -132,6 +147,8 @@ export function ChatRoom({ chatId, onBack, onOpenNotes }: ChatRoomProps) {
               onOpenPhoto={setViewingPhoto}
               onOpenDocument={setViewingDocument}
               onOpenNotes={onOpenNotes}
+              onDownload={download}
+              saved={(id) => state.downloads.includes(id)}
             />
           )
           return m.from === 'me' ? (
@@ -222,6 +239,8 @@ function MessageContent({
   onOpenPhoto,
   onOpenDocument,
   onOpenNotes,
+  onDownload,
+  saved,
 }: {
   message: ChatMessage
   mine: boolean
@@ -229,6 +248,8 @@ function MessageContent({
   onOpenPhoto: (id: string) => void
   onOpenDocument: (document: NonNullable<ChatMessage['document']>) => void
   onOpenNotes: () => void
+  onDownload: (fileId: string) => void
+  saved: (fileId: string) => boolean
 }) {
   // TXT 파일 — 내가 보낸 검수 파일은 당시 내용 보기, 도현이 공유한 메모 파일은 메모 앱으로 이동
   if (message.document) {
@@ -265,6 +286,30 @@ function MessageContent({
 
   if (message.kind === 'file') {
     const file = findFile(message.attachmentId)
+    // 상대가 보낸 파일 — 누르면 파일 앱에 저장 (이미 저장했으면 파일 앱 열기). 재생은 파일 앱에서
+    if (file && message.action === 'download') {
+      return (
+        <button
+          type="button"
+          onClick={() => onDownload(file.id)}
+          aria-label={`${file.fileName} ${saved(file.id) ? '파일 앱에서 열기' : '저장'}`}
+          className="flex w-[62cqw] max-w-[250px] items-center gap-2.5 rounded-[14px] bg-white p-3 text-left active:bg-white/80"
+        >
+          <FileIcon />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[13.5px] font-semibold">{file.fileName}</span>
+            <span className="block text-[11px] text-black/45">
+              {file.sizeLabel} · {saved(file.id) ? filesContent.savedLabel : filesContent.tapToSave}
+            </span>
+          </span>
+          {!saved(file.id) && (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-black/45" aria-hidden>
+              <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14" />
+            </svg>
+          )}
+        </button>
+      )
+    }
     if (file) {
       return (
         <div className="flex w-[58cqw] max-w-[240px] items-center gap-2.5 rounded-[14px] bg-white p-3">

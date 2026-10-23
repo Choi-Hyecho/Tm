@@ -1,4 +1,5 @@
 // 존비킴 대사 — 팬메이드 게임 속 가상 대사이며 실제 멤버의 발언이 아님
+import { johnbekimQuest } from '../quests/johnbekim'
 import type { MemberScript } from './types'
 
 export const johnbekim: MemberScript = {
@@ -6,8 +7,11 @@ export const johnbekim: MemberScript = {
   greeting: ['매니저님 안녕하세요~', '궁금한 거 있으시면 편하게 톡 주세요 ㅎㅎ'],
   request: [
     '매니저님 혹시 시간 괜찮으세요?',
-    '믹싱 파일이 두 개가 왔는데 하나는 제 베이스가 빠졌대요… 정상 파일 좀 찾아주실 수 있을까요? 🥲',
+    '믹싱 파일이 네 개가 왔는데 제 베이스가 제대로 들어간 건 하나뿐이래요… 🥲',
+    '파일 보내드릴게요! 들어보시고 정상 파일만 저한테 다시 보내주실 수 있을까요?',
   ],
+  // 업무 요청 다음에 믹싱 파일 4개 — 누르면 파일 앱에 저장
+  requestAttachments: johnbekimQuest.fileIds.map((fileId) => ({ action: 'download' as const, fileId })),
   beforeGreeting: ['오 새 매니저님?! 일단 인사부터 할까요 ㅎㅎ', '어 처음 뵙는 분이네요? 인사부터 해요~'],
   greetAgain: ['네 매니저님~ 무슨 일이세요?', '헬로 매니저님 ㅎㅎ', '네 여기 있어요~'],
   affection: ['오… 마음만 감사히 받겠습니다 ㅎㅎ', '하하 업무 얘기로 돌아가 볼까요?', '어… 고맙습니다? ㅎㅎ', '하하… 네…'],
@@ -33,10 +37,10 @@ export const johnbekim: MemberScript = {
     },
   ],
   missionIdle: [
-    '두 파일 다 들어보시면 바로 아실 거예요!',
-    '베이스가 살아있는 쪽으로 부탁드려요 ㅎㅎ',
+    '파일 다 들어보시면 바로 아실 거예요!',
+    '베이스가 살아있는 걸로 부탁드려요 ㅎㅎ',
     '이어폰 끼고 들으면 더 잘 들려요!',
-    '파일은 + 버튼에서 보낼 수 있어요~',
+    '파일 눌러서 저장하시고 파일 앱에서 들어보시면 돼요~',
   ],
   missionDone: '이거예요!! 베이스 살아있네요 ㅎㅎ 감사합니다 👍',
   afterMission: [

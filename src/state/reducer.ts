@@ -1,4 +1,5 @@
 import { chatOrder, managerScript, type ChatId } from '../content/chats'
+import { findFile } from '../content/gameFiles'
 import { missions, todoContent } from '../content/missions'
 import { initialFlows } from '../chat/scripts'
 import { lyricBlanks } from '../missions/lyricsCheck'
@@ -41,6 +42,7 @@ export function createInitialState(): GameState {
     lyrics: { inputs: {}, submissions: [] },
     affection: { count: 0, warned: false },
     duolingoVisited: false,
+    downloads: [],
   }
 }
 
@@ -102,6 +104,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!missions.every((m) => state.missionStatuses[m.id] === 'completed')) return state
       return { ...state, released: true }
     }
+    case 'DOWNLOAD_FILE':
+      if (!findFile(action.fileId) || state.downloads.includes(action.fileId)) return state
+      return { ...state, downloads: [...state.downloads, action.fileId] }
     case 'VISIT_DUOLINGO':
       return state.duolingoVisited ? state : { ...state, duolingoVisited: true }
     case 'RESET':

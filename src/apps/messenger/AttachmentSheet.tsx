@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { chatContent } from '../../content/chats'
 import { findPhoto, galleryPhotos } from '../../content/gallery'
-import { findFile, gameFiles } from '../../content/gameFiles'
+import { findFile } from '../../content/gameFiles'
+import { filesContent } from '../../content/share'
+import { useGame } from '../../state/context'
 import { PhotoTile } from '../photos/PhotoTile'
 import { AudioPreviewButton } from './AudioPreviewButton'
 
@@ -218,7 +220,10 @@ function AlbumPicker({ onBack, onSend }: { onBack: () => void; onSend: (id: stri
   )
 }
 
+/** 파일 앱에 저장한 파일 중에서 고르기 */
 function FilePicker({ onBack, onSend }: { onBack: () => void; onSend: (id: string) => void }) {
+  const { state } = useGame()
+  const files = state.downloads.map(findFile).filter((f) => f !== undefined)
   const [selected, setSelected] = useState<string | null>(null)
   const file = findFile(selected ?? undefined)
 
@@ -246,8 +251,9 @@ function FilePicker({ onBack, onSend }: { onBack: () => void; onSend: (id: strin
   return (
     <>
       <SheetHeader title={chatContent.attach.file} onBack={onBack} />
+      {files.length === 0 && <p className="pt-16 text-center text-[14px] text-black/40">{filesContent.pickerEmpty}</p>}
       <ul className="flex-1 overflow-y-auto pb-[calc(34px+var(--ui-bottom,0px))]">
-        {gameFiles.map((f) => (
+        {files.map((f) => (
           <li key={f.id}>
             <div
               role="button"

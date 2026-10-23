@@ -1,6 +1,7 @@
 import { apps, type AppId } from '../config/apps'
 import type { ChatId } from '../content/chats'
 import { CalendarApp } from './calendar/CalendarApp'
+import { FilesApp } from './files/FilesApp'
 import { KakaoApp } from './messenger/KakaoApp'
 import { NotesApp } from './notes/NotesApp'
 import { PhotosApp } from './photos/PhotosApp'
@@ -37,6 +38,8 @@ export function AppScreen({ request, onOpenApp }: AppScreenProps) {
       return <SettingsApp />
     case 'calendar':
       return <CalendarApp />
+    case 'files':
+      return <FilesApp />
     default:
       return <PlaceholderApp app={apps[request.id]} />
   }

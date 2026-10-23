@@ -1,6 +1,10 @@
 import { useEffect, useEffectEvent, useRef, useState, type PointerEvent } from 'react'
 import { findPhoto } from '../../content/gallery'
+import { shareContent } from '../../content/share'
+import { useToast } from '../../hooks/useToast'
+import { ShareIcon, ShareSheet } from '../../phone/ShareSheet'
 import { StatusBar } from '../../phone/StatusBar'
+import { Toast } from '../../phone/Toast'
 import { PhotoTile } from './PhotoTile'
 
 const SWIPE_THRESHOLD = 50
@@ -20,6 +24,8 @@ export function PhotoViewer({ photoIds, initialId, onClose }: PhotoViewerProps) 
   const [dragX, setDragX] = useState(0)
   const [dragging, setDragging] = useState(false)
   const start = useRef({ x: 0, y: 0 })
+  const [sharing, setSharing] = useState(false)
+  const { toast, showToast } = useToast()
 
   const go = (delta: number) => setIndex((i) => Math.min(photos.length - 1, Math.max(0, i + delta)))
 
@@ -84,7 +90,14 @@ export function PhotoViewer({ photoIds, initialId, onClose }: PhotoViewerProps) 
             {index + 1} / {photos.length}
           </p>
         </div>
-        <span className="w-10" />
+        <button
+          type="button"
+          onClick={() => setSharing(true)}
+          aria-label={shareContent.shareButton}
+          className="flex size-10 items-center justify-center text-[#007aff] active:opacity-50"
+        >
+          <ShareIcon />
+        </button>
       </div>
 
       {/* 사진 트랙 — 손가락을 따라 움직이고 놓으면 이전/다음으로 */}
@@ -115,6 +128,20 @@ export function PhotoViewer({ photoIds, initialId, onClose }: PhotoViewerProps) 
       </div>
 
       <div className="h-[calc(34px+var(--ui-bottom,0px))] shrink-0" />
+
+      {sharing && (
+        <ShareSheet
+          item={{
+            kind: 'image',
+            id: current.id,
+            title: current.fileName,
+            preview: <PhotoTile photo={current} className="size-11 shrink-0 rounded-lg" />,
+          }}
+          onClose={() => setSharing(false)}
+          onSent={(name) => showToast(shareContent.sent(name))}
+        />
+      )}
+      <Toast {...toast} />
     </div>
   )
 }

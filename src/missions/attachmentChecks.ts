@@ -1,8 +1,8 @@
 // 첨부(사진/파일) 전송으로 완료되는 멤버 미션 — 해당 멤버 미션이 active일 때 전송한 첨부의 asset ID로 판별
-// 존비킴 파일 미션은 이후 연결 예정: { kind: 'file', correctId: johnbekimQuest.correctFileId, wrongReplies: (_, pick) => [pick([johnbekimQuest.lines.wrong])] }
 import type { LinePicker } from '../chat/ruleEngine'
 import type { MemberId } from '../content/chats'
 import { findPhoto } from '../content/gallery'
+import { johnbekimQuest } from '../content/quests/johnbekim'
 import { yunminQuest } from '../content/quests/yunmin'
 
 export type AttachmentKind = 'image' | 'file'
@@ -30,5 +30,11 @@ export const attachmentChecks: Partial<Record<MemberId, AttachmentCheck>> = {
       const about = photo ? comments[photo.owner as keyof typeof comments] : undefined
       return about ? [pick(reactions), pick(about)] : [pick(reactions)]
     },
+  },
+  // 믹싱 파일 4개 중 베이스가 제대로 들어간 파일 (파일 앱 → 공유 → 카카오톡 → 존비킴)
+  johnbekim: {
+    kind: 'file',
+    correctId: johnbekimQuest.correctFileId,
+    wrongReplies: (id) => (id && johnbekimQuest.lines.wrong[id]) || johnbekimQuest.lines.wrongDefault,
   },
 }

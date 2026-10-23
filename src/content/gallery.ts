@@ -23,7 +23,8 @@ export interface GalleryPhoto {
 type PhotoInput = Omit<GalleryPhoto, 'fileName' | 'fallback' | 'placeholderLabel'> & { placeholderLabel?: string }
 
 const FALLBACK = 'linear-gradient(135deg, #1a4fa8, #9cc8ff)'
-const LABELS: Record<PhotoOwner, string> = { yunmin: '윤민', seungbin: '승빈', dohyun: '도현', johnbekim: '존비킴', group: '단체' }
+/** 사진 속 사람 이름 — 임시 이미지, 공유 반응 대사({owner})에 사용 */
+export const PHOTO_OWNER_LABELS: Record<PhotoOwner, string> ={ yunmin: '윤민', seungbin: '승빈', dohyun: '도현', johnbekim: '존비킴', group: '단체' }
 
 /**
  * 오래된 앨범 → 최신 앨범 순서 (폴더 순서). 같은 폴더 안은 적힌 순서대로.
@@ -47,7 +48,7 @@ const PHOTOS_OLDEST_FIRST: PhotoInput[] = [
 export const galleryPhotos: GalleryPhoto[] = (() => {
   const withMeta = PHOTOS_OLDEST_FIRST.map((p, i) => ({
     ...p,
-    placeholderLabel: p.placeholderLabel ?? LABELS[p.owner],
+    placeholderLabel: p.placeholderLabel ?? PHOTO_OWNER_LABELS[p.owner],
     fallback: FALLBACK,
     fileName: `IMG_${String(2000 + i * 37).padStart(4, '0')}.${p.src.split('.').pop()}`,
   }))

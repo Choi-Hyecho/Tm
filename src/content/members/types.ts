@@ -13,8 +13,8 @@ export interface MemberScript {
   greeting: string[]
   /** 업무 요청 — 다른 멤버 업무가 진행 중이 아닐 때 인사 직후 이어서 전송. 이 메시지가 도착하면 TODO에 업무가 공개됨 */
   request: string[]
-  /** 업무 요청 다음에 이어서 보내는 파일 (예: 도현의 가사 메모 파일) */
-  requestAttachment?: SharedFile
+  /** 업무 요청 다음에 이어서 보내는 파일들 (예: 도현의 가사 메모 파일, 존비킴의 믹싱 파일) */
+  requestAttachments?: SharedFile[]
   /** 인사 전에 다른 말을 먼저 했을 때 */
   beforeGreeting: string[]
   /** 이미 인사한 뒤 다시 인사했을 때 */
