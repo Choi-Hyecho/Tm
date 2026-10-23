@@ -95,49 +95,35 @@ export function ReleaseEnding({ onFinish }: ReleaseEndingProps) {
         )}
       </div>
 
-      {/* 내용 — 길면 스크롤 */}
-      <div className="relative h-full overflow-y-auto overscroll-contain px-5 pt-[calc(var(--status-h)+28px)] pb-[calc(28px+var(--ui-bottom,0px))]">
-        <div className="mx-auto flex max-w-[380px] flex-col items-center text-center">
+      {/* 내용 — 한 화면에 다 들어오게 세로 가운데 정렬 (아주 작은 화면에서만 스크롤) */}
+      <div className="relative h-full overflow-y-auto overscroll-contain px-5 pt-[calc(var(--status-h)+12px)] pb-[calc(16px+var(--ui-bottom,0px))]">
+        <div className="mx-auto flex min-h-full max-w-[380px] flex-col items-center justify-center text-center">
           {/* 「극야」 손글씨 로고 (TOUCHED The 1st Album 포함) + RELEASED */}
           <h1 className="ending-pop" style={delay(0.8)}>
             <img
               src={assetUrl(albumLogo)}
               alt={`TOUCHED The 1st Album ${c.headline}`}
-              className="mx-auto w-[min(300px,78cqw)] drop-shadow-[0_2px_14px_rgba(10,40,70,0.45)]"
+              className="mx-auto w-[min(270px,70cqw)] drop-shadow-[0_2px_14px_rgba(10,40,70,0.45)]"
               draggable={false}
             />
-            <span className="mt-3 block text-[13px] font-semibold tracking-[0.55em] text-[#e8f3f8] [text-indent:0.55em]">
+            <span className="mt-2 block text-[12.5px] font-semibold tracking-[0.55em] text-[#e8f3f8] [text-indent:0.55em]">
               {c.headlineSuffix}
             </span>
           </h1>
 
-          {/* 마무리 인사 — 얇은 선 사이 날짜 + 인사 */}
-          <div className="ending-rise mt-6 flex w-full flex-col items-center" style={delay(1.6)}>
-            <p className="flex w-full items-center gap-3 text-[11px] tracking-[0.2em] text-[#bcdcec]">
-              <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/40" />
-              {c.releaseDate}
-              <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/40" />
-            </p>
-            <div className="mt-3 space-y-0.5 text-[13.5px] leading-relaxed text-white/85">
-              {c.congrats.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </div>
-          </div>
-
           {/* 축하 팝업 — 뮤직비디오 + 음원 플랫폼 + 버튼 */}
           <section
-            className="ending-rise mt-7 w-full rounded-[22px] border border-white/20 bg-[#123f62]/45 p-3 shadow-[0_20px_60px_rgba(8,32,56,0.35)] backdrop-blur-md"
-            style={delay(2.1)}
+            className="ending-rise mt-5 w-full rounded-[22px] border border-white/20 bg-[#123f62]/45 p-3 shadow-[0_20px_60px_rgba(8,32,56,0.35)] backdrop-blur-md"
+            style={delay(1.6)}
           >
             <MusicVideo />
 
-            <p className="mt-4 text-[13px] font-semibold tracking-[0.04em] text-white/70">{c.platformsTitle}</p>
-            <ul className="mt-3 grid grid-cols-3 gap-x-2 gap-y-3 px-1">
+            <p className="mt-3 text-[12.5px] font-semibold tracking-[0.04em] text-white/70">{c.platformsTitle}</p>
+            <ul className="mt-2 grid grid-cols-3 gap-x-2 gap-y-2.5 px-1">
               {releasePlatforms.map((id) => {
                 const app = apps[id]
                 const link = albumLinks[id]
-                const icon = <img src={assetUrl(app.icon)} alt="" className="size-12 rounded-[12px]" draggable={false} />
+                const icon = <img src={assetUrl(app.icon)} alt="" className="size-11 rounded-[11px]" draggable={false} />
                 return (
                   <li key={id}>
                     {link ? (
@@ -164,7 +150,7 @@ export function ReleaseEnding({ onFinish }: ReleaseEndingProps) {
             <button
               type="button"
               onClick={onFinish}
-              className="mt-5 w-full rounded-2xl bg-white py-3.5 text-[16px] font-bold text-[#1a527c] active:bg-white/85"
+              className="mt-4 w-full rounded-2xl bg-white py-3 text-[16px] font-bold text-[#1a527c] active:bg-white/85"
             >
               {c.finish}
             </button>
