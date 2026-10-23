@@ -3,10 +3,10 @@ import { dohyunQuest } from '../content/quests/dohyun'
 
 export type LyricSegment = { type: 'text'; text: string } | { type: 'blank'; id: string; answer: string }
 
-/** 가사 원문을 줄 단위 조각으로 — {정답}은 빈칸(등장 순서대로 blank-1, blank-2…) */
+/** 가사 원문을 줄 단위 조각으로 — {정답}은 빈칸(등장 순서대로 blank-1, blank-2…). 앞뒤 빈 줄은 무시 */
 export function parseLyrics(source: string): LyricSegment[][] {
   let count = 0
-  return source.split('\n').map((line) => {
+  return source.replace(/^\s*\n|\n\s*$/g, '').split('\n').map((line) => {
     const segments: LyricSegment[] = []
     let last = 0
     for (const match of line.matchAll(/\{([^}]+)\}/g)) {
