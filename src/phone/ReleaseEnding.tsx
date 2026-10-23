@@ -110,15 +110,18 @@ export function ReleaseEnding({ onFinish }: ReleaseEndingProps) {
             </span>
           </h1>
 
-          {/* 축하 문구 — 얇은 선 사이 날짜 + 두 줄 */}
+          {/* 마무리 인사 — 얇은 선 사이 날짜 + 인사 */}
           <div className="ending-rise mt-6 flex w-full flex-col items-center" style={delay(1.6)}>
             <p className="flex w-full items-center gap-3 text-[11px] tracking-[0.2em] text-[#bcdcec]">
               <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/40" />
               {c.releaseDate}
               <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/40" />
             </p>
-            <p className="mt-3 text-[18px] font-semibold tracking-[0.01em] text-white">{c.congrats}</p>
-            <p className="mt-1 text-[13px] text-white/70">{c.congratsSub}</p>
+            <div className="mt-3 space-y-0.5 text-[15.5px] leading-relaxed font-medium text-white/90">
+              {c.congrats.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </div>
           </div>
 
           {/* 축하 팝업 — 뮤직비디오 + 음원 플랫폼 + 버튼 */}

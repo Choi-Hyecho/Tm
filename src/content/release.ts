@@ -17,8 +17,8 @@ export const releaseContent = {
   headlineSuffix: 'RELEASED',
   /** 축하 문구 위 작은 날짜 */
   releaseDate: '2026. 10. 15  12PM',
-  congrats: '매니저님, 발매를 축하합니다',
-  congratsSub: '오늘 하루 정말 고생 많으셨어요',
+  /** 날짜 아래 마무리 인사 — 한 줄씩 */
+  congrats: ['오늘 하루 너무 고생 많으셨어요.', '터치드 「극야」도 많이 사랑해주세요.'],
   video: {
     unavailable: '공식 뮤직비디오 준비 중',
     unmute: '소리 켜기',
