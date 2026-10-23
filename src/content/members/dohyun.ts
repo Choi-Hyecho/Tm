@@ -42,8 +42,8 @@ export const dohyun: MemberScript = {
   // 가사 검수 정답 때는 quests/dohyun.ts의 lines.correct가 대신 전송됨 (개발용 '미션 완료 테스트'에서만 사용)
   missionDone: '완벽해요! 바로 넘길게요. 감사합니다!',
   afterMission: [
-    '지금 녹음 체크 중이라 조금 이따 연락드릴게요!',
-    '네네 확인했습니다! 이따 다시 연락드릴게요',
+    '앗 그렇군요 ㅎㅎ',
+    '네네 확인했습니다!',
     '가사 검수 도와주셔서 감사했어요!',
     '넵',
   ],

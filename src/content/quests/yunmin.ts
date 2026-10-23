@@ -54,5 +54,6 @@ export const yunminQuest = {
     } as Record<string, string[]>,
   },
 
-  // 정답일 때는 content/members/yunmin.ts의 missionDone 대사가 전송됨
+  /** 정답 — 이 답장들이 도착하고 잠시 뒤 TODO 완료 */
+  correct: ['이거 맞아요!', '잘 나왔네요 감사합니다!'],
 }

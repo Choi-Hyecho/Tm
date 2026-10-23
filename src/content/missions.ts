@@ -51,6 +51,8 @@ export const todoContent = {
     addedTitle: '새 업무가 등록됐어요',
     /** 업무 완료 (본문은 업무 이름) */
     completedTitle: '업무 완료 ✓',
+    /** 멤버 감사 메시지가 도착하고 이만큼 뒤에 완료 알림 */
+    completedDelayMs: 2500,
     /** 선행 업무를 끝내 트랙리스트/최종 보고가 열릴 때 */
     unlockedTitle: '새 업무가 열렸어요',
   },

@@ -4,8 +4,9 @@
 //   예) "퇴근해도 되나요?" → "퇴근해도되나요"
 // 배열 순서가 우선순위입니다. 더 구체적인 규칙을 위에 두세요.
 import { getHint, type MissionHint } from '../chat/hints'
-import type { ContextFollowup, ReplyRule } from '../chat/ruleEngine'
-import type { MissionId } from './missions'
+import type { ContextFollowup, ReplyContext, ReplyRule } from '../chat/ruleEngine'
+import { chats } from './chats'
+import { isMemberMission, memberMissionIds, type MissionId } from './missions'
 import { settingsContent } from './settings'
 
 /** 퇴근 질문 — TODO 진행도에 따라 */
@@ -36,6 +37,19 @@ export const missionHints: Partial<Record<MissionId, MissionHint>> = {
 }
 
 export const helpDefault = '어떤 부분이 어려우실까요? 확인해드릴게요!'
+
+/**
+ * 진행 중인 업무 힌트가 없을 때 — 아직 업무를 받지 않은 멤버가 있으면 인사를 권함.
+ * 최근에 업무를 끝낸 멤버가 있으면 그 멤버 이야기부터
+ */
+export function helpIdle({ missionStatuses, lastCompletedMission }: ReplyContext): string | null {
+  const waiting = memberMissionIds.some((id) => missionStatuses[id] === 'hidden')
+  if (!waiting) return null
+  if (lastCompletedMission && isMemberMission(lastCompletedMission)) {
+    return `최근에 ${chats[lastCompletedMission].name}님이랑 얘기 나누셨군요? 다른 멤버분들과는 인사 나누셨나요? ㅎㅎ`
+  }
+  return '멤버분들께 먼저 인사 한번 해보세요! 다들 부탁드릴 게 있을 거예요 ㅎㅎ'
+}
 
 /** 준비되지 않은 문장 */
 export const managerFallback = '무슨 말씀인지 잘 모르겠네요.. 하하'
@@ -220,7 +234,7 @@ export const managerReplyRules: ReplyRule[] = [
     // "너무 어려워요", "모르겠어요", "힌트 주세요", "도와주세요" — TODO 힌트 연동
     id: 'help',
     patterns: [/어려워|어렵|모르겠|몰라요|힌트|도와|도움|살려|막혔|못하겠|헬프|help/],
-    reply: (context) => getHint(context, missionHints) ?? helpDefault,
+    reply: (context) => getHint(context, missionHints) ?? helpIdle(context) ?? helpDefault,
   },
   {
     // "힘들어요", "지쳤어요"

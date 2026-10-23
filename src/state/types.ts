@@ -108,6 +108,8 @@ export interface GameState {
   missionStatuses: Record<MissionId, MissionStatus>
   /** 지금 진행 중인 멤버 업무 — 한 번에 하나만. 업무 요청을 보내는 순간 예약됨 */
   activeMissionId: MemberId | null
+  /** 가장 최근에 완료한 업무 — 팀장님 힌트("○○님이랑 얘기 나누셨군요?")에 사용 */
+  lastCompletedMission: MissionId | null
   /** 극야 발매 완료 (= albumReleased) — 날짜 10/15, 배경/프로필/Now Playing이 극야 버전으로 */
   released: boolean
   /** 발매 엔딩을 끝까지 보고 '발매된 업무폰 확인하기'를 눌렀는지 — 이후 접속 때 엔딩이 자동으로 뜨지 않음 */

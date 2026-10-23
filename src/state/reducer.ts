@@ -41,6 +41,7 @@ export function createInitialState(): GameState {
       report: 'locked',
     },
     activeMissionId: null,
+    lastCompletedMission: null,
     released: false,
     endingViewed: false,
     showEnding: false,

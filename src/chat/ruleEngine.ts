@@ -15,6 +15,8 @@ export interface ReplyContext {
   missionStatuses: Record<MissionId, MissionStatus>
   /** 도현 가사 검수 오답 전송 횟수 — 힌트 단계용 */
   lyricsWrongCount: number
+  /** 가장 최근에 완료한 업무 */
+  lastCompletedMission?: MissionId | null
 }
 
 export interface ReplyRule {

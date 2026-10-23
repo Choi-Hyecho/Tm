@@ -53,12 +53,21 @@ export function getReplyContext(state: GameState): ReplyContext {
     activeMissionId: state.activeMissionId,
     missionStatuses: state.missionStatuses,
     lyricsWrongCount: state.lyrics.submissions.filter((s) => !s.correct).length,
+    lastCompletedMission: state.lastCompletedMission,
   }
 }
 
-/** 다른 멤버 업무가 진행 중이라 지금은 답장하지 않는 상대 (팀장님은 항상 답장) */
+/**
+ * 다른 멤버 업무가 진행 중이라 지금은 답장하지 않는 상대 — 아직 업무를 받기 전인 멤버만.
+ * 팀장님과 업무를 끝낸 멤버는 언제든 대화 가능
+ */
 export function isBusy(state: GameState, chatId: ChatId) {
-  return chatId !== 'manager' && state.activeMissionId !== null && state.activeMissionId !== chatId
+  return (
+    chatId !== 'manager' &&
+    state.activeMissionId !== null &&
+    state.activeMissionId !== chatId &&
+    state.missionStatuses[chatId] === 'hidden'
+  )
 }
 
 /** 답장 길이에 비례한 '입력 중' 시간 */
@@ -244,9 +253,13 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
 function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessage, now: number): GameState {
   const kind = message.kind === 'file' ? 'file' : 'image'
   const check = chatId === 'manager' ? undefined : attachmentChecks[chatId]
-  if (check && check.kind === kind && getMissionStatus(state, chatId as MemberId) === 'active') {
+  // 정답을 이미 받아 감사 답장이 오는 중이면 일반 반응
+  const completing = state.scheduled.some((s) => s.chatId === chatId && s.completeMission)
+  if (check && check.kind === kind && !completing && getMissionStatus(state, chatId as MemberId) === 'active') {
+    const memberId = chatId as MemberId
+    // 정답 — 감사 답장이 도착한 뒤 업무 완료 (TODO 알림은 그 다음)
     return message.attachmentId === check.correctId
-      ? completeMission(state, chatId as MemberId, now)
+      ? scheduleReplies(state, chatId, check.correctReplies ?? [memberScripts[memberId].missionDone], now, { completeAfter: memberId })
       : scheduleReplies(state, chatId, check.wrongReplies(message.attachmentId, pickerFor(state, chatId)), now)
   }
   const reacted = scheduleReplies(state, chatId, shareReaction(state, chatId, message), now)
@@ -312,17 +325,27 @@ export function completeMission(
   state: GameState,
   id: MissionId,
   now: number,
-  options: { /** 멤버가 이미 감사 답장을 보냈으면 기본 완료 인사 생략 */ skipDoneMessage?: boolean } = {},
+  options: {
+    /** 멤버가 이미 감사 답장을 보냈으면 기본 완료 인사 생략 */
+    skipDoneMessage?: boolean
+    /** TODO 완료 알림을 이만큼 늦게 표시 — 감사 메시지를 읽을 틈 */
+    noticeDelayMs?: number
+  } = {},
 ): GameState {
   if (getMissionStatus(state, id) !== 'active') return state
-  let next: GameState = { ...state, missionStatuses: { ...state.missionStatuses, [id]: 'completed' } }
+  let next: GameState = {
+    ...state,
+    missionStatuses: { ...state.missionStatuses, [id]: 'completed' },
+    lastCompletedMission: id,
+  }
 
   // TODO 알림 — 완료, 그리고 이번 완료로 새로 열린 업무(트랙리스트/최종 보고)
   const { notifications } = todoContent
-  next = pushTodoNotice(next, notifications.completedTitle, missionLabel(id), now)
+  const showAt = options.noticeDelayMs ? now + options.noticeDelayMs : undefined
+  next = pushTodoNotice(next, notifications.completedTitle, missionLabel(id), now, showAt)
   for (const m of missions) {
     if (getMissionStatus(state, m.id) === 'locked' && getMissionStatus(next, m.id) === 'active') {
-      next = pushTodoNotice(next, notifications.unlockedTitle, missionLabel(m.id), now)
+      next = pushTodoNotice(next, notifications.unlockedTitle, missionLabel(m.id), now, showAt)
     }
   }
   if (!isMemberMission(id)) return next
@@ -450,8 +473,13 @@ export function deliverDue(state: GameState, now: number): GameState {
   const rest = state.scheduled.filter((s) => s.deliverAt > now)
   return due.reduce((next, s) => {
     const delivered = deliverMessage(next, s.chatId, s.text, s.deliverAt, s.attachment)
-    // 답장이 도착한 뒤 업무 완료 (도현 가사 검수)
-    if (s.completeMission) return completeMission(delivered, s.completeMission, s.deliverAt, { skipDoneMessage: true })
+    // 감사 답장이 도착한 뒤 업무 완료 — TODO 알림은 잠깐 뒤에
+    if (s.completeMission) {
+      return completeMission(delivered, s.completeMission, s.deliverAt, {
+        skipDoneMessage: true,
+        noticeDelayMs: todoContent.notifications.completedDelayMs,
+      })
+    }
     if (!s.revealMission || delivered.missionStatuses[s.revealMission] !== 'hidden') return delivered
     const revealed: GameState = { ...delivered, missionStatuses: { ...delivered.missionStatuses, [s.revealMission]: 'active' } }
     return pushTodoNotice(revealed, todoContent.notifications.addedTitle, missionLabel(s.revealMission), s.deliverAt)
