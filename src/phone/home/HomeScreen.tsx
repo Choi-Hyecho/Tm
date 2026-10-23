@@ -59,7 +59,7 @@ export function HomeScreen({ onLaunch }: HomeScreenProps) {
       className="absolute inset-0 overflow-hidden text-white select-none"
       style={{ '--u': HOME_UNIT } as CSSProperties}
     >
-      <Wallpaper config={wallpapers.homeScreen} />
+      <Wallpaper config={state.released ? wallpapers.homeScreen.afterRelease : wallpapers.homeScreen.beforeRelease} />
 
       <div className="relative flex h-full flex-col items-center">
         <div className="w-full">

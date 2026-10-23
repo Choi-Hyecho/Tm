@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
-import { chatContent, chats, type ChatId } from '../../content/chats'
+import { avatarOf, chatContent, chats, type ChatId } from '../../content/chats'
 import { findPhoto } from '../../content/gallery'
 import { findFile } from '../../content/gameFiles'
 import { filesContent } from '../../content/share'
@@ -7,7 +7,8 @@ import { useTypingIndicator } from '../../hooks/useTypingIndicator'
 import { formatDate } from '../../lib/date'
 import { StatusBar } from '../../phone/StatusBar'
 import { useGame } from '../../state/context'
-import { getVirtualDate } from '../../state/selectors'
+import { getMissionStatus, getVirtualDate } from '../../state/selectors'
+import { releaseContent } from '../../content/release'
 import type { ChatMessage } from '../../state/types'
 import { PhotoTile } from '../photos/PhotoTile'
 import { PhotoViewer } from '../photos/PhotoViewer'
@@ -33,7 +34,8 @@ interface ChatRoomProps {
 // 채팅방이 바뀌면 KakaoApp이 key로 새로 그리므로 첨부 메뉴/사진 보기 상태도 함께 정리됨
 export function ChatRoom({ chatId, onBack, onOpenNotes, onOpenFiles, onToast }: ChatRoomProps) {
   const { state, dispatch } = useGame()
-  const chat = chats[chatId]
+  const chat = { ...chats[chatId], avatar: avatarOf(chatId, state.released) }
+  const canRelease = chatId === 'manager' && !state.released && getMissionStatus(state, 'report') === 'active'
   const { messages } = state.chats[chatId]
   const scheduledHere = useMemo(() => state.scheduled.filter((s) => s.chatId === chatId), [state.scheduled, chatId])
   const typing = useTypingIndicator(scheduledHere)
@@ -164,6 +166,23 @@ export function ChatRoom({ chatId, onBack, onOpenNotes, onOpenFiles, onToast }: 
 
         {typing && <TypingBubble avatar={chat.avatar} name={chat.name} />}
       </div>
+
+      {/* 최종 보고 — 1~5번 업무가 모두 끝나면 팀장님 채팅방에서만 */}
+      {canRelease && (
+        <div className="shrink-0 border-t border-black/5 bg-white px-3 pt-3">
+          <div className="rounded-2xl bg-[#0f2c5e] p-3.5 text-white">
+            <p className="text-[12px] font-semibold tracking-[0.08em] text-[#9cc8ff]">{releaseContent.reportCard.title}</p>
+            <p className="mt-1 text-[13.5px] leading-snug text-white/85">{releaseContent.reportCard.body}</p>
+            <button
+              type="button"
+              onClick={() => dispatch({ type: 'RELEASE', now: Date.now() })}
+              className="mt-3 w-full rounded-xl bg-white py-2.5 text-[15px] font-bold text-[#0f2c5e] active:bg-white/85"
+            >
+              {releaseContent.reportCard.button}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 입력창 — 아래 34px은 홈 인디케이터 영역 */}
       <div className="shrink-0 bg-white pb-[calc(34px+var(--ui-bottom,0px))]">

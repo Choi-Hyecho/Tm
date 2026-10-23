@@ -3,7 +3,9 @@ import { assetUrl } from '../../lib/asset'
 
 // 프로필 사진 — 파일이 없으면 기본 프로필(사람 실루엣)
 export function Avatar({ src, size }: { src: string; size: number }) {
-  const [failed, setFailed] = useState(false)
+  // 실패한 경로를 기억 — 발매 후처럼 사진 경로가 바뀌면 다시 불러옴
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
+  const failed = failedSrc === src
   const style = { width: size, height: size, borderRadius: '38%' }
 
   if (failed) {
@@ -22,7 +24,7 @@ export function Avatar({ src, size }: { src: string; size: number }) {
       src={assetUrl(src)}
       alt=""
       draggable={false}
-      onError={() => setFailed(true)}
+      onError={() => setFailedSrc(src)}
       className="shrink-0 object-cover"
       style={style}
     />

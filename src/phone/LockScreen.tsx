@@ -110,7 +110,7 @@ export function LockScreen({ date, released, onUnlock }: LockScreenProps) {
 
         <div className="mt-auto w-full">
           <div className="mb-[3cqh] px-[3.5cqw]">
-            <NowPlaying />
+            <NowPlaying released={released} />
           </div>
           <p className="animate-hint mb-[3cqh] text-center text-[13px] font-medium">{lockContent.swipeHint}</p>
           <div className="flex justify-between px-[12cqw] pb-[calc(5.5cqh+var(--ui-bottom,0px))]">

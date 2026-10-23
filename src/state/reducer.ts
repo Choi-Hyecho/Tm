@@ -2,6 +2,7 @@ import { chatOrder, managerScript, type ChatId } from '../content/chats'
 import { findFile } from '../content/gameFiles'
 import { missions, todoContent } from '../content/missions'
 import { staticNotes } from '../content/notes'
+import { releaseContent } from '../content/release'
 import { initialFlows } from '../chat/scripts'
 import { lyricBlanks } from '../missions/lyricsCheck'
 import {
@@ -14,6 +15,7 @@ import {
   sendMessage,
   submitLyrics,
 } from './chat'
+import { getMissionStatus } from './selectors'
 import type { Banner, ChatThread, GameAction, GameState } from './types'
 
 function createThread(id: ChatId): ChatThread {
@@ -40,6 +42,8 @@ export function createInitialState(): GameState {
     },
     activeMissionId: null,
     released: false,
+    endingViewed: false,
+    showEnding: false,
     lyrics: { inputs: {}, submissions: [] },
     affection: { count: 0, warned: false },
     duolingoVisited: false,
@@ -104,8 +108,34 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'SUBMIT_LYRICS':
       return submitLyrics(state, action.now)
     case 'RELEASE': {
-      if (!missions.every((m) => state.missionStatuses[m.id] === 'completed')) return state
-      return { ...state, released: true }
+      // 한 번만 — 1~5번 업무가 실제로 끝나 최종 보고가 진행 가능할 때만
+      if (state.released || getMissionStatus(state, 'report') !== 'active') return state
+      // 보고 메시지 + 팀장님 축하 → 최종 보고 완료 → 발매
+      const thread = state.chats.manager
+      const report: GameState = {
+        ...state,
+        chats: {
+          ...state.chats,
+          manager: {
+            ...thread,
+            messages: [
+              ...thread.messages,
+              { id: `manager-${thread.messages.length}-${action.now}`, from: 'me', text: releaseContent.myMessage, at: action.now, read: true },
+            ],
+          },
+        },
+      }
+      const replied = deliverMessage(report, 'manager', releaseContent.managerMessage, action.now + 1)
+      return { ...completeMission(replied, 'report', action.now), released: true, showEnding: true }
+    }
+    case 'CLOSE_ENDING':
+      return state.showEnding ? { ...state, showEnding: false, endingViewed: true } : state
+    case 'REPLAY_ENDING':
+      return state.released ? { ...state, showEnding: true } : state
+    case 'DEV_FORCE_RELEASE': {
+      if (state.released) return state
+      const done = Object.fromEntries(missions.map((m) => [m.id, 'completed'])) as GameState['missionStatuses']
+      return { ...state, missionStatuses: done, activeMissionId: null, released: true, showEnding: true }
     }
     case 'DOWNLOAD_FILE':
       if (!findFile(action.fileId) || state.downloads.includes(action.fileId)) return state

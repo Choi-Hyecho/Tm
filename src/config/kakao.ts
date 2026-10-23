@@ -5,6 +5,8 @@
 export const myProfile = {
   name: 'TOUCHED MANAGER',
   statusMessage: '극야 발매 준비 D-1',
+  /** 극야 발매 후 상태 메시지 */
+  statusMessageReleased: '극야 발매 완료 🌌',
   avatar: 'images/profiles/me.png',
 }
 
@@ -84,10 +86,10 @@ export const promotions: Promotion[] = [
   },
   {
     id: 'this-star',
-    title: '이 별 M/V',
-    subtitle: '더블 타이틀곡 뮤직비디오 보러 가기',
+    title: '이 별 Performance Video',
+    subtitle: '더블 타이틀곡 퍼포먼스 비디오 보러 가기',
     image: 'images/promo/this-star.jpg',
-    link: '',
+    link: 'https://www.youtube.com/watch?v=wmVmlnz22hM',
     fallback: 'linear-gradient(120deg, #2468d6, #9cc8ff)',
   },
   {

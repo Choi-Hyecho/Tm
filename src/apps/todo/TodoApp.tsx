@@ -1,5 +1,6 @@
 import { meta } from '../../content/meta'
 import { missions, todoContent, type MissionDef } from '../../content/missions'
+import { releaseContent } from '../../content/release'
 import { formatDate } from '../../lib/date'
 import { StatusBar } from '../../phone/StatusBar'
 import { useGame } from '../../state/context'
@@ -21,7 +22,7 @@ function missionLabel(mission: MissionDef, status: MissionStatus) {
 
 // 업무는 사용자가 직접 체크할 수 없음 — 각 미션 성공 시 자동 완료
 export function TodoApp() {
-  const { state } = useGame()
+  const { state, dispatch } = useGame()
   const { done, total, allDone } = getProgress(state)
   const date = formatDate(getVirtualDate(state), { month: 'long', day: 'numeric', weekday: 'long' })
 
@@ -54,6 +55,16 @@ export function TodoApp() {
               style={{ width: `${(done / total) * 100}%` }}
             />
           </div>
+          {/* 발매 후 — 엔딩 다시 보기 */}
+          {state.released && (
+            <button
+              type="button"
+              onClick={() => dispatch({ type: 'REPLAY_ENDING' })}
+              className="mt-4 w-full rounded-xl bg-[#0f2c5e] py-3 text-[15px] font-semibold text-white active:bg-[#0f2c5e]/85"
+            >
+              🎉 {releaseContent.replay}
+            </button>
+          )}
         </section>
 
         <ul className="mt-5 divide-y divide-ice-100 overflow-hidden rounded-2xl bg-white shadow-sm">

@@ -1,0 +1,151 @@
+import type { CSSProperties } from 'react'
+import { apps } from '../config/apps'
+import { albumLinks } from '../config/links'
+import { releaseContent, releasePlatforms } from '../content/release'
+import { assetUrl } from '../lib/asset'
+import { MusicVideo } from './MusicVideo'
+
+interface ReleaseEndingProps {
+  /** '발매된 업무폰 확인하기' — 영상 정지(팝업이 사라지며 플레이어도 사라짐) 후 잠금화면으로 */
+  onFinish: () => void
+}
+
+const NAVY = '#0a1a3a'
+const SPARK_COLORS = ['#ffffff', '#cfe4ff', '#9cc8ff', '#6aa9ff', '#ffe9b0']
+
+/** 폭죽 — 위치(%), 시작 시각(초), 퍼지는 거리(px). 화면 위쪽에서 차례로 터짐 */
+const BURSTS = [
+  { x: 22, y: 18, delay: 0.5, radius: 90 },
+  { x: 76, y: 14, delay: 0.9, radius: 110 },
+  { x: 50, y: 28, delay: 1.4, radius: 130 },
+  { x: 15, y: 40, delay: 2.1, radius: 80 },
+  { x: 85, y: 36, delay: 2.5, radius: 95 },
+  { x: 40, y: 10, delay: 3.2, radius: 85 },
+  { x: 64, y: 44, delay: 3.8, radius: 100 },
+]
+const SPARKS_PER_BURST = 18
+
+/** 반짝이 — 결정적인 의사 난수로 위치를 정해 렌더링마다 바뀌지 않게 */
+const TWINKLES = Array.from({ length: 26 }, (_, i) => {
+  const r = (n: number) => ((Math.sin(i * 97.13 + n * 13.7) + 1) / 2) % 1
+  return { x: r(1) * 100, y: r(2) * 70, size: 1.5 + r(3) * 2.5, delay: r(4) * 3, dur: 2 + r(5) * 2.5 }
+})
+
+const delay = (seconds: number): CSSProperties => ({ animationDelay: `${seconds}s` })
+
+// 극야 발매 엔딩 — 어두워지는 전환 → 폭죽/반짝이 → 문구 → 뮤직비디오 + 음원 플랫폼 → 업무폰 확인 버튼
+export function ReleaseEnding({ onFinish }: ReleaseEndingProps) {
+  const c = releaseContent
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${c.headline} ${c.headlineSuffix}`}
+      className="ending-fade absolute inset-0 z-[70] overflow-hidden text-white"
+      style={{
+        background: `radial-gradient(120% 60% at 50% 0%, #1a4fa8 0%, transparent 65%), radial-gradient(90% 50% at 50% 110%, #2468d6 0%, transparent 70%), ${NAVY}`,
+      }}
+    >
+      {/* 폭죽 + 반짝이 — 터치는 통과 */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        {TWINKLES.map((t, i) => (
+          <span
+            key={`t${i}`}
+            className="ending-twinkle"
+            style={{
+              left: `${t.x}%`,
+              top: `${t.y}%`,
+              width: t.size,
+              height: t.size,
+              animationDelay: `${t.delay}s`,
+              ['--dur' as string]: `${t.dur}s`,
+            }}
+          />
+        ))}
+        {BURSTS.map((b, bi) =>
+          Array.from({ length: SPARKS_PER_BURST }, (_, si) => {
+            const angle = (si / SPARKS_PER_BURST) * Math.PI * 2 + bi
+            const dist = b.radius * (0.65 + ((si * 37) % 10) / 28)
+            return (
+              <span
+                key={`b${bi}-${si}`}
+                className="ending-spark"
+                style={{
+                  left: `${b.x}%`,
+                  top: `${b.y}%`,
+                  animationDelay: `${b.delay + (si % 3) * 0.04}s`,
+                  ['--dx' as string]: `${Math.cos(angle) * dist}px`,
+                  ['--dy' as string]: `${Math.sin(angle) * dist}px`,
+                  ['--color' as string]: SPARK_COLORS[(si + bi) % SPARK_COLORS.length],
+                  ['--size' as string]: `${si % 4 === 0 ? 5 : 3}px`,
+                }}
+              />
+            )
+          }),
+        )}
+      </div>
+
+      {/* 내용 — 길면 스크롤 */}
+      <div className="relative h-full overflow-y-auto overscroll-contain px-5 pt-[calc(var(--status-h)+28px)] pb-[calc(28px+var(--ui-bottom,0px))]">
+        <div className="mx-auto flex max-w-[380px] flex-col items-center text-center">
+          <p className="ending-rise text-[12px] font-semibold tracking-[0.32em] text-[#9cc8ff]" style={delay(0.7)}>
+            {c.eyebrow}
+          </p>
+          <h1 className="ending-pop ending-glow mt-3 leading-none font-bold" style={delay(1.0)}>
+            <span className="block text-[min(76px,20cqw)]">{c.headline}</span>
+            <span className="mt-1 block text-[min(34px,9cqw)] tracking-[0.06em]">{c.headlineSuffix}</span>
+          </h1>
+          <p className="ending-rise mt-4 text-[16px] font-medium text-white/85" style={delay(1.6)}>
+            {c.congrats}
+          </p>
+
+          {/* 축하 팝업 — 뮤직비디오 + 음원 플랫폼 + 버튼 */}
+          <section
+            className="ending-rise mt-7 w-full rounded-[22px] border border-white/10 bg-white/[0.07] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-md"
+            style={delay(2.1)}
+          >
+            <MusicVideo />
+
+            <p className="mt-4 text-[13px] font-semibold tracking-[0.04em] text-white/70">{c.platformsTitle}</p>
+            <ul className="mt-3 grid grid-cols-3 gap-x-2 gap-y-3 px-1">
+              {releasePlatforms.map((id) => {
+                const app = apps[id]
+                const link = albumLinks[id]
+                const icon = <img src={assetUrl(app.icon)} alt="" className="size-12 rounded-[12px]" draggable={false} />
+                return (
+                  <li key={id}>
+                    {link ? (
+                      <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center gap-1.5 active:opacity-60"
+                      >
+                        {icon}
+                        <span className="w-full truncate text-[11.5px] text-white/85">{app.name}</span>
+                      </a>
+                    ) : (
+                      <span className="flex flex-col items-center gap-1.5 opacity-40" aria-disabled="true">
+                        {icon}
+                        <span className="w-full truncate text-[11.5px]">{c.platformNotReady}</span>
+                      </span>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+
+            <button
+              type="button"
+              onClick={onFinish}
+              className="mt-5 w-full rounded-2xl bg-white py-3.5 text-[16px] font-bold text-[#0f2c5e] active:bg-white/85"
+            >
+              {c.finish}
+            </button>
+          </section>
+        </div>
+      </div>
+    </div>
+  )
+}

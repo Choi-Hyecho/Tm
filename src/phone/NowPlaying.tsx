@@ -1,14 +1,28 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { lockScreenPlayer } from '../config/media'
 import { theme } from '../config/theme'
 import { assetUrl } from '../lib/asset'
 
-// iOS 잠금화면 음악 플레이어. 실제 재생은 하지 않고, 재생 버튼은 설정된 공식 음원 링크로 이동
-export function NowPlaying() {
-  const { title, artist, artwork, position, duration, link } = lockScreenPlayer
+/**
+ * iOS 잠금화면 음악 플레이어. 실제 재생은 하지 않고, 재생 버튼은 설정된 공식 음원 링크로 이동.
+ * 발매 전 새벽별 / 발매 후 Fallen Angel · 이 별을 번갈아 표시. 재생 위치는 항상 01:21 고정 (데뷔일 1/21)
+ */
+export function NowPlaying({ released }: { released: boolean }) {
+  const tracks = released ? lockScreenPlayer.afterRelease : lockScreenPlayer.beforeRelease
+  const [index, setIndex] = useState(0)
+  const track = tracks[index % tracks.length]
+  const { title, artist, artwork, duration, link } = track
+  const { position } = lockScreenPlayer
   const positionSec = toSeconds(position)
   const durationSec = toSeconds(duration)
   const progress = durationSec > 0 ? Math.min(1, positionSec / durationSec) : 0
+
+  // 곡이 여러 개면 일정 간격으로 다음 곡 (재생 위치는 그대로 01:21)
+  useEffect(() => {
+    if (tracks.length < 2) return
+    const timer = window.setInterval(() => setIndex((i) => i + 1), lockScreenPlayer.switchMs)
+    return () => window.clearInterval(timer)
+  }, [tracks.length])
 
   return (
     // 플레이어를 만지는 동안 잠금화면 스와이프/탭이 동작하지 않도록 차단
@@ -21,8 +35,9 @@ export function NowPlaying() {
       }}
       onPointerDown={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center gap-3">
-        <Artwork src={artwork} />
+      {/* 곡이 바뀔 때마다 새로 그려 부드럽게 나타남 */}
+      <div key={title} className="animate-track-in flex items-center gap-3">
+        <Artwork src={artwork} fallbackSrc={lockScreenPlayer.fallbackArtwork} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[15px] leading-tight font-semibold">{title}</p>
           <p className="truncate text-[15px] leading-tight text-white/60">{artist}</p>
@@ -79,10 +94,13 @@ function toTimestamp(seconds: number) {
   return `${m}:${s}`
 }
 
-function Artwork({ src }: { src: string }) {
-  const [failed, setFailed] = useState(false)
+/** 앨범아트 — 곡별 이미지가 없으면 fallbackSrc(극야 앨범아트), 그것도 없으면 임시 이미지 */
+function Artwork({ src, fallbackSrc }: { src: string; fallbackSrc?: string }) {
+  const [failed, setFailed] = useState<string[]>([])
+  const candidates = [src, fallbackSrc].filter((s): s is string => Boolean(s) && !failed.includes(s as string))
+  const current = candidates[0]
 
-  if (failed) {
+  if (!current) {
     // 앨범아트 파일이 없을 때 임시 이미지
     return (
       <div className="flex size-[52px] shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-ice-400 to-ice-700">
@@ -95,10 +113,10 @@ function Artwork({ src }: { src: string }) {
 
   return (
     <img
-      src={assetUrl(src)}
+      src={assetUrl(current)}
       alt=""
       draggable={false}
-      onError={() => setFailed(true)}
+      onError={() => setFailed((list) => [...list, current])}
       className="size-[52px] shrink-0 rounded-[10px] object-cover"
     />
   )

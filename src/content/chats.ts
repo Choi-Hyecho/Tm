@@ -1,5 +1,6 @@
 // 카카오톡 채팅방 데이터 — 대사는 모두 팬메이드 게임 속 가상 대화이며 실제 인물의 발언이 아님
 // 프로필 이미지는 public/images/profiles/ 아래 같은 이름으로 넣으면 바로 적용 (없으면 기본 프로필)
+import { memberProfiles } from '../config/media'
 
 export type ChatId = 'manager' | 'yunmin' | 'seungbin' | 'dohyun' | 'johnbekim'
 export type MemberId = Exclude<ChatId, 'manager'>
@@ -12,13 +13,18 @@ export interface ChatDef {
   statusMessage?: string
 }
 
+// 멤버 프로필 사진은 발매 전/후로 config/media.ts(memberProfiles)에서 — 화면에서는 avatarOf()로 가져옴
 export const chats: Record<ChatId, ChatDef> = {
   manager: { id: 'manager', name: '팀장님', avatar: 'images/profiles/manager.png' },
-  yunmin: { id: 'yunmin', name: '윤민', avatar: 'images/profiles/yunmin.png' },
-  seungbin: { id: 'seungbin', name: '김승빈', avatar: 'images/profiles/seungbin.png' },
-  dohyun: { id: 'dohyun', name: '채도현', avatar: 'images/profiles/dohyun.png' },
-  johnbekim: { id: 'johnbekim', name: '존비킴', avatar: 'images/profiles/johnbekim.png' },
+  yunmin: { id: 'yunmin', name: '윤민', avatar: memberProfiles.beforeRelease.yunmin },
+  seungbin: { id: 'seungbin', name: '김승빈', avatar: memberProfiles.beforeRelease.seungbin },
+  dohyun: { id: 'dohyun', name: '채도현', avatar: memberProfiles.beforeRelease.dohyun },
+  johnbekim: { id: 'johnbekim', name: '존비킴', avatar: memberProfiles.beforeRelease.johnbekim },
 }
+
+/** 지금 보여줄 프로필 사진 — 극야 발매 후 멤버는 극야 개인 자켓, 팀장님은 그대로 */
+export const avatarOf = (id: ChatId, released: boolean) =>
+  released && id !== 'manager' ? memberProfiles.afterRelease[id] : chats[id].avatar
 
 /** 친구 목록/채팅 목록 기본 순서 */
 export const chatOrder: ChatId[] = ['manager', 'yunmin', 'seungbin', 'dohyun', 'johnbekim']

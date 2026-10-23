@@ -29,6 +29,12 @@
   --animate-shake: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
   --animate-dot-pop: dot-pop 0.18s ease-out;
   --animate-hint: hint-bob 2.4s ease-in-out infinite;
+  --animate-track-in: track-in 0.6s ease-out;
+
+  @keyframes track-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
 
   @keyframes shake {
     0%, 100% { transform: translateX(0); }
@@ -89,5 +95,79 @@
 
   button {
     cursor: pointer;
+  }
+}
+
+/* ── 극야 발매 엔딩 (phone/ReleaseEnding.tsx) ── 지연 시간은 요소마다 style의 animation-delay로 */
+.ending-fade {
+  animation: ending-fade 0.7s ease-out both;
+}
+.ending-rise {
+  animation: ending-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.ending-pop {
+  animation: ending-pop 0.9s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+.ending-glow {
+  animation: ending-glow 3.2s ease-in-out infinite;
+}
+/* 폭죽 불꽃 — --dx/--dy 방향으로 퍼지며 사라짐 (transform/opacity만 써서 모바일에서도 부드럽게) */
+.ending-spark {
+  position: absolute;
+  width: var(--size, 4px);
+  height: var(--size, 4px);
+  border-radius: 9999px;
+  background: var(--color, #fff);
+  box-shadow: 0 0 6px var(--color, #fff);
+  opacity: 0;
+  animation: ending-spark 1.6s cubic-bezier(0.15, 0.7, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+/* 반짝이 — 제자리에서 반짝임 반복 */
+.ending-twinkle {
+  position: absolute;
+  border-radius: 9999px;
+  background: #fff;
+  animation: ending-twinkle var(--dur, 2.6s) ease-in-out infinite both;
+}
+
+@keyframes ending-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ending-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ending-pop {
+  0% { opacity: 0; transform: scale(0.82); letter-spacing: 0.3em; filter: blur(6px); }
+  60% { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: none; letter-spacing: 0.02em; filter: blur(0); }
+}
+@keyframes ending-glow {
+  0%, 100% { text-shadow: 0 0 18px rgba(156, 200, 255, 0.45); }
+  50% { text-shadow: 0 0 34px rgba(156, 200, 255, 0.85); }
+}
+@keyframes ending-spark {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  70% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 24px)) scale(0.3); }
+}
+@keyframes ending-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50% { opacity: 0.9; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ending-fade,
+  .ending-rise,
+  .ending-pop,
+  .ending-glow,
+  .ending-twinkle {
+    animation-duration: 0.01s;
+    animation-iteration-count: 1;
+  }
+  .ending-spark {
+    display: none;
   }
 }

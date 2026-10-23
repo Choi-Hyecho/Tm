@@ -108,7 +108,12 @@ export interface GameState {
   missionStatuses: Record<MissionId, MissionStatus>
   /** 지금 진행 중인 멤버 업무 — 한 번에 하나만. 업무 요청을 보내는 순간 예약됨 */
   activeMissionId: MemberId | null
+  /** 극야 발매 완료 (= albumReleased) — 날짜 10/15, 배경/프로필/Now Playing이 극야 버전으로 */
   released: boolean
+  /** 발매 엔딩을 끝까지 보고 '발매된 업무폰 확인하기'를 눌렀는지 — 이후 접속 때 엔딩이 자동으로 뜨지 않음 */
+  endingViewed: boolean
+  /** 지금 엔딩 팝업을 보여주는 중 — 화면 상태라 저장하지 않음 (불러올 때 released && !endingViewed로 계산) */
+  showEnding: boolean
   /** 도현 가사 검수 — 빈칸별 입력(임시 저장)과 전송 기록 */
   lyrics: { inputs: Record<string, string>; submissions: LyricsSubmission[] }
   /** 이스터에그: 멤버에게 한 애정 표현 횟수와 팀장님 경고 여부 */
@@ -153,6 +158,13 @@ export type GameAction =
   | { type: 'SUBMIT_LYRICS'; now: number }
   /** 미션 성공 이벤트로만 호출 (TODO 직접 체크 없음) */
   | { type: 'COMPLETE_MISSION'; id: MissionId; now: number }
-  | { type: 'RELEASE' }
+  /** 팀장님 최종 보고에서 '앨범 발매하기' — 1~5번 업무가 모두 끝났을 때만. 최종 보고 완료 + 발매 + 엔딩 */
+  | { type: 'RELEASE'; now: number }
+  /** 엔딩 팝업 닫기 ('발매된 업무폰 확인하기') */
+  | { type: 'CLOSE_ENDING' }
+  /** TODO의 '발매 축하 다시 보기' */
+  | { type: 'REPLAY_ENDING' }
+  /** 개발 전용 — 모든 업무 완료 처리 후 발매 */
+  | { type: 'DEV_FORCE_RELEASE'; now: number }
   | { type: 'VISIT_DUOLINGO' }
   | { type: 'RESET' }

@@ -10,6 +10,7 @@ import { HomeScreen } from './phone/home/HomeScreen'
 import { LockScreen } from './phone/LockScreen'
 import { NotificationBanner } from './phone/NotificationBanner'
 import { PhoneFrame } from './phone/PhoneFrame'
+import { ReleaseEnding } from './phone/ReleaseEnding'
 import { unlockTransitions } from './phone/unlockTransitions'
 import { useGame } from './state/context'
 import { getVirtualDate } from './state/selectors'
@@ -99,6 +100,16 @@ function App() {
     return () => window.removeEventListener('popstate', listener)
   }, [])
 
+  /** '발매된 업무폰 확인하기' — 엔딩을 닫고(영상도 함께 사라짐) 열린 앱을 정리한 뒤 극야 버전 잠금화면으로 */
+  function finishEnding() {
+    dispatch({ type: 'CLOSE_ENDING' })
+    window.clearTimeout(closeTimer.current)
+    setOpenApp(null)
+    setAppVisible(false)
+    if (isAppEntry(history.state)) history.replaceState(null, '')
+    setLockState('locked')
+  }
+
   // 표시 시각(notBefore)이 남은 알림은 그때 다시 그림
   const [bannerClock, setBannerClock] = useState(() => Date.now())
   useEffect(() => {
@@ -140,7 +151,7 @@ function App() {
           </AppLayer>
         )}
 
-        {lockState === 'unlocked' && banner && bannerView && (
+        {lockState === 'unlocked' && !state.showEnding && banner && bannerView && (
           <NotificationBanner
             key={banner.id}
             {...bannerView}
@@ -161,6 +172,9 @@ function App() {
             <LockScreen date={getVirtualDate(state)} released={state.released} onUnlock={handleUnlock} />
           </div>
         )}
+
+        {/* 극야 발매 엔딩 — 처음 발매했을 때(또는 TODO에서 다시 보기) */}
+        {state.showEnding && <ReleaseEnding onFinish={finishEnding} />}
       </PhoneFrame>
 
       {/* 개발 서버, 또는 테스트 배포에서 VITE_DEV_PANEL=true일 때만 표시 — 정식 배포에서는 이 변수를 두지 말 것 */}

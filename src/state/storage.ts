@@ -24,6 +24,8 @@ export function loadState(): GameState {
       // 예전 저장 데이터의 알림 형식(banner)은 버리고 새로 시작
       banners: Array.isArray(saved.banners) ? saved.banners : [],
       activeChat: null,
+      // 발매했지만 엔딩을 끝까지 못 봤으면 다시 보여줌. 본 뒤로는 자동으로 뜨지 않음 (TODO에서 다시 보기)
+      showEnding: Boolean(saved.released) && !saved.endingViewed,
     }
   } catch {
     return initial
@@ -32,7 +34,7 @@ export function loadState(): GameState {
 
 export function saveState(state: GameState) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, activeChat: null }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, activeChat: null, showEnding: false }))
   } catch {
     // 저장 실패해도 게임은 계속 진행
   }

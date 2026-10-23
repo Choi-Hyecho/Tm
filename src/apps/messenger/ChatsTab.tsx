@@ -1,4 +1,4 @@
-import { chatContent, chatOrder, chats, type ChatId } from '../../content/chats'
+import { avatarOf, chatContent, chatOrder, chats, type ChatId } from '../../content/chats'
 import { kakaoTabsContent } from '../../content/kakaoTabs'
 import { useClock } from '../../hooks/useClock'
 import { useGame } from '../../state/context'
@@ -51,7 +51,7 @@ export function ChatsTab({ onOpenChat, onToast }: ChatsTabProps) {
               onClick={() => onOpenChat(id)}
               className="flex w-full items-center gap-3 px-5 py-2.5 text-left active:bg-black/5"
             >
-              <Avatar src={chats[id].avatar} size={48} />
+              <Avatar src={avatarOf(id, state.released)} size={48} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14px] font-semibold">{chats[id].name}</span>
                 {last && (

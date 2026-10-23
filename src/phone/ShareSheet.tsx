@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Avatar } from '../apps/messenger/Avatar'
-import { chatOrder, chats, type ChatId } from '../content/chats'
+import { avatarOf, chatOrder, chats, type ChatId } from '../content/chats'
 import { shareContent } from '../content/share'
 import { assetUrl } from '../lib/asset'
 import { useGame } from '../state/context'
@@ -28,7 +28,7 @@ interface ShareSheetProps {
 
 // iOS 공유 시트 → 카카오톡 → 받을 사람 고르기. 보내면 그 채팅방에 사진/파일/메모 메시지가 생기고 상대가 반응
 export function ShareSheet({ item, onClose, onSent }: ShareSheetProps) {
-  const { dispatch } = useGame()
+  const { state, dispatch } = useGame()
   const [step, setStep] = useState<'apps' | 'kakao'>('apps')
   const [target, setTarget] = useState<ChatId | null>(null)
   const [shown, setShown] = useState(false)
@@ -119,7 +119,7 @@ export function ShareSheet({ item, onClose, onSent }: ShareSheetProps) {
                     aria-pressed={target === id}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-left active:bg-black/5"
                   >
-                    <Avatar src={chats[id].avatar} size={40} />
+                    <Avatar src={avatarOf(id, state.released)} size={40} />
                     <span className="min-w-0 flex-1 truncate text-[15px]">{chats[id].name}</span>
                     <span
                       className={`flex size-6 items-center justify-center rounded-full border-2 ${

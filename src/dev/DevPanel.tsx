@@ -42,10 +42,11 @@ export function DevPanel() {
           </button>
           <button
             type="button"
-            onClick={() => dispatch({ type: 'RELEASE' })}
-            className="rounded-lg bg-white/15 px-3 py-1.5 text-left"
+            disabled={state.released}
+            onClick={() => dispatch({ type: 'DEV_FORCE_RELEASE', now: Date.now() })}
+            className="rounded-lg bg-white/15 px-3 py-1.5 text-left disabled:opacity-40"
           >
-            발매 처리
+            엔딩 테스트: 모든 업무 완료 + 발매
           </button>
           <button type="button" onClick={resetAll} className="rounded-lg bg-red-500 px-3 py-1.5 text-left">
             처음 상태로 초기화
