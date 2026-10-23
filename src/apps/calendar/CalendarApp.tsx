@@ -26,7 +26,9 @@ export function CalendarApp() {
   const firstWeekday = new Date(month.year, month.month, 1).getDay()
   const daysInMonth = new Date(month.year, month.month + 1, 0).getDate()
   const cells = [...Array(firstWeekday).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)]
-  const eventsOn = (key: string) => calendarEvents.filter((e) => e.date === key)
+  // 하루 종일 일정 먼저, 그다음 시간순
+  const eventsOn = (key: string) =>
+    calendarEvents.filter((e) => e.date === key).sort((a, b) => (a.time ?? '').localeCompare(b.time ?? ''))
   const selectedEvents = eventsOn(selected)
   const selectedDate = parseLocalDate(selected)
 
@@ -126,7 +128,7 @@ export function CalendarApp() {
                   <div className="min-w-0 flex-1">
                     <p className="text-[15px] font-semibold">{e.title}</p>
                     <p className="text-[12px] text-black/45">
-                      {formatTime(e.time)} · {calendarContent.calendarName}
+                      {e.time ? formatTime(e.time) : calendarContent.allDay} · {calendarContent.calendarNames[e.calendar ?? 'album']}
                     </p>
                     {e.link && <p className="mt-1 text-[13px] text-[#3b86f5]">{/youtu\.?be/.test(e.link) ? calendarContent.openVideo : calendarContent.openLink} ↗</p>}
                   </div>

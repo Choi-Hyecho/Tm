@@ -13,7 +13,7 @@ export interface StaticNote {
 const timetableBody = [
   '정규 1집 「극야」 공개 일정',
   '',
-  ...calendarEvents.map((e) => {
+  ...calendarEvents.filter((e) => (e.calendar ?? 'album') === 'album').map((e) => {
     const [, m, d] = e.date.split('-').map(Number)
     return `${m}/${d} ${e.time}  ${e.title}`
   }),
