@@ -7,7 +7,7 @@ export const albumLinks = {
   genie: 'https://www.genie.co.kr/detail/artistInfo?xxnm=80981969',
   spotify: 'https://open.spotify.com/album/6kUmjbeGJaY3Q1uBY9jvf9',
   appleMusic: 'https://music.apple.com/us/artist/touched/1543982676',
-  youtubeMusic: '',
+  youtubeMusic: 'https://music.youtube.com/playlist?list=OLAK5uy_mqyRYOayUrpds0qlI4cxT8khsFWVvroAk',
   bugs: 'https://music.bugs.co.kr/album/20846623',
 }
 
