@@ -31,8 +31,8 @@ export const gameFiles: GameFile[] = [
     fileName: 'bass_mix_진짜최종.wav',
     // 베이스가 빠진 파일 (정답)
     audio: 'audio/johnbekim/mix_3.mp3',
-    sizeLabel: '3.1MB',
-    durationLabel: '00:18',
+    sizeLabel: '2.9MB',
+    durationLabel: '00:17',
   },
   {
     id: 'asset-bass-mix-4',
