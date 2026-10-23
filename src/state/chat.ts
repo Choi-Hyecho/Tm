@@ -39,7 +39,7 @@ import { dohyunQuest } from '../content/quests/dohyun'
 import { attachmentChecks } from '../missions/attachmentChecks'
 import { allBlanksFilled, isLyricsCorrect, lyricsFileName, renderLyrics } from '../missions/lyricsCheck'
 import { getActiveMissions, getMissionStatus, getProgress } from './selectors'
-import type { Banner, ChatMessage, GameState, ScheduledMessage } from './types'
+import type { Banner, ChatMessage, GameState, ScheduledMessage, SharedFile } from './types'
 
 /** 답장 엔진에 넘기는 게임 상태 — TODO 진행도/미션 상태는 공통 게임 상태에서 계산 */
 export function getReplyContext(state: GameState): ReplyContext {
@@ -84,9 +84,26 @@ export function pushTodoNotice(state: GameState, title: string, body: string, no
 }
 
 /** 상대방 메시지 도착 — 보고 있는 채팅방이 아니면 안 읽음 + 알림 배너 */
-export function deliverMessage(state: GameState, chatId: ChatId, text: string, now: number): GameState {
+export function deliverMessage(
+  state: GameState,
+  chatId: ChatId,
+  text: string,
+  now: number,
+  /** 파일 메시지로 도착 (상대가 보내는 파일) */
+  attachment?: SharedFile,
+): GameState {
   const thread = state.chats[chatId]
-  const message: ChatMessage = { id: messageId(chatId, thread.messages.length, now), from: chatId, text, at: now }
+  const message: ChatMessage = {
+    id: messageId(chatId, thread.messages.length, now),
+    from: chatId,
+    text,
+    at: now,
+    ...(attachment && {
+      kind: 'file' as const,
+      document: { fileName: attachment.fileName, content: '' },
+      action: attachment.action,
+    }),
+  }
   const isActive = state.activeChat === chatId
 
   const next: GameState = {
@@ -98,6 +115,20 @@ export function deliverMessage(state: GameState, chatId: ChatId, text: string, n
   }
   return isActive ? next : pushBanner(next, { id: message.id, kind: 'chat', chatId, messageId: message.id })
 }
+
+/** 파일 전송 예약 — 이미 예약된 답장 뒤에 잠깐 텀을 두고 도착 */
+function scheduleAttachment(state: GameState, chatId: ChatId, attachment: SharedFile, now: number): GameState {
+  const after = Math.max(now, ...state.scheduled.filter((s) => s.chatId === chatId).map((s) => s.deliverAt))
+  const message: ScheduledMessage = {
+    chatId,
+    text: chatContent.filePreview(attachment.fileName),
+    deliverAt: after + FILE_DELAY_MS,
+    attachment,
+  }
+  return { ...state, scheduled: [...state.scheduled, message] }
+}
+
+const FILE_DELAY_MS = 900
 
 /** 고민 연출: 입력 중이 뜨기까지 잠깐 텀 */
 const HESITATE_START_MS = 500
@@ -186,6 +217,8 @@ function respond(state: GameState, chatId: ChatId, messages: ChatMessage[], now:
       result.replies.length === 1 &&
       (result.category !== undefined ? result.category === lastCategory : result.replies[0] === lastReply)
     if (!repeated) next = scheduleReplies(next, chatId, result.replies, now, { reveal, hesitate: result.hesitate })
+    // 답장 다음에 파일 (예: 도현의 가사 메모 파일)
+    if (result.attachment) next = scheduleAttachment(next, chatId, result.attachment, now)
     lastReply = result.replies.at(-1)
     lastCategory = result.category
   }
@@ -343,7 +376,7 @@ export function deliverDue(state: GameState, now: number): GameState {
 
   const rest = state.scheduled.filter((s) => s.deliverAt > now)
   return due.reduce((next, s) => {
-    const delivered = deliverMessage(next, s.chatId, s.text, s.deliverAt)
+    const delivered = deliverMessage(next, s.chatId, s.text, s.deliverAt, s.attachment)
     // 답장이 도착한 뒤 업무 완료 (도현 가사 검수)
     if (s.completeMission) return completeMission(delivered, s.completeMission, s.deliverAt, { skipDoneMessage: true })
     if (!s.revealMission || delivered.missionStatuses[s.revealMission] !== 'hidden') return delivered

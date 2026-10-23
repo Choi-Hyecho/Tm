@@ -1,4 +1,5 @@
 // 채도현 대사 — 팬메이드 게임 속 가상 대사이며 실제 멤버의 발언이 아님
+import { dohyunQuest } from '../quests/dohyun'
 import type { MemberScript } from './types'
 
 export const dohyun: MemberScript = {
@@ -6,6 +7,8 @@ export const dohyun: MemberScript = {
   greeting: ['안녕하세요!', '앞으로 잘 부탁드립니다 매니저님'],
   // 첫 줄이 도착하면 TODO 공개 + 메모 앱에 가사 메모 공유
   request: ['아 그리고 매니저님 부탁드릴 게 있는데요','가사 검수 좀 부탁드려도 될까요?', '메모 공유드렸으니까 확인 부탁드릴게요!'],
+  // 요청 다음에 보내는 가사 메모 파일 — 누르면 메모 앱의 가사 메모로 이동
+  requestAttachment: { fileName: dohyunQuest.sharedFileName, action: 'openNotes' },
   beforeGreeting: ['앗 안녕하세요…? 혹시 새 매니저님이신가요?', '음… 처음 뵙는 것 같은데 새 매니저님이신가요?'],
   greetAgain: ['네 매니저님!', '안녕하세요 ㅎㅎ 부르셨나요?', '네네 ㅎㅎ'],
   affection: ['…네? ㅎㅎ 감사합니다…', '앗 네… ㅎㅎ', '어… 감사합니다…?', '앗… ㅎㅎ;;', '저를요?', '갑자기요?','아; 사랑이 많으신 분이네'],

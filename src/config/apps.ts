@@ -37,7 +37,7 @@ export interface AppDef {
   /** 공식 아이콘 경로 (public/ 기준). 빈 문자열이면 builtinIcon 또는 임시 아이콘 사용 */
   icon: string
   /** 게임 자체 아이콘 — calendar: iOS처럼 게임 날짜 표시 / todo: 게임 전용 앱 */
-  builtinIcon?: 'calendar' | 'todo' | 'settings'
+  builtinIcon?: 'calendar' | 'todo'
   /** 임시 아이콘 (배경, 글자색, 표시 글자) */
   placeholder: { background: string; color: string; text: string }
   open: AppOpen
@@ -177,8 +177,8 @@ export const apps: Record<AppId, AppDef> = {
   settings: {
     id: 'settings',
     name: '설정',
-    icon: '',
-    builtinIcon: 'settings',
+    // Apple 설정 아이콘 (Wikimedia Commons 'Settings (iOS).png', 퍼블릭 도메인 표기) — 여백을 잘라 256px로
+    icon: icon('settings'),
     placeholder: { background: '#8e8e93', color: '#ffffff', text: '설정' },
     open: { type: 'internal' },
   },

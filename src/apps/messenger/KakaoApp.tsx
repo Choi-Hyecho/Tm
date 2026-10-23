@@ -84,7 +84,7 @@ export function KakaoApp({ chatId, onOpenApp }: KakaoAppProps) {
             transition: `transform ${PUSH_MS}ms ${EASE}`,
           }}
         >
-          <ChatRoom key={chat} chatId={chat} onBack={closeChat} onOpenNotes={() => onOpenApp({ id: 'notes' })} />
+          <ChatRoom key={chat} chatId={chat} onBack={closeChat} onOpenNotes={() => onOpenApp({ id: 'notes', noteId: 'lyrics' })} />
         </div>
       )}
 

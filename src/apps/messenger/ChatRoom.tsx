@@ -131,6 +131,7 @@ export function ChatRoom({ chatId, onBack, onOpenNotes }: ChatRoomProps) {
               first={firstOfRun}
               onOpenPhoto={setViewingPhoto}
               onOpenDocument={setViewingDocument}
+              onOpenNotes={onOpenNotes}
             />
           )
           return m.from === 'me' ? (
@@ -220,20 +221,23 @@ function MessageContent({
   first,
   onOpenPhoto,
   onOpenDocument,
+  onOpenNotes,
 }: {
   message: ChatMessage
   mine: boolean
   first: boolean
   onOpenPhoto: (id: string) => void
   onOpenDocument: (document: NonNullable<ChatMessage['document']>) => void
+  onOpenNotes: () => void
 }) {
-  // 내가 만든 TXT 파일 (가사 검수) — 누르면 보낸 당시 내용 보기
+  // TXT 파일 — 내가 보낸 검수 파일은 당시 내용 보기, 도현이 공유한 메모 파일은 메모 앱으로 이동
   if (message.document) {
     const doc = message.document
+    const opensNotes = message.action === 'openNotes'
     return (
       <button
         type="button"
-        onClick={() => onOpenDocument(doc)}
+        onClick={() => (opensNotes ? onOpenNotes() : onOpenDocument(doc))}
         aria-label={`${doc.fileName} 열기`}
         className="flex w-[62cqw] max-w-[250px] items-center gap-2.5 rounded-[14px] bg-white p-3 text-left active:bg-white/80"
       >
@@ -242,7 +246,7 @@ function MessageContent({
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[13.5px] font-semibold">{doc.fileName}</span>
-          <span className="block text-[11px] text-black/45">텍스트 · 눌러서 보기</span>
+          <span className="block text-[11px] text-black/45">{opensNotes ? '공유 메모 · 눌러서 열기' : '텍스트 · 눌러서 보기'}</span>
         </span>
       </button>
     )

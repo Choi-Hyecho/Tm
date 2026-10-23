@@ -47,7 +47,6 @@ export function IconTile({ app }: { app: AppDef }) {
 
   if (app.builtinIcon === 'calendar') return <CalendarIcon />
   if (app.builtinIcon === 'todo') return <TodoIcon />
-  if (app.builtinIcon === 'settings') return <SettingsIcon />
 
   if (app.icon && !failed) {
     return (
@@ -96,25 +95,6 @@ function CalendarIcon() {
 }
 
 /** 게임 전용 TODO 앱 아이콘 */
-/** 게임 설정 앱 — 회색 톱니바퀴 */
-function SettingsIcon() {
-  return (
-    <div
-      className="flex size-full items-center justify-center bg-gradient-to-b from-[#a8a8ae] to-[#7c7c82] shadow-sm"
-      style={{ borderRadius: ICON_RADIUS }}
-    >
-      <svg viewBox="0 0 24 24" className="size-[66%]" fill="none" stroke="#ffffff" strokeWidth="1.6" aria-hidden>
-        <circle cx="12" cy="12" r="3.2" />
-        <path
-          d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"
-          strokeLinecap="round"
-        />
-        <circle cx="12" cy="12" r="6.6" />
-      </svg>
-    </div>
-  )
-}
-
 function TodoIcon() {
   return (
     <div

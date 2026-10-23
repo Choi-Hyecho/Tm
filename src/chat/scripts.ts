@@ -1,6 +1,7 @@
 // 채팅방별 답장 규칙 — 대화 흐름(flow)·대화 맥락과 입력 문장으로 다음 답장을 결정하는 순수 함수
 // 다른 멤버/미션 대화는 여기에 responder를 추가해서 연결
 import { managerScript, type ChatId, type MemberId } from '../content/chats'
+import type { SharedFile } from '../state/types'
 import { contextFollowups, managerAck, managerFallback, managerReplyRules } from '../content/managerReplies'
 import { memberScripts } from '../content/members'
 import { isAffection, isAffirmative, isGreeting, isNegative, isYesOnly } from './intent'
@@ -31,6 +32,8 @@ export interface RespondResult {
   hesitate?: boolean
   /** 답의 종류 — 한꺼번에 읽은 메시지가 같은 종류로 이어지면 답은 한 번만 (state/chat.ts) */
   category?: string
+  /** 답장 다음에 이어서 보내는 파일 */
+  attachment?: SharedFile
 }
 
 type Responder = (input: RespondInput) => RespondResult
@@ -103,6 +106,7 @@ const memberResponder =
             conversationContext: null,
             startMission: true,
             missionRequestIndex: replies.length,
+            attachment: script.requestAttachment,
           }
 
     if (flow === 'awaitingGreeting') {

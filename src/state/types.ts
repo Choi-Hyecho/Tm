@@ -9,8 +9,10 @@ export interface ChatMessage {
   kind?: 'text' | 'image' | 'file'
   /** 사진/파일 메시지의 asset ID (content/gallery.ts, content/gameFiles.ts) */
   attachmentId?: string
-  /** 사용자가 만든 텍스트 파일 (가사 검수 TXT) — 보낸 당시 내용 그대로 보관, 이후 메모를 고쳐도 바뀌지 않음 */
+  /** 텍스트 파일 (가사 검수 TXT) — 보낸 당시 내용 그대로 보관, 이후 메모를 고쳐도 바뀌지 않음 */
   document?: { fileName: string; content: string }
+  /** 파일을 눌렀을 때 — 'openNotes': 내용 보기 대신 메모 앱 열기 (도현이 공유한 가사 메모) */
+  action?: 'openNotes'
   /** 텍스트 메시지 내용. 첨부는 채팅 목록/알림에 보일 미리보기 문구 */
   text: string
   /** 실제 시각 (ms) */
@@ -41,6 +43,15 @@ export interface ScheduledMessage {
   typingWindows?: [number, number][]
   /** 이 메시지가 도착한 뒤 해당 업무 완료 (도현 가사 검수 — 답장 후 TODO 체크) */
   completeMission?: MemberId
+  /** 파일 메시지로 도착 (상대가 보내는 파일) */
+  attachment?: SharedFile
+}
+
+/** 상대가 보내는 파일 메시지 */
+export interface SharedFile {
+  fileName: string
+  /** 'openNotes': 누르면 메모 앱으로 이동 */
+  action: 'openNotes'
 }
 
 /** 도현 가사 검수 전송 기록 한 건 */

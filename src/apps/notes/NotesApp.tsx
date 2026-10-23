@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { OpenAppRequest } from '../renderApp'
+import { staticNotes, type StaticNote } from '../../content/notes'
 import { dohyunQuest } from '../../content/quests/dohyun'
 import { allBlanksFilled, lyricLines } from '../../missions/lyricsCheck'
 import { StatusBar } from '../../phone/StatusBar'
@@ -10,46 +11,93 @@ import { RecordingPlayer } from './RecordingPlayer'
 const NOTE_YELLOW = '#e0a800'
 
 interface NotesAppProps {
+  /** 처음 열 메모 — 'lyrics': 도현이 공유한 가사 메모 (카톡 파일/+ 메뉴). 없으면 목록 */
+  noteId?: string
   /** 다른 앱으로 이동 — 전송 후 도현 채팅방으로 */
   onOpenApp: (request: OpenAppRequest) => void
 }
 
-// 아이폰 메모 앱 — 도현이 공유한 LIAR 가사 메모. 파란 형광펜 빈칸에만 직접 입력 가능
-export function NotesApp({ onOpenApp }: NotesAppProps) {
+const LYRICS_NOTE = 'lyrics'
+
+// 아이폰 메모 앱 — 일반 메모(읽기 전용) + 도현이 공유한 LIAR 가사 메모(파란 빈칸에만 입력)
+export function NotesApp({ noteId, onOpenApp }: NotesAppProps) {
   const { state } = useGame()
   const status = getMissionStatus(state, 'dohyun')
-  // 업무 요청 메시지가 도착(공개)한 뒤부터 메모가 공유됨
+  // 업무 요청 메시지가 도착(공개)한 뒤부터 가사 메모가 공유됨
   const shared = status === 'active' || status === 'completed'
-  const [view, setView] = useState<'list' | 'note'>(shared ? 'note' : 'list')
+  const [open, setOpen] = useState<string | null>(noteId === LYRICS_NOTE && !shared ? null : (noteId ?? null))
+  const staticNote = staticNotes.find((n) => n.id === open)
 
   return (
     <div className="flex h-full flex-col bg-white text-black">
       <StatusBar color="#1c1c1e" />
-      {view === 'note' && shared ? (
-        <LyricsNote onBack={() => setView('list')} onOpenApp={onOpenApp} />
+      {open === LYRICS_NOTE && shared ? (
+        <LyricsNote onBack={() => setOpen(null)} onOpenApp={onOpenApp} />
+      ) : staticNote ? (
+        <ReadOnlyNote note={staticNote} onBack={() => setOpen(null)} />
       ) : (
-        <NoteList shared={shared} onOpen={() => setView('note')} />
+        <NoteList shared={shared} onOpen={setOpen} />
       )}
     </div>
   )
 }
 
-function NoteList({ shared, onOpen }: { shared: boolean; onOpen: () => void }) {
+function NoteList({ shared, onOpen }: { shared: boolean; onOpen: (id: string) => void }) {
   const { memo } = dohyunQuest
   return (
     <div className="flex-1 overflow-y-auto bg-[#f2f2f7] px-4 pb-[calc(34px+var(--ui-bottom,0px))]">
       <h1 className="pt-2 pb-3 text-[30px] font-bold">{memo.listTitle}</h1>
-      {shared ? (
-        <button type="button" onClick={onOpen} className="w-full rounded-xl bg-white px-4 py-3 text-left active:bg-black/5">
-          <p className="truncate text-[15px] font-semibold">{dohyunQuest.memoTitle}</p>
-          <p className="mt-0.5 flex items-center gap-1.5 truncate text-[13px] text-black/45">
-            <SharedIcon /> 채도현님이 공유함
-          </p>
-        </button>
-      ) : (
-        <p className="pt-24 text-center text-[14px] text-black/35">{memo.notShared}</p>
-      )}
+      <ul className="divide-y divide-black/5 overflow-hidden rounded-xl bg-white">
+        {shared && (
+          <li>
+            <button type="button" onClick={() => onOpen(LYRICS_NOTE)} className="w-full px-4 py-3 text-left active:bg-black/5">
+              <p className="truncate text-[15px] font-semibold">{dohyunQuest.memoTitle}</p>
+              <p className="mt-0.5 flex items-center gap-1.5 truncate text-[13px] text-black/45">
+                <SharedIcon /> 채도현님이 공유함
+              </p>
+            </button>
+          </li>
+        )}
+        {staticNotes.map((note) => (
+          <li key={note.id}>
+            <button type="button" onClick={() => onOpen(note.id)} className="w-full px-4 py-3 text-left active:bg-black/5">
+              <p className="truncate text-[15px] font-semibold">{note.title}</p>
+              <p className="mt-0.5 truncate text-[13px] text-black/45">
+                {note.dateLabel} <span className="text-black/35">{note.body.split('\n').find((l) => l.trim())}</span>
+              </p>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="pt-3 text-center text-[12px] text-black/35">메모 {staticNotes.length + (shared ? 1 : 0)}개</p>
     </div>
+  )
+}
+
+function NoteHeader({ onBack }: { onBack: () => void }) {
+  return (
+    <header className="flex h-11 shrink-0 items-center px-2" style={{ color: NOTE_YELLOW }}>
+      <button type="button" onClick={onBack} className="flex items-center gap-1 px-1 text-[16px] active:opacity-50">
+        <svg width="11" height="18" viewBox="0 0 12 20" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden>
+          <path d="M10 2 2 10l8 8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        {dohyunQuest.memo.listTitle}
+      </button>
+    </header>
+  )
+}
+
+/** 일반 메모 — 읽기 전용 */
+function ReadOnlyNote({ note, onBack }: { note: StaticNote; onBack: () => void }) {
+  return (
+    <>
+      <NoteHeader onBack={onBack} />
+      <div className="flex-1 overflow-y-auto px-5 pb-[calc(34px+var(--ui-bottom,0px))]">
+        <h1 className="text-[22px] font-bold">{note.title}</h1>
+        <p className="mt-1 mb-4 text-[12px] text-black/40">{note.dateLabel}</p>
+        <p className="text-[16px] leading-relaxed whitespace-pre-wrap">{note.body}</p>
+      </div>
+    </>
   )
 }
 
@@ -69,14 +117,7 @@ function LyricsNote({ onBack, onOpenApp }: { onBack: () => void; onOpenApp: (req
 
   return (
     <>
-      <header className="flex h-11 shrink-0 items-center px-2" style={{ color: NOTE_YELLOW }}>
-        <button type="button" onClick={onBack} className="flex items-center gap-1 px-1 text-[16px] active:opacity-50">
-          <svg width="11" height="18" viewBox="0 0 12 20" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden>
-            <path d="M10 2 2 10l8 8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {memo.listTitle}
-        </button>
-      </header>
+      <NoteHeader onBack={onBack} />
 
       <div className="flex-1 overflow-y-auto px-5 pb-6">
         <h1 className="text-[22px] font-bold">{dohyunQuest.memoTitle}</h1>

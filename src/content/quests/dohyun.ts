@@ -4,6 +4,8 @@
 
 export const dohyunQuest = {
   memoTitle: '극야 · LIAR 가사 검수',
+  /** 도현이 업무 요청과 함께 보내는 파일 — 누르면 메모 앱의 가사 메모로 이동 */
+  sharedFileName: '극야_라이어_가사검수.txt',
 
   /**
    * 가사 원문 — 빈칸은 {정답} 으로 표시 (예: {거짓}).

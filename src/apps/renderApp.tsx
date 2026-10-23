@@ -12,6 +12,8 @@ export interface OpenAppRequest {
   id: AppId
   /** 카카오톡: 바로 열 채팅방 */
   chatId?: ChatId
+  /** 메모: 바로 열 메모 ('lyrics' = 도현이 공유한 가사 메모) */
+  noteId?: string
 }
 
 interface AppScreenProps {
@@ -30,7 +32,7 @@ export function AppScreen({ request, onOpenApp }: AppScreenProps) {
     case 'photos':
       return <PhotosApp />
     case 'notes':
-      return <NotesApp onOpenApp={onOpenApp} />
+      return <NotesApp noteId={request.noteId} onOpenApp={onOpenApp} />
     case 'settings':
       return <SettingsApp />
     case 'calendar':
