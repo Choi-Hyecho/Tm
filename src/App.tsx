@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { AppScreen, type OpenAppRequest } from './apps/renderApp'
 import { theme } from './config/theme'
 import { chatContent, chats } from './content/chats'
@@ -19,6 +19,9 @@ type LockState = 'locked' | 'unlocking' | 'unlocked'
 const APP_CLOSE_MS = 400
 /** 홈 화면이 나타난 뒤 팀장님 첫 카톡이 오기까지 */
 const INTRO_DELAY_MS = 1000
+/** 앱을 열 때 남기는 방문 기록 — 뒤로가기로 앱 닫기 */
+const APP_HISTORY_STATE = { touchedApp: true }
+const isAppEntry = (state: unknown) => typeof state === 'object' && state !== null && 'touchedApp' in state
 
 function App() {
   const { state, dispatch } = useGame()
@@ -59,6 +62,8 @@ function App() {
       : { x: 0, y: 0 }
 
     window.clearTimeout(closeTimer.current)
+    // 안드로이드 뒤로가기로 앱을 닫을 수 있도록 방문 기록을 하나 남김 (앱이 이미 열려 있으면 그대로)
+    if (!isAppEntry(history.state)) history.pushState(APP_HISTORY_STATE, '')
     setOpenApp((prev) => ({ ...request, origin, launchId: (prev?.launchId ?? 0) + 1 }))
     setAppVisible(false)
     // 축소 상태로 먼저 그린 다음 프레임에 확대 — transition이 적용되도록
@@ -75,6 +80,24 @@ function App() {
     setAppVisible(false)
     closeTimer.current = window.setTimeout(() => setOpenApp(null), APP_CLOSE_MS)
   }
+
+  /** 홈 바/Esc로 닫을 때 — 남겨 둔 방문 기록도 지움 (지우면 아래 popstate에서 닫힘) */
+  function requestCloseApp() {
+    if (isAppEntry(history.state)) history.back()
+    else closeApp()
+  }
+
+  // 안드로이드 뒤로가기(버튼/제스처), 브라우저 뒤로 → 열린 앱을 닫고 홈 화면으로
+  const handlePopState = useEffectEvent(() => {
+    if (openApp) closeApp()
+  })
+  useEffect(() => {
+    // 앱을 연 채로 새로고침하면 앱 기록만 남으므로 지워 둠
+    if (isAppEntry(history.state)) history.replaceState(null, '')
+    const listener = () => handlePopState()
+    window.addEventListener('popstate', listener)
+    return () => window.removeEventListener('popstate', listener)
+  }, [])
 
   // 표시 시각(notBefore)이 남은 알림은 그때 다시 그림
   const [bannerClock, setBannerClock] = useState(() => Date.now())
@@ -111,7 +134,7 @@ function App() {
         </div>
 
         {openApp && (
-          <AppLayer origin={openApp.origin} visible={appVisible} onClose={closeApp}>
+          <AppLayer origin={openApp.origin} visible={appVisible} onClose={requestCloseApp}>
             {/* 열 때마다 새로 그림 — 카카오톡이 열린 상태에서 다른 채팅 알림을 눌러도 해당 방으로 */}
             <AppScreen key={openApp.launchId} request={openApp} onOpenApp={switchApp} />
           </AppLayer>

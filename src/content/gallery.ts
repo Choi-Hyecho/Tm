@@ -41,7 +41,8 @@ const PHOTOS_OLDEST_FIRST: PhotoInput[] = [
   { id: 'asset-polar-dohyun', owner: 'dohyun', album: 'polar', src: 'images/photos/polar/CD.jpg' },
   { id: 'asset-polar-seungbin', owner: 'seungbin', album: 'polar', src: 'images/photos/polar/SB.jpg' },
   { id: 'asset-polar-yunmin', owner: 'yunmin', album: 'polar', src: 'images/photos/polar/YM.jpg' },
-  // 존비킴 극야 자켓, 단체 사진은 파일을 받으면 여기에 추가
+  { id: 'asset-polar-johnbekim', owner: 'johnbekim', album: 'polar', src: 'images/photos/polar/JB.jpg' },
+  // 단체 사진은 파일을 받으면 여기에 추가
 ]
 
 /** 화면 표시 순서: 최신 앨범부터 (같은 앨범 안의 순서는 유지) */
