@@ -2,17 +2,20 @@
 
 /** 플랫폼별 TOUCHED 정규 1집 '극야' 앨범 페이지 */
 export const albumLinks = {
-  melon: '',
-  genie: '',
-  spotify: '',
-  appleMusic: '',
+  /** 멜론·지니·애플 뮤직은 TOUCHED 아티스트 페이지 */
+  melon: 'https://www.melon.com/artist/timeline.htm?artistId=2905108',
+  genie: 'https://www.genie.co.kr/detail/artistInfo?xxnm=80981969',
+  spotify: 'https://open.spotify.com/album/6kUmjbeGJaY3Q1uBY9jvf9',
+  appleMusic: 'https://music.apple.com/us/artist/touched/1543982676',
   youtubeMusic: '',
   bugs: '',
 }
 
 export const links = {
   /** TOUCHED 공식 유튜브 채널 또는 공식 뮤직비디오 */
-  youtube: '',
+  youtube: 'https://www.youtube.com/@touched_official/videos',
+  /** TOUCHED 공식 X */
+  x: 'https://x.com/band_touched',
   /** TOUCHED 관련 공식 웹사이트 */
   safari: '',
   /** 윤민 듀오링고 관련 YouTube Shorts (위젯과 앱 아이콘이 함께 사용) */

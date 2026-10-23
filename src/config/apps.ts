@@ -14,6 +14,7 @@ export type AppId =
   | 'youtubeMusic'
   | 'bugs'
   | 'youtube'
+  | 'x'
   | 'safari'
   | 'calendar'
   | 'clock'
@@ -124,6 +125,13 @@ export const apps: Record<AppId, AppDef> = {
     placeholder: { background: '#ffffff', color: '#ff0000', text: 'YouTube' },
     open: { type: 'external', link: links.youtube },
   },
+  x: {
+    id: 'x',
+    name: 'X',
+    icon: icon('x'),
+    placeholder: { background: '#000000', color: '#ffffff', text: 'X' },
+    open: { type: 'external', link: links.x },
+  },
   safari: {
     id: 'safari',
     name: 'Safari',
@@ -193,6 +201,7 @@ export const homeLayout: AppId[] = [
   'youtubeMusic',
   'bugs',
   'youtube',
+  'x',
   'safari',
   'calendar',
   'clock',
