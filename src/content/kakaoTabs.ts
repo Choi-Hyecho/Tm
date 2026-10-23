@@ -6,6 +6,18 @@ export const kakaoTabsContent = {
   /** 장난 광고 배지 */
   adLabel: 'AD',
   shoppingNotice: '결제는 공식 판매처에서 진행돼요. 버튼을 누르면 새 탭으로 열려요.',
+  /** 친구 탭 내 프로필을 누르면 */
+  profileEditor: {
+    title: '프로필 편집',
+    cancel: '취소',
+    done: '완료',
+    changePhoto: '프로필 사진 변경',
+    defaultPhoto: '기본',
+    nameLabel: '이름',
+    nameHint: '멤버들이 이 이름으로 불러요 (예: 하나 → 하나님)',
+    statusLabel: '상태 메시지',
+    editHint: '눌러서 프로필 편집',
+  },
   more: {
     profile: {
       title: '내 프로필',

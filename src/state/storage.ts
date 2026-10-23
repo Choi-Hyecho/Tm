@@ -22,6 +22,7 @@ export function loadState(): GameState {
       affection: { ...initial.affection, ...saved.affection },
       lyrics: { ...initial.lyrics, ...saved.lyrics },
       tracklist: { ...initial.tracklist, ...saved.tracklist },
+      profile: { ...initial.profile, ...saved.profile },
       // 예전 저장 데이터의 알림 형식(banner)은 버리고 새로 시작
       banners: Array.isArray(saved.banners) ? saved.banners : [],
       activeChat: null,

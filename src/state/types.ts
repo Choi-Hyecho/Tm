@@ -134,6 +134,11 @@ export interface GameState {
   noteEdits: Record<string, { body: string; updatedAt: number }>
   /** 트랙리스트 검수 — 편집 중인 순서(곡 ID), 공유 카드 발송 여부, 저장(제출) 횟수 */
   tracklist: { order: string[]; shared: boolean; submissions: number }
+  /**
+   * 플레이어 카톡 프로필 — 비어 있으면 기본값(config/kakao.ts의 myProfile).
+   * 이름을 정하면 대사 속 '매니저님'이 '○○님'으로 (state/profile.ts)
+   */
+  profile: { name: string; status: string; photoId: string | null }
 }
 
 export interface UserNote {
@@ -150,6 +155,8 @@ export type GameAction =
   | { type: 'SEND_MESSAGE'; chatId: ChatId; text: string; now: number }
   /** 카카오톡 첨부/공유 전송 — 전송했을 때만 미션 판별 (첨부 메뉴 열기/미리보기는 상태 변화 없음). memo는 메모 ID */
   | { type: 'SEND_ATTACHMENT'; chatId: ChatId; kind: ShareKind; attachmentId: string; now: number }
+  /** 카톡 내 프로필 편집 — 이름/상태 메시지/프로필 사진(사진 앱 사진 ID, null이면 기본) */
+  | { type: 'SET_PROFILE'; name: string; status: string; photoId: string | null }
   /** 공유 시트로 보낸 뒤 알림 배너 (누르면 그 채팅방) */
   | { type: 'NOTIFY_SENT'; chatId: ChatId; now: number }
   /** 카톡으로 받은 파일을 파일 앱에 저장 */

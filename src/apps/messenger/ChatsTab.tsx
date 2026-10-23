@@ -2,6 +2,7 @@ import { avatarOf, chatContent, chatOrder, chats, type ChatId } from '../../cont
 import { kakaoTabsContent } from '../../content/kakaoTabs'
 import { useClock } from '../../hooks/useClock'
 import { useGame } from '../../state/context'
+import { addressPlayer } from '../../state/profile'
 import { Avatar } from './Avatar'
 import { KakaoHeader, NewChatIcon, SearchIcon, SettingsIcon } from './KakaoHeader'
 import { PromoBanner } from './PromoBanner'
@@ -55,7 +56,9 @@ export function ChatsTab({ onOpenChat, onToast }: ChatsTabProps) {
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14px] font-semibold">{chats[id].name}</span>
                 {last && (
-                  <span className="mt-0.5 line-clamp-2 text-[12.5px] leading-snug text-black/50">{last.text}</span>
+                  <span className="mt-0.5 line-clamp-2 text-[12.5px] leading-snug text-black/50">
+                    {last.from === 'me' ? last.text : addressPlayer(last.text, state)}
+                  </span>
                 )}
               </span>
               <span className="flex shrink-0 flex-col items-end gap-1 self-start pt-0.5">

@@ -7,6 +7,7 @@ import { useTypingIndicator } from '../../hooks/useTypingIndicator'
 import { formatDate } from '../../lib/date'
 import { StatusBar } from '../../phone/StatusBar'
 import { useGame } from '../../state/context'
+import { addressPlayer } from '../../state/profile'
 import { getMissionStatus, getVirtualDate } from '../../state/selectors'
 import { releaseContent } from '../../content/release'
 import { tracklistQuest } from '../../content/quests/tracklist'
@@ -141,7 +142,9 @@ export function ChatRoom({ chatId, onBack, onOpenNotes, onOpenFiles, onToast, on
           {formatDate(getVirtualDate(state), { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
         </p>
 
-        {messages.map((m, i) => {
+        {messages.map((raw, i) => {
+          // 상대 대사 속 '매니저님' → 플레이어가 정한 이름
+          const m = raw.from === 'me' ? raw : { ...raw, text: addressPlayer(raw.text, state) }
           const prev = messages[i - 1]
           const next = messages[i + 1]
           const firstOfRun = !prev || prev.from !== m.from || !sameMinute(prev, m)

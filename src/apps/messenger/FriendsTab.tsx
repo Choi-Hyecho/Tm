@@ -1,4 +1,6 @@
-import { myProfile } from '../../config/kakao'
+import { useState } from 'react'
+import { getMyProfile } from '../../state/profile'
+import { ProfileEditor } from './ProfileEditor'
 import { avatarOf, chatOrder, chats, type ChatId } from '../../content/chats'
 import { kakaoTabsContent } from '../../content/kakaoTabs'
 import { useGame } from '../../state/context'
@@ -13,6 +15,8 @@ interface FriendsTabProps {
 
 export function FriendsTab({ onOpenChat, onToast }: FriendsTabProps) {
   const { state } = useGame()
+  const me = getMyProfile(state)
+  const [editing, setEditing] = useState(false)
   return (
     <>
       <KakaoHeader title={kakaoTabsContent.tabs.friends}>
@@ -21,16 +25,20 @@ export function FriendsTab({ onOpenChat, onToast }: FriendsTabProps) {
         <SettingsIcon />
       </KakaoHeader>
 
-      {/* 내 프로필 */}
-      <div className="flex items-center gap-3.5 px-5 py-2.5">
-        <Avatar src={myProfile.avatar} size={58} />
+      {/* 내 프로필 — 누르면 이름/상태 메시지/사진 편집 */}
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        aria-label={kakaoTabsContent.profileEditor.editHint}
+        className="flex w-full items-center gap-3.5 px-5 py-2.5 text-left active:bg-black/5"
+      >
+        <Avatar src={me.avatar} size={58} />
         <div className="min-w-0">
-          <p className="truncate text-[16px] font-semibold">{myProfile.name}</p>
-          <p className="truncate text-[12px] text-black/50">
-            {state.released ? myProfile.statusMessageReleased : myProfile.statusMessage}
-          </p>
+          <p className="truncate text-[16px] font-semibold">{me.name}</p>
+          <p className="truncate text-[12px] text-black/50">{me.status}</p>
         </div>
-      </div>
+      </button>
+      {editing && <ProfileEditor onClose={() => setEditing(false)} />}
 
       <PromoBanner onToast={onToast} />
 

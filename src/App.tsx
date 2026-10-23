@@ -14,6 +14,7 @@ import { PhoneFrame } from './phone/PhoneFrame'
 import { ReleaseEnding } from './phone/ReleaseEnding'
 import { unlockTransitions } from './phone/unlockTransitions'
 import { useGame } from './state/context'
+import { addressPlayer } from './state/profile'
 import { getVirtualDate } from './state/selectors'
 
 type LockState = 'locked' | 'unlocking' | 'unlocked'
@@ -134,7 +135,7 @@ function App() {
           appId: 'kakaotalk' as const,
           appName: chatContent.appName,
           title: chats[banner.chatId].name,
-          message: state.chats[banner.chatId].messages.find((m) => m.id === banner.messageId)?.text ?? '',
+          message: addressPlayer(state.chats[banner.chatId].messages.find((m) => m.id === banner.messageId)?.text ?? '', state),
         }
       : banner.kind === 'sent'
         ? {

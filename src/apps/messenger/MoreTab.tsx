@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
-import { myProfile } from '../../config/kakao'
 import { kakaoTabsContent } from '../../content/kakaoTabs'
+import { useGame } from '../../state/context'
+import { getMyProfile } from '../../state/profile'
 import { meta } from '../../content/meta'
 import { Avatar } from './Avatar'
 import { KakaoHeader, SearchIcon, SettingsIcon } from './KakaoHeader'
@@ -8,6 +9,8 @@ import { KakaoHeader, SearchIcon, SettingsIcon } from './KakaoHeader'
 type Section = 'profile' | 'guide' | 'fanmade'
 
 export function MoreTab() {
+  const { state } = useGame()
+  const me = getMyProfile(state)
   const [open, setOpen] = useState<Section | null>(null)
   const { more } = kakaoTabsContent
   const toggle = (section: Section) => setOpen((current) => (current === section ? null : section))
@@ -20,17 +23,17 @@ export function MoreTab() {
       </KakaoHeader>
 
       <div className="mx-4 mt-1 flex items-center gap-3 rounded-2xl bg-black/[0.04] p-4">
-        <Avatar src={myProfile.avatar} size={48} />
+        <Avatar src={me.avatar} size={48} />
         <div className="min-w-0">
-          <p className="truncate text-[15px] font-semibold">{myProfile.name}</p>
-          <p className="truncate text-[12.5px] text-black/50">{myProfile.statusMessage}</p>
+          <p className="truncate text-[15px] font-semibold">{me.name}</p>
+          <p className="truncate text-[12.5px] text-black/50">{me.status}</p>
         </div>
       </div>
 
       <ul className="mt-4 divide-y divide-black/5 border-y border-black/5">
         <MoreItem title={more.profile.title} open={open === 'profile'} onToggle={() => toggle('profile')}>
           <p>
-            <span className="font-semibold text-black/70">{myProfile.name}</span> · {myProfile.statusMessage}
+            <span className="font-semibold text-black/70">{me.name}</span> · {me.status}
           </p>
           <p className="mt-1">{more.profile.body}</p>
         </MoreItem>

@@ -19,6 +19,7 @@ import {
   submitTracklist,
 } from './chat'
 import { tracklistQuest } from '../content/quests/tracklist'
+import { PROFILE_LIMITS } from './profile'
 import { getMissionStatus } from './selectors'
 import type { Banner, ChatThread, GameAction, GameState } from './types'
 
@@ -56,6 +57,7 @@ export function createInitialState(): GameState {
     userNotes: [],
     noteEdits: {},
     tracklist: { order: tracklistQuest.initialOrder, shared: false, submissions: 0 },
+    profile: { name: '', status: '', photoId: null },
   }
 }
 
@@ -145,6 +147,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const done = Object.fromEntries(missions.map((m) => [m.id, 'completed'])) as GameState['missionStatuses']
       return { ...state, missionStatuses: done, activeMissionId: null, released: true, showEnding: true }
     }
+    case 'SET_PROFILE':
+      return {
+        ...state,
+        profile: {
+          name: action.name.trim().slice(0, PROFILE_LIMITS.name),
+          status: action.status.trim().slice(0, PROFILE_LIMITS.status),
+          photoId: action.photoId,
+        },
+      }
     case 'NOTIFY_SENT':
       return pushSentNotice(state, action.chatId, action.now)
     case 'DOWNLOAD_FILE':
