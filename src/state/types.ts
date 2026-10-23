@@ -71,6 +71,8 @@ export interface LyricsSubmission {
 /** 화면 위에서 내려오는 알림 — 카카오톡 새 메시지 / TODO 업무 변경 */
 export type Banner =
   | { id: string; kind: 'chat'; chatId: ChatId; messageId: string }
+  /** 공유 시트로 보낸 뒤 "윤민님에게 보냈어요" — 누르면 그 채팅방 */
+  | { id: string; kind: 'sent'; chatId: ChatId }
   | {
       id: string
       kind: 'todo'
@@ -148,6 +150,8 @@ export type GameAction =
   | { type: 'SEND_MESSAGE'; chatId: ChatId; text: string; now: number }
   /** 카카오톡 첨부/공유 전송 — 전송했을 때만 미션 판별 (첨부 메뉴 열기/미리보기는 상태 변화 없음). memo는 메모 ID */
   | { type: 'SEND_ATTACHMENT'; chatId: ChatId; kind: ShareKind; attachmentId: string; now: number }
+  /** 공유 시트로 보낸 뒤 알림 배너 (누르면 그 채팅방) */
+  | { type: 'NOTIFY_SENT'; chatId: ChatId; now: number }
   /** 카톡으로 받은 파일을 파일 앱에 저장 */
   | { type: 'DOWNLOAD_FILE'; fileId: string }
   /** 메모 앱 — 새 메모 (ID는 화면에서 만들어 넘김) / 내용 수정 (내 메모 또는 기본 메모) / 내 메모 삭제 */

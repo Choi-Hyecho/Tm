@@ -83,6 +83,11 @@ function pushBanner(state: GameState, banner: Banner): GameState {
   return { ...state, banners: [...state.banners, banner] }
 }
 
+/** 공유 시트로 보낸 뒤 알림 — 누르면 그 채팅방으로 */
+export function pushSentNotice(state: GameState, chatId: ChatId, now: number): GameState {
+  return pushBanner(state, { id: `sent-${chatId}-${now}`, kind: 'sent', chatId })
+}
+
 /** TODO 알림 — 업무 등록/완료/열림 */
 export function pushTodoNotice(state: GameState, title: string, body: string, now: number, notBefore?: number): GameState {
   return pushBanner(state, { id: `todo-${state.banners.length}-${now}-${body}`, kind: 'todo', title, body, notBefore })

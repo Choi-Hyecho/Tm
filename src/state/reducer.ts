@@ -9,6 +9,7 @@ import {
   completeMission,
   deliverDue,
   deliverMessage,
+  pushSentNotice,
   pushTodoNotice,
   readPending,
   sendAttachment,
@@ -76,7 +77,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return deliverDue(state, action.now)
     case 'OPEN_CHAT': {
       const thread = state.chats[action.chatId]
-      const isThisChat = (b: Banner) => b.kind === 'chat' && b.chatId === action.chatId
+      const isThisChat = (b: Banner) => (b.kind === 'chat' || b.kind === 'sent') && b.chatId === action.chatId
       const opened: GameState = {
         ...state,
         activeChat: action.chatId,
@@ -144,6 +145,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const done = Object.fromEntries(missions.map((m) => [m.id, 'completed'])) as GameState['missionStatuses']
       return { ...state, missionStatuses: done, activeMissionId: null, released: true, showEnding: true }
     }
+    case 'NOTIFY_SENT':
+      return pushSentNotice(state, action.chatId, action.now)
     case 'DOWNLOAD_FILE':
       if (!findFile(action.fileId) || state.downloads.includes(action.fileId)) return state
       return { ...state, downloads: [...state.downloads, action.fileId] }

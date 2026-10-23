@@ -4,6 +4,7 @@ import { findPhoto, galleryPhotos } from '../../content/gallery'
 import { findFile } from '../../content/gameFiles'
 import { filesContent } from '../../content/share'
 import { useGame } from '../../state/context'
+import { AudioPlayerControls } from '../files/AudioPlayerControls'
 import { PhotoTile } from '../photos/PhotoTile'
 import { AudioPreviewButton } from './AudioPreviewButton'
 
@@ -238,8 +239,9 @@ function FilePicker({ onBack, onSend }: { onBack: () => void; onSend: (id: strin
             <p className="text-[12.5px] text-black/45">
               {file.sizeLabel} · {file.durationLabel}
             </p>
-            <div className="mt-4 flex items-center gap-2">
-              <AudioPreviewButton src={file.audio} />
+            {/* 파일 앱과 같은 재생 바 + 5초 뒤로/앞으로 */}
+            <div className="flex justify-center">
+              <AudioPlayerControls key={file.id} src={file.audio} />
             </div>
           </div>
         </div>

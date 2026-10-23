@@ -2,9 +2,7 @@ import { useState, type ReactNode } from 'react'
 import type { OpenAppRequest } from '../renderApp'
 import { notesContent } from '../../content/notes'
 import { shareContent } from '../../content/share'
-import { useToast } from '../../hooks/useToast'
 import { ShareIcon, ShareSheet } from '../../phone/ShareSheet'
-import { Toast } from '../../phone/Toast'
 import { dohyunQuest } from '../../content/quests/dohyun'
 import { allBlanksFilled, lyricLines } from '../../missions/lyricsCheck'
 import { StatusBar } from '../../phone/StatusBar'
@@ -137,7 +135,6 @@ function NoteHeader({ onBack, children }: { onBack: () => void; children?: React
 function NoteEditor({ note, autoFocus, onBack }: { note: NoteView; autoFocus: boolean; onBack: () => void }) {
   const { dispatch } = useGame()
   const [sharing, setSharing] = useState(false)
-  const { toast, showToast } = useToast()
 
   function back() {
     if (note.mine && !note.body.trim()) dispatch({ type: 'DELETE_NOTE', id: note.id })
@@ -188,10 +185,8 @@ function NoteEditor({ note, autoFocus, onBack }: { note: NoteView; autoFocus: bo
         <ShareSheet
           item={{ kind: 'memo', id: note.id, title: note.title, preview: <NoteIcon /> }}
           onClose={() => setSharing(false)}
-          onSent={(name) => showToast(shareContent.sent(name))}
         />
       )}
-      <Toast {...toast} />
     </>
   )
 }

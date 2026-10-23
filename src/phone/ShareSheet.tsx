@@ -22,12 +22,11 @@ export interface ShareItem {
 interface ShareSheetProps {
   item: ShareItem
   onClose: () => void
-  /** 보낸 뒤 — 받는 사람 이름으로 안내 */
-  onSent: (name: string) => void
 }
 
 // iOS 공유 시트 → 카카오톡 → 받을 사람 고르기. 보내면 그 채팅방에 사진/파일/메모 메시지가 생기고 상대가 반응
-export function ShareSheet({ item, onClose, onSent }: ShareSheetProps) {
+// 보낸 뒤 "○○님에게 보냈어요" 카톡 알림 — 누르면 그 채팅방 (App의 알림 배너)
+export function ShareSheet({ item, onClose }: ShareSheetProps) {
   const { state, dispatch } = useGame()
   const [step, setStep] = useState<'apps' | 'kakao'>('apps')
   const [target, setTarget] = useState<ChatId | null>(null)
@@ -53,7 +52,7 @@ export function ShareSheet({ item, onClose, onSent }: ShareSheetProps) {
   function send() {
     if (!target) return
     dispatch({ type: 'SEND_ATTACHMENT', chatId: target, kind: item.kind, attachmentId: item.id, now: Date.now() })
-    close(() => onSent(chats[target].name))
+    close(() => dispatch({ type: 'NOTIFY_SENT', chatId: target, now: Date.now() }))
   }
 
   return (

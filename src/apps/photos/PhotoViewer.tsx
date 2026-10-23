@@ -1,10 +1,8 @@
 import { useEffect, useEffectEvent, useRef, useState, type PointerEvent } from 'react'
 import { findPhoto } from '../../content/gallery'
 import { shareContent } from '../../content/share'
-import { useToast } from '../../hooks/useToast'
 import { ShareIcon, ShareSheet } from '../../phone/ShareSheet'
 import { StatusBar } from '../../phone/StatusBar'
-import { Toast } from '../../phone/Toast'
 import { PhotoTile } from './PhotoTile'
 
 const SWIPE_THRESHOLD = 50
@@ -25,7 +23,6 @@ export function PhotoViewer({ photoIds, initialId, onClose }: PhotoViewerProps) 
   const [dragging, setDragging] = useState(false)
   const start = useRef({ x: 0, y: 0 })
   const [sharing, setSharing] = useState(false)
-  const { toast, showToast } = useToast()
 
   const go = (delta: number) => setIndex((i) => Math.min(photos.length - 1, Math.max(0, i + delta)))
 
@@ -138,10 +135,8 @@ export function PhotoViewer({ photoIds, initialId, onClose }: PhotoViewerProps) 
             preview: <PhotoTile photo={current} className="size-11 shrink-0 rounded-lg" />,
           }}
           onClose={() => setSharing(false)}
-          onSent={(name) => showToast(shareContent.sent(name))}
         />
       )}
-      <Toast {...toast} />
     </div>
   )
 }

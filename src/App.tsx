@@ -3,6 +3,7 @@ import { AppScreen, type OpenAppRequest } from './apps/renderApp'
 import { theme } from './config/theme'
 import { chatContent, chats } from './content/chats'
 import { todoContent } from './content/missions'
+import { shareContent } from './content/share'
 import { DevPanel } from './dev/DevPanel'
 import { useBrowserChromeColor } from './hooks/useBrowserChromeColor'
 import { AppLayer } from './phone/AppLayer'
@@ -121,7 +122,7 @@ function App() {
   }, [state.banners, bannerClock])
 
   // 알림은 앞에서부터 하나씩 — 카톡 새 메시지 / TODO 업무 변경 (표시 시각 전인 알림은 건너뜀)
-  const banner = state.banners.find((b) => b.kind === 'chat' || !b.notBefore || b.notBefore <= bannerClock)
+  const banner = state.banners.find((b) => b.kind !== 'todo' || !b.notBefore || b.notBefore <= bannerClock)
   const bannerView =
     banner &&
     (banner.kind === 'chat'
@@ -131,7 +132,14 @@ function App() {
           title: chats[banner.chatId].name,
           message: state.chats[banner.chatId].messages.find((m) => m.id === banner.messageId)?.text ?? '',
         }
-      : { appId: 'todo' as const, appName: todoContent.notifications.appName, title: banner.title, message: banner.body })
+      : banner.kind === 'sent'
+        ? {
+            appId: 'kakaotalk' as const,
+            appName: chatContent.appName,
+            title: chats[banner.chatId].name,
+            message: shareContent.sent(chats[banner.chatId].name),
+          }
+        : { appId: 'todo' as const, appName: todoContent.notifications.appName, title: banner.title, message: banner.body })
 
   return (
     <>
@@ -156,9 +164,9 @@ function App() {
             key={banner.id}
             {...bannerView}
             onOpen={(el) => {
-              // 카톡 알림은 채팅방을 열면 저절로 정리됨, TODO 알림은 여기서 정리
+              // 카톡 알림(받은 메시지/보낸 공유)은 채팅방을 열면 저절로 정리됨, TODO 알림은 여기서 정리
               if (banner.kind === 'todo') dispatch({ type: 'DISMISS_BANNER', id: banner.id })
-              launchApp(banner.kind === 'chat' ? { id: 'kakaotalk', chatId: banner.chatId } : { id: 'todo' }, el)
+              launchApp(banner.kind === 'todo' ? { id: 'todo' } : { id: 'kakaotalk', chatId: banner.chatId }, el)
             }}
             onDismiss={() => dispatch({ type: 'DISMISS_BANNER', id: banner.id })}
           />
