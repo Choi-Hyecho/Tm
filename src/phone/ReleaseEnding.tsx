@@ -12,13 +12,13 @@ interface ReleaseEndingProps {
 }
 
 /**
- * 「극야」 X 헤더의 수채화 색 — 가운데 짙은 청록 파랑, 가장자리에 연한 하늘색/흰 번짐
+ * 「극야」 X 헤더의 수채화 파랑 — 흰 번짐 없이 화면 전체를 파란 톤으로, 밝고 짙은 파랑이 자연스럽게 섞이게
  */
 const WATERCOLOR = [
-  'radial-gradient(55% 32% at 8% 6%, rgba(232,243,248,0.9) 0%, rgba(232,243,248,0) 70%)',
-  'radial-gradient(45% 28% at 96% 14%, rgba(168,211,230,0.75) 0%, rgba(168,211,230,0) 70%)',
-  'radial-gradient(60% 30% at 0% 62%, rgba(120,182,212,0.55) 0%, rgba(120,182,212,0) 70%)',
-  'radial-gradient(55% 30% at 100% 88%, rgba(214,235,244,0.6) 0%, rgba(214,235,244,0) 70%)',
+  'radial-gradient(60% 34% at 12% 8%, rgba(76,140,184,0.7) 0%, rgba(76,140,184,0) 70%)',
+  'radial-gradient(50% 30% at 94% 18%, rgba(58,122,168,0.6) 0%, rgba(58,122,168,0) 70%)',
+  'radial-gradient(65% 32% at 0% 64%, rgba(20,70,108,0.55) 0%, rgba(20,70,108,0) 70%)',
+  'radial-gradient(60% 32% at 100% 90%, rgba(64,128,172,0.5) 0%, rgba(64,128,172,0) 70%)',
   'linear-gradient(180deg, #2a6f9f 0%, #1f5f8c 40%, #1a527c 100%)',
 ].join(', ')
 const SPARK_COLORS = ['#ffffff', '#e8f3f8', '#bcdcec', '#8ec3dc', '#5fa3c9']
@@ -117,7 +117,7 @@ export function ReleaseEnding({ onFinish }: ReleaseEndingProps) {
               {c.releaseDate}
               <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/40" />
             </p>
-            <div className="mt-3 space-y-0.5 text-[15.5px] leading-relaxed font-medium text-white/90">
+            <div className="mt-3 space-y-0.5 text-[13.5px] leading-relaxed text-white/85">
               {c.congrats.map((line) => (
                 <p key={line}>{line}</p>
               ))}
