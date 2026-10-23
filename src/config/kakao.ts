@@ -66,7 +66,7 @@ export const promotions: Promotion[] = [
     title: 'Fallen Angel M/V',
     subtitle: '더블 타이틀곡 뮤직비디오 보러 가기',
     image: 'images/promo/fallen-angel.jpg',
-    link: '',
+    link: 'https://youtu.be/Cj3QAPorkgI',
     fallback: 'linear-gradient(120deg, #1a1f3a, #6a4fb3)',
   },
   {
@@ -82,7 +82,7 @@ export const promotions: Promotion[] = [
     title: 'TOUCHED 공식 YouTube',
     subtitle: '무대와 비하인드 영상을 한곳에서',
     image: 'images/promo/youtube.jpg',
-    link: '',
+    link: 'https://www.youtube.com/@touched_official/videos',
     fallback: 'linear-gradient(120deg, #3a0d12, #d6243a)',
   },
   {
@@ -90,7 +90,7 @@ export const promotions: Promotion[] = [
     title: '멤버 소개',
     subtitle: '윤민 · 김승빈 · 채도현 · 존비킴',
     image: 'images/promo/members.jpg',
-    link: '',
+    link: 'https://mpmgmusic.com/touched',
     fallback: 'linear-gradient(120deg, #1a4fa8, #6aa9ff)',
   },
 ]
