@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { apps } from '../config/apps'
 import { albumLinks } from '../config/links'
+import { albumLogo } from '../config/media'
 import { releaseContent, releasePlatforms } from '../content/release'
 import { assetUrl } from '../lib/asset'
 import { MusicVideo } from './MusicVideo'
@@ -10,8 +11,17 @@ interface ReleaseEndingProps {
   onFinish: () => void
 }
 
-const NAVY = '#0a1a3a'
-const SPARK_COLORS = ['#ffffff', '#cfe4ff', '#9cc8ff', '#6aa9ff', '#ffe9b0']
+/**
+ * 「극야」 X 헤더의 수채화 색 — 가운데 짙은 청록 파랑, 가장자리에 연한 하늘색/흰 번짐
+ */
+const WATERCOLOR = [
+  'radial-gradient(55% 32% at 8% 6%, rgba(232,243,248,0.9) 0%, rgba(232,243,248,0) 70%)',
+  'radial-gradient(45% 28% at 96% 14%, rgba(168,211,230,0.75) 0%, rgba(168,211,230,0) 70%)',
+  'radial-gradient(60% 30% at 0% 62%, rgba(120,182,212,0.55) 0%, rgba(120,182,212,0) 70%)',
+  'radial-gradient(55% 30% at 100% 88%, rgba(214,235,244,0.6) 0%, rgba(214,235,244,0) 70%)',
+  'linear-gradient(180deg, #2a6f9f 0%, #1f5f8c 40%, #1a527c 100%)',
+].join(', ')
+const SPARK_COLORS = ['#ffffff', '#e8f3f8', '#bcdcec', '#8ec3dc', '#5fa3c9']
 
 /** 폭죽 — 위치(%), 시작 시각(초), 퍼지는 거리(px). 화면 위쪽에서 차례로 터짐 */
 const BURSTS = [
@@ -43,9 +53,7 @@ export function ReleaseEnding({ onFinish }: ReleaseEndingProps) {
       aria-modal="true"
       aria-label={`${c.headline} ${c.headlineSuffix}`}
       className="ending-fade absolute inset-0 z-[70] overflow-hidden text-white"
-      style={{
-        background: `radial-gradient(120% 60% at 50% 0%, #1a4fa8 0%, transparent 65%), radial-gradient(90% 50% at 50% 110%, #2468d6 0%, transparent 70%), ${NAVY}`,
-      }}
+      style={{ background: WATERCOLOR }}
     >
       {/* 폭죽 + 반짝이 — 터치는 통과 */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
@@ -89,20 +97,33 @@ export function ReleaseEnding({ onFinish }: ReleaseEndingProps) {
       {/* 내용 — 길면 스크롤 */}
       <div className="relative h-full overflow-y-auto overscroll-contain px-5 pt-[calc(var(--status-h)+28px)] pb-[calc(28px+var(--ui-bottom,0px))]">
         <div className="mx-auto flex max-w-[380px] flex-col items-center text-center">
-          <p className="ending-rise text-[12px] font-semibold tracking-[0.32em] text-[#9cc8ff]" style={delay(0.7)}>
-            {c.eyebrow}
-          </p>
-          <h1 className="ending-pop ending-glow mt-3 leading-none font-bold" style={delay(1.0)}>
-            <span className="block text-[min(76px,20cqw)]">{c.headline}</span>
-            <span className="mt-1 block text-[min(34px,9cqw)] tracking-[0.06em]">{c.headlineSuffix}</span>
+          {/* 「극야」 손글씨 로고 (TOUCHED The 1st Album 포함) + RELEASED */}
+          <h1 className="ending-pop" style={delay(0.8)}>
+            <img
+              src={assetUrl(albumLogo)}
+              alt={`TOUCHED The 1st Album ${c.headline}`}
+              className="mx-auto w-[min(300px,78cqw)] drop-shadow-[0_2px_14px_rgba(10,40,70,0.45)]"
+              draggable={false}
+            />
+            <span className="mt-3 block text-[13px] font-semibold tracking-[0.55em] text-[#e8f3f8] [text-indent:0.55em]">
+              {c.headlineSuffix}
+            </span>
           </h1>
-          <p className="ending-rise mt-4 text-[16px] font-medium text-white/85" style={delay(1.6)}>
-            {c.congrats}
-          </p>
+
+          {/* 축하 문구 — 얇은 선 사이 날짜 + 두 줄 */}
+          <div className="ending-rise mt-6 flex w-full flex-col items-center" style={delay(1.6)}>
+            <p className="flex w-full items-center gap-3 text-[11px] tracking-[0.2em] text-[#bcdcec]">
+              <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/40" />
+              {c.releaseDate}
+              <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/40" />
+            </p>
+            <p className="mt-3 text-[18px] font-semibold tracking-[0.01em] text-white">{c.congrats}</p>
+            <p className="mt-1 text-[13px] text-white/70">{c.congratsSub}</p>
+          </div>
 
           {/* 축하 팝업 — 뮤직비디오 + 음원 플랫폼 + 버튼 */}
           <section
-            className="ending-rise mt-7 w-full rounded-[22px] border border-white/10 bg-white/[0.07] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-md"
+            className="ending-rise mt-7 w-full rounded-[22px] border border-white/20 bg-[#123f62]/45 p-3 shadow-[0_20px_60px_rgba(8,32,56,0.35)] backdrop-blur-md"
             style={delay(2.1)}
           >
             <MusicVideo />
@@ -139,7 +160,7 @@ export function ReleaseEnding({ onFinish }: ReleaseEndingProps) {
             <button
               type="button"
               onClick={onFinish}
-              className="mt-5 w-full rounded-2xl bg-white py-3.5 text-[16px] font-bold text-[#0f2c5e] active:bg-white/85"
+              className="mt-5 w-full rounded-2xl bg-white py-3.5 text-[16px] font-bold text-[#1a527c] active:bg-white/85"
             >
               {c.finish}
             </button>

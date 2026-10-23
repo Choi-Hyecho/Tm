@@ -12,11 +12,13 @@ export const releaseContent = {
   myMessage: '팀장님, 모든 업무 마쳤습니다! 「극야」 발매하겠습니다.',
   managerMessage: '고생 많으셨습니다 매니저님! 「극야」 발매되었습니다 🎉',
 
-  /** 엔딩 팝업 */
-  eyebrow: 'TOUCHED 1ST FULL ALBUM',
+  /** 엔딩 팝업 — 제목은 「극야」 손글씨 로고 이미지(config/media.ts의 albumLogo) */
   headline: '극야',
-  headlineSuffix: 'RELEASED!',
-  congrats: '매니저님, 발매를 축하합니다!',
+  headlineSuffix: 'RELEASED',
+  /** 축하 문구 위 작은 날짜 */
+  releaseDate: '2026. 10. 15  12PM',
+  congrats: '매니저님, 발매를 축하합니다',
+  congratsSub: '오늘 하루 정말 고생 많으셨어요',
   video: {
     unavailable: '공식 뮤직비디오 준비 중',
     unmute: '소리 켜기',

@@ -71,6 +71,8 @@ export interface PlayerTrack {
 
 /** 「극야」 앨범아트 (벅스 앨범 페이지 이미지) */
 export const albumArt = 'images/release/album_cover.jpg'
+/** 「극야」 손글씨 로고 (흰 글씨, 배경 투명) — MPMG 스토어 앨범 이미지에서 잘라냄. 발매 엔딩 제목 */
+export const albumLogo = 'images/release/logo_kaamos.png'
 
 /**
  * 잠금화면 음악 플레이어 — 배경화면과 독립적으로 설정.
