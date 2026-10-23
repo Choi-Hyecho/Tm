@@ -25,5 +25,6 @@ export function addressPlayer(text: string, state: GameState) {
   const name = state.profile.name.trim()
   if (!name) return text
   const title = name.endsWith('님') ? name : `${name}님`
-  return text.replaceAll('매니저님', title)
+  // "새 매니저님", "새로 오신 매니저님"처럼 직책으로 부르는 말은 그대로
+  return text.replace(/(?<!새\s?|오신\s?)매니저님/g, title)
 }
