@@ -26,7 +26,7 @@ export const releaseContent = {
   },
   platformsTitle: '지금 「극야」 듣기',
   platformNotReady: '준비 중',
-  finish: '발매된 업무폰 확인하기',
+  finish: '닫기',
 
   /** TODO 완료 화면 */
   replay: '발매 축하 다시 보기',
