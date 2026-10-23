@@ -75,13 +75,14 @@ export function PasscodePad({ active, onSuccess, onCancel }: PasscodePadProps) {
 
   return (
     <div className="flex h-full flex-col items-center text-white select-none">
-      <div className="flex flex-1 flex-col items-center justify-end pb-[3cqh]">
-        <p className="text-[20px]">{lockContent.title}</p>
-        <div className={`mt-5 flex gap-6 ${status === 'error' ? 'animate-shake' : ''}`}>
+      {/* 위쪽 여백을 더 크게 — 숫자판이 화면 아래쪽으로 */}
+      <div className="flex flex-[1.5] flex-col items-center justify-end pb-[3.5cqh]">
+        <p className="text-[22px]">{lockContent.title}</p>
+        <div className={`mt-6 flex gap-7 ${status === 'error' ? 'animate-shake' : ''}`}>
           {Array.from({ length: passcode.length }, (_, i) => (
             <span
               key={i}
-              className={`size-[13px] rounded-full border-[1.5px] border-white transition-colors duration-100 ${
+              className={`size-[15px] rounded-full border-[1.5px] border-white transition-colors duration-100 ${
                 i < entered.length ? 'animate-dot-pop bg-white' : 'bg-transparent'
               }`}
             />
@@ -92,7 +93,7 @@ export function PasscodePad({ active, onSuccess, onCancel }: PasscodePadProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-x-[min(24px,6cqw)] gap-y-[min(16px,2cqh)]">
+      <div className="grid grid-cols-3 gap-x-[min(28px,7cqw)] gap-y-[min(20px,2.4cqh)]">
         {KEYS.map(([digit, letters]) => (
           <Key key={digit} digit={digit} letters={letters} onPress={press} />
         ))}
@@ -101,7 +102,7 @@ export function PasscodePad({ active, onSuccess, onCancel }: PasscodePadProps) {
         <span />
       </div>
 
-      <div className="flex w-full flex-1 items-end justify-between px-[13cqw] pb-[calc(6cqh+var(--ui-bottom,0px))] text-[17px]">
+      <div className="flex w-full flex-1 items-end justify-between px-[13cqw] pb-[calc(5cqh+var(--ui-bottom,0px))] text-[18px]">
         <span className="text-white/90">{lockContent.emergencyLabel}</span>
         <button type="button" onClick={backspace} className="active:opacity-50">
           {entered ? lockContent.deleteLabel : lockContent.cancelLabel}
@@ -123,10 +124,10 @@ function Key({ digit, letters, onPress }: KeyProps) {
       type="button"
       aria-label={digit}
       onClick={() => onPress(digit)}
-      className="flex size-[min(78px,9.2cqh)] flex-col items-center justify-center rounded-full bg-white/20 transition-colors duration-300 active:bg-white/55 active:duration-0"
+      className="flex size-[min(86px,22cqw,10.2cqh)] flex-col items-center justify-center rounded-full bg-white/20 transition-colors duration-300 active:bg-white/55 active:duration-0"
     >
-      <span className="text-[min(36px,4.3cqh)] leading-none font-light">{digit}</span>
-      <span className="mt-0.5 h-3 text-[10px] leading-3 font-semibold tracking-[0.18em]">{letters}</span>
+      <span className="text-[min(40px,4.8cqh)] leading-none font-light">{digit}</span>
+      <span className="mt-0.5 h-3 text-[11px] leading-3 font-semibold tracking-[0.18em]">{letters}</span>
     </button>
   )
 }
