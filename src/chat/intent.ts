@@ -1,4 +1,5 @@
 // 자유 입력 문장의 정규화와 첫 대화용 긍정/부정 판별
+import { stripSongNames } from '../content/discography'
 
 /** 공백/문장부호/이모지/웃음(ㅋㅎ)을 지우고 소문자로 — 인사 'ㅎㅇ'의 ㅎ은 남김 */
 export function normalize(text: string) {
@@ -27,9 +28,9 @@ export function isMealQuestion(text: string) {
 
 const GREETING = /안녕|하이|ㅎㅇ|ㅎ2|hi|hello|헬로|반갑|반가워|반가웡|처음뵙|첨뵙|인사드|잘부탁|굿모닝|좋은아침/
 
-/** "안녕하세요", "안녕하십니까", "반갑습니다", "ㅎㅇ" 같은 인사 */
+/** "안녕하세요", "안녕하십니까", "반갑습니다", "ㅎㅇ" 같은 인사 — 곡 이름 속 '하이'(하이라이트), 'hi'(Shibuya)는 제외 */
 export function isGreeting(text: string) {
-  return GREETING.test(normalize(text))
+  return GREETING.test(stripSongNames(normalize(text)))
 }
 
 // '넵넵', '네네', 'ㅇㅇ' 처럼 짧은 긍정 대답만으로 이뤄진 문장

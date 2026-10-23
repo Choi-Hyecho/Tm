@@ -17,11 +17,10 @@ export const seungbinQuest = {
 
   /** 곡 이름 인식 — 정규화된 문장(공백/문장부호 제거, 소문자) 기준. 긴 표현을 앞에 */
   songPatterns: {
-    fallen: [/fallenangel|폴른엔젤|폴른엔절|폴런엔젤|폴린엔젤|폴린엔델|폴링엔젤|fallen|angel|폴른|폴린|폴링|폴런|엔젤|에인절|타락천사/],
+    fallen: [/fallenangel|폴른엔젤|폴른엔절|뽈린|뽈릔|폴릔|뽈링|폴런엔젤|폴린엔젤|폴린엔델|폴링엔젤|fallen|angel|폴른|폴린|폴링|폴런|엔젤|에인절|타락천사/],
     byeol: [/이별|byeol/],
   } satisfies Record<TitleSong, RegExp[]>,
-  /** 다른 수록곡 — 이 곡을 말하면 선택으로 치지 않고 두 곡 중에 고르라고 함 (수록곡 이름을 여기에 추가) */
-  otherTrackPatterns: [/liar|라이어|딴따라/],
+  // 다른 곡(Liar, TANTARA, Highlight …)은 content/discography.ts의 곡 목록으로 인식 — 선택으로 치지 않고 두 곡 중에 고르라고 함
   /** 곡 이름 바로 뒤에 오면 그 곡은 "고르지 않음" — 예: "이 별 말고", "이 별보다", "이 별은 아니고" */
   rejectAfterSong: /^(?:은|는|이|가|도|을|를|이랑|랑)?(?:말고|보다|아니|빼고|별로|싫)/,
   /** "둘 다", "더블" — 토론 중에는 승빈이 거절함 (마지막엔 본인이 그렇게 함) */
@@ -33,19 +32,24 @@ export const seungbinQuest = {
   askReason: ['오 {song}이요? 왜요?', '{song}… 이유가 뭐예요?', '왜 {song}이에요? 근거 듣고 싶어요.'],
   /** 두 곡이 다 나오거나 부정 표현 때문에 헷갈릴 때 */
   ambiguous: [
-    '그래서… 어느 곡이요? ㅋㅋ',
-    '헷갈리는데요. Fallen Angel이에요, 이 별이에요?',
-    '잠깐만요, 정확히 어떤 곡을 고르신 거예요?',
+    '그래서… 어느 곡이요?',
+    '헷갈리는데요. Fallen Angel이에요? 이 별이에요?',
+    '잠깐만요. 정확히 어떤 곡을 고르신 거예요?',
   ],
-  /** 다른 수록곡을 말하면 */
+  /** 다른 곡을 말하면 — {track}을 쓰면 그 곡 이름이 들어감 */
   otherTrack: [
-    '그 곡도 좋긴 한데요... 오늘은 Fallen Angel이랑 이 별 중에서 골라주셔야 해요 ㅎㅎ',
+    '그 곡도 좋긴 한데요... Fallen Angel이랑 이 별 중에서 고민 중 이라',
     '아 그 곡도 좋죠. 근데 타이틀 후보는 Fallen Angel이랑 이 별이에요!',
+    '{track}도 좋죠 ㅎㅎ 근데 지금은 Fallen Angel이랑 이 별 얘기 중이에요!',
   ],
+  /** 특정 곡을 말했을 때 따로 할 말 (곡 제목은 content/discography.ts와 같게) — 없으면 otherTrack */
+  otherTrackSpecial: {
+    Highlight: ['하이라이트는 이미 저희 대표곡이잖아요 ㅋㅋ', '이번 앨범 타이틀은 Fallen Angel이랑 이 별 중에서 골라주세요!'],
+  } as Record<string, string[]>,
   /** 곡을 고르기 전 무관한 말 */
   guide: [
     'Fallen Angel이랑 이 별 중에 하나만 골라주세요!',
-    '타이틀 얘기 중이었잖아요 ㅋㅋ Fallen Angel이요, 이 별이요?',
+    '타이틀 얘기 중이었잖아요! Fallen Angel이요, 이 별이요?',
     '그래서 매니저님은 Fallen Angel이에요, 이 별이에요?',
   ],
 

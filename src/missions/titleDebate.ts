@@ -7,6 +7,7 @@
 // 반박이 debateRounds번 나오면 매니저의 다음 말에 더블 타이틀 결정 → 업무 완료
 import { normalize } from '../chat/intent'
 import type { LinePicker } from '../chat/ruleEngine'
+import { findOtherTrack } from '../content/discography'
 import { seungbinQuest, type ReasonKey, type TitleSong } from '../content/quests/seungbin'
 
 const PREFIX = 'titleDebate:'
@@ -128,7 +129,11 @@ export function respondTitleDebate({ flow, text, recent, turn }: DebateInput, pi
   if (state.stage === 'pick' || !state.side) {
     if (choice.kind === 'song') return askReason(choice.song)
     if (choice.kind === 'ambiguous') return reply([pick(q.ambiguous)], state, 'debateAmbiguous')
-    if (q.otherTrackPatterns.some((p) => p.test(t))) return reply([pick(q.otherTrack)], state, 'debateOtherTrack')
+    const track = findOtherTrack(t)
+    if (track) {
+      const lines = q.otherTrackSpecial[track.title] ?? [pick(q.otherTrack).replaceAll('{track}', track.title)]
+      return reply(lines, state, `debateOtherTrack-${track.title}`)
+    }
     return reply([pick(q.guide)], state, 'debateGuide')
   }
 
