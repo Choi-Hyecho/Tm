@@ -29,6 +29,17 @@ export const dohyunQuest = {
   fileBaseName: '극야_라이어_가사검수',
   fileSuffixes: ['', '_완', '_진짜', '_찐', '_찐완', '_찐찐완', '_진짜완', '_이게진짜', '_real'],
 
+  /** 메모 맨 아래 녹음본 (public/ 기준) — 파일을 같은 이름으로 바꾸면 바로 적용 */
+  recording: {
+    src: 'audio/dohyun/liar.m4a',
+    title: 'LIAR 녹음본',
+    unavailable: '녹음본을 불러올 수 없어요',
+    /** 앞뒤로 이동하는 초 */
+    skipSeconds: 5,
+    /** 재생 속도 버튼을 누를 때마다 순서대로 바뀜 */
+    rates: [1, 0.75, 0.5],
+  },
+
   memo: {
     sendButton: '전송하기',
     fillAllFirst: '빈칸을 모두 채우면 전송할 수 있어요',

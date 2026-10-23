@@ -5,6 +5,7 @@ import { allBlanksFilled, lyricLines } from '../../missions/lyricsCheck'
 import { StatusBar } from '../../phone/StatusBar'
 import { useGame } from '../../state/context'
 import { getMissionStatus } from '../../state/selectors'
+import { RecordingPlayer } from './RecordingPlayer'
 
 const NOTE_YELLOW = '#e0a800'
 
@@ -104,6 +105,8 @@ function LyricsNote({ onBack, onOpenApp }: { onBack: () => void; onOpenApp: (req
             </p>
           ))}
         </div>
+
+        <RecordingPlayer />
       </div>
 
       <div className="shrink-0 border-t border-black/5 px-4 pt-3 pb-[calc(34px+var(--ui-bottom,0px))]">
