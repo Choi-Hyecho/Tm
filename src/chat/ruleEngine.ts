@@ -13,6 +13,8 @@ export interface ReplyContext {
   /** 지금 진행 중인 멤버 업무 */
   activeMissionId: MemberId | null
   missionStatuses: Record<MissionId, MissionStatus>
+  /** 도현 가사 검수 오답 전송 횟수 — 힌트 단계용 */
+  lyricsWrongCount: number
 }
 
 export interface ReplyRule {

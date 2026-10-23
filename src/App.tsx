@@ -65,6 +65,12 @@ function App() {
     requestAnimationFrame(() => requestAnimationFrame(() => setAppVisible(true)))
   }
 
+  /** 앱 안에서 다른 앱으로 이동 — 화면 가운데에서 열림 (예: 카톡 + 메뉴 → 메모, 메모 전송 → 카톡) */
+  function switchApp(request: OpenAppRequest) {
+    const screen = document.querySelector<HTMLElement>('[data-screen]')
+    if (screen) launchApp(request, screen)
+  }
+
   function closeApp() {
     setAppVisible(false)
     closeTimer.current = window.setTimeout(() => setOpenApp(null), APP_CLOSE_MS)
@@ -97,7 +103,7 @@ function App() {
         {openApp && (
           <AppLayer origin={openApp.origin} visible={appVisible} onClose={closeApp}>
             {/* 열 때마다 새로 그림 — 카카오톡이 열린 상태에서 다른 채팅 알림을 눌러도 해당 방으로 */}
-            <AppScreen key={openApp.launchId} request={openApp} />
+            <AppScreen key={openApp.launchId} request={openApp} onOpenApp={switchApp} />
           </AppLayer>
         )}
 

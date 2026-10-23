@@ -42,7 +42,7 @@ export const theme = {
    */
   browserChrome: {
     lockAndHome: '#1a1a1a',
-    apps: { kakaotalk: '#ffffff', photos: '#ffffff', todo: '#f3f8ff' } as Partial<Record<AppId, string>>,
+    apps: { kakaotalk: '#ffffff', photos: '#ffffff', notes: '#ffffff', todo: '#f3f8ff' } as Partial<Record<AppId, string>>,
     appDefault: '#f3f8ff',
   },
 

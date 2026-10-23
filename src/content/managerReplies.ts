@@ -3,7 +3,7 @@
 // 패턴은 정규화된 문장에 대해 검사합니다: 공백·문장부호·이모지·ㅋㅎ 제거, 영문 소문자
 //   예) "퇴근해도 되나요?" → "퇴근해도되나요"
 // 배열 순서가 우선순위입니다. 더 구체적인 규칙을 위에 두세요.
-import { getHint } from '../chat/hints'
+import { getHint, type MissionHint } from '../chat/hints'
 import type { ContextFollowup, ReplyRule } from '../chat/ruleEngine'
 import type { MissionId } from './missions'
 
@@ -17,8 +17,16 @@ export const leaveReplies = {
   allDone: '매니저님, 오늘 정말 고생 많으셨습니다! 이제 퇴근하셔도 됩니다 ㅎㅎ',
 }
 
-/** 도움 요청 — 업무별 힌트가 준비되면 여기에 추가 (지금 진행 가능한 업무의 힌트를 안내) */
-export const missionHints: Partial<Record<MissionId, string>> = {}
+/** 도움 요청("어려워요", "힌트 주세요") — 지금 진행 중인 업무의 힌트를 안내 */
+export const missionHints: Partial<Record<MissionId, MissionHint>> = {
+  // 도현 가사 검수 — 오답이 반복될수록 조금씩 구체적으로 (틀린 위치는 알려주지 않음)
+  dohyun: ({ lyricsWrongCount }) => {
+    if (lyricsWrongCount === 0) return '도현님 메모 받으셨죠? 파랗게 표시된 빈칸만 채워서 보내주시면 돼요 ㅎㅎ'
+    if (lyricsWrongCount === 1) return 'LIAR 노래 한번 다시 들어보시면서 빈칸을 확인해보세요!'
+    if (lyricsWrongCount === 2) return '빈칸에는 거지, 진심, 진실, 거짓 같은 단어가 들어가요. 비슷해서 헷갈리죠? ㅎㅎ'
+    return '같은 단어가 두 번 들어가는 자리도 있어요! 하나씩 차근차근 다시 봐보세요 ㅎㅎ'
+  },
+}
 
 export const helpDefault = '어떤 부분이 어려우실까요? 확인해드릴게요!'
 

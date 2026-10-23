@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChatId } from '../../content/chats'
+import type { OpenAppRequest } from '../renderApp'
 import { useToast } from '../../hooks/useToast'
 import { StatusBar } from '../../phone/StatusBar'
 import { Toast } from '../../phone/Toast'
@@ -21,9 +22,11 @@ let lastTab: KakaoTab = 'friends'
 interface KakaoAppProps {
   /** 알림 배너 등으로 특정 채팅방을 바로 열 때 */
   chatId?: ChatId
+  /** 다른 앱으로 이동 (+ 메뉴의 메모) */
+  onOpenApp: (request: OpenAppRequest) => void
 }
 
-export function KakaoApp({ chatId }: KakaoAppProps) {
+export function KakaoApp({ chatId, onOpenApp }: KakaoAppProps) {
   const { state } = useGame()
   const [tab, setTab] = useState<KakaoTab>(chatId ? 'chats' : lastTab)
   const [chat, setChat] = useState<ChatId | null>(chatId ?? null)
@@ -81,7 +84,7 @@ export function KakaoApp({ chatId }: KakaoAppProps) {
             transition: `transform ${PUSH_MS}ms ${EASE}`,
           }}
         >
-          <ChatRoom key={chat} chatId={chat} onBack={closeChat} />
+          <ChatRoom key={chat} chatId={chat} onBack={closeChat} onOpenNotes={() => onOpenApp({ id: 'notes' })} />
         </div>
       )}
 

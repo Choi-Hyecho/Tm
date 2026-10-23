@@ -15,10 +15,12 @@ interface AttachmentSheetProps {
   /** 전송 버튼을 눌렀을 때만 호출 — 선택/미리보기는 게임 상태를 바꾸지 않음 */
   onSendPhoto: (photoId: string) => void
   onSendFile: (fileId: string) => void
+  /** '메모' — 게임 속 메모 앱으로 이동 */
+  onOpenNotes: () => void
 }
 
 // 카카오톡 '+' 첨부 메뉴 — 게임 안에 등록된 사진/파일만 사용 (기기 사진·파일 접근 없음)
-export function AttachmentSheet({ onClose, onSendPhoto, onSendFile }: AttachmentSheetProps) {
+export function AttachmentSheet({ onClose, onSendPhoto, onSendFile, onOpenNotes }: AttachmentSheetProps) {
   const [view, setView] = useState<View>('menu')
   const [shown, setShown] = useState(false)
   const closeTimer = useRef<number>(undefined)
@@ -59,7 +61,12 @@ export function AttachmentSheet({ onClose, onSendPhoto, onSendFile }: Attachment
           transition: `transform ${SLIDE_MS}ms ${EASE}`,
         }}
       >
-        {view === 'menu' && <Menu onSelect={setView} onCancel={() => close()} />}
+        {view === 'menu' && (
+          <Menu
+            onSelect={(item) => (item === 'notes' ? close(onOpenNotes) : setView(item))}
+            onCancel={() => close()}
+          />
+        )}
         {view === 'album' && (
           <AlbumPicker onBack={() => setView('menu')} onSend={(id) => close(() => onSendPhoto(id))} />
         )}
@@ -70,7 +77,9 @@ export function AttachmentSheet({ onClose, onSendPhoto, onSendFile }: Attachment
 }
 
 /** 첨부 메뉴 항목 — 카메라처럼 아직 준비 중인 항목은 available: false */
-const MENU_ITEMS: { id: 'album' | 'files' | 'camera'; label: string; color: string; available: boolean; icon: ReactNode }[] = [
+type MenuItemId = 'album' | 'files' | 'notes' | 'camera'
+
+const MENU_ITEMS: { id: MenuItemId; label: string; color: string; available: boolean; icon: ReactNode }[] = [
   {
     id: 'album',
     label: chatContent.attach.album,
@@ -92,6 +101,18 @@ const MENU_ITEMS: { id: 'album' | 'files' | 'camera'; label: string; color: stri
     icon: <path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm7 0v5h5" />,
   },
   {
+    id: 'notes',
+    label: chatContent.attach.notes,
+    color: '#e0a800',
+    available: true,
+    icon: (
+      <>
+        <rect x="4.5" y="3.5" width="15" height="17" rx="2" />
+        <path d="M8 8.5h8M8 12h8M8 15.5h5" />
+      </>
+    ),
+  },
+  {
     id: 'camera',
     label: chatContent.attach.camera,
     color: '#9aa3ad',
@@ -105,11 +126,11 @@ const MENU_ITEMS: { id: 'album' | 'files' | 'camera'; label: string; color: stri
   },
 ]
 
-function Menu({ onSelect, onCancel }: { onSelect: (view: View) => void; onCancel: () => void }) {
+function Menu({ onSelect, onCancel }: { onSelect: (item: Exclude<MenuItemId, 'camera'>) => void; onCancel: () => void }) {
   return (
     <div className="pb-[calc(34px+var(--ui-bottom,0px))]">
       <div className="mx-auto mt-2 h-1 w-9 rounded-full bg-black/15" aria-hidden />
-      <div className="grid grid-cols-3 gap-2 px-6 pt-5 pb-4">
+      <div className="grid grid-cols-4 gap-2 px-4 pt-5 pb-4">
         {MENU_ITEMS.map((item) => (
           <button
             key={item.id}

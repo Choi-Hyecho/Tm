@@ -13,6 +13,7 @@ import { PhotoViewer } from '../photos/PhotoViewer'
 import { AttachmentSheet, FileIcon } from './AttachmentSheet'
 import { AudioPreviewButton } from './AudioPreviewButton'
 import { Avatar } from './Avatar'
+import { DocumentViewer } from './DocumentViewer'
 
 const timeFormat = new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' })
 const sameMinute = (a: ChatMessage, b: ChatMessage) => Math.floor(a.at / 60_000) === Math.floor(b.at / 60_000)
@@ -20,11 +21,13 @@ const sameMinute = (a: ChatMessage, b: ChatMessage) => Math.floor(a.at / 60_000)
 interface ChatRoomProps {
   chatId: ChatId
   onBack: () => void
+  /** + 메뉴의 '메모' — 게임 속 메모 앱으로 이동 */
+  onOpenNotes: () => void
 }
 
 // 카카오톡 스타일 1:1 채팅방 (실제 카카오톡 서비스와 연결되지 않는 팬메이드 UI)
 // 채팅방이 바뀌면 KakaoApp이 key로 새로 그리므로 첨부 메뉴/사진 보기 상태도 함께 정리됨
-export function ChatRoom({ chatId, onBack }: ChatRoomProps) {
+export function ChatRoom({ chatId, onBack, onOpenNotes }: ChatRoomProps) {
   const { state, dispatch } = useGame()
   const chat = chats[chatId]
   const { messages } = state.chats[chatId]
@@ -33,6 +36,7 @@ export function ChatRoom({ chatId, onBack }: ChatRoomProps) {
   const [draft, setDraft] = useState('')
   const [attachOpen, setAttachOpen] = useState(false)
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null)
+  const [viewingDocument, setViewingDocument] = useState<ChatMessage['document'] | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -120,7 +124,15 @@ export function ChatRoom({ chatId, onBack }: ChatRoomProps) {
           const next = messages[i + 1]
           const firstOfRun = !prev || prev.from !== m.from || !sameMinute(prev, m)
           const lastOfRun = !next || next.from !== m.from || !sameMinute(next, m)
-          const content = <MessageContent message={m} mine={m.from === 'me'} first={firstOfRun} onOpenPhoto={setViewingPhoto} />
+          const content = (
+            <MessageContent
+              message={m}
+              mine={m.from === 'me'}
+              first={firstOfRun}
+              onOpenPhoto={setViewingPhoto}
+              onOpenDocument={setViewingDocument}
+            />
+          )
           return m.from === 'me' ? (
             <MyMessage key={m.id} message={m} showTime={lastOfRun} first={firstOfRun}>
               {content}
@@ -183,7 +195,11 @@ export function ChatRoom({ chatId, onBack }: ChatRoomProps) {
           onClose={() => setAttachOpen(false)}
           onSendPhoto={(id) => dispatch({ type: 'SEND_ATTACHMENT', chatId, kind: 'image', attachmentId: id, now: Date.now() })}
           onSendFile={(id) => dispatch({ type: 'SEND_ATTACHMENT', chatId, kind: 'file', attachmentId: id, now: Date.now() })}
+          onOpenNotes={onOpenNotes}
         />
+      )}
+      {viewingDocument && (
+        <DocumentViewer {...viewingDocument} onClose={() => setViewingDocument(null)} />
       )}
       {viewingPhoto && (
         <PhotoViewer
@@ -203,12 +219,35 @@ function MessageContent({
   mine,
   first,
   onOpenPhoto,
+  onOpenDocument,
 }: {
   message: ChatMessage
   mine: boolean
   first: boolean
   onOpenPhoto: (id: string) => void
+  onOpenDocument: (document: NonNullable<ChatMessage['document']>) => void
 }) {
+  // 내가 만든 TXT 파일 (가사 검수) — 누르면 보낸 당시 내용 보기
+  if (message.document) {
+    const doc = message.document
+    return (
+      <button
+        type="button"
+        onClick={() => onOpenDocument(doc)}
+        aria-label={`${doc.fileName} 열기`}
+        className="flex w-[62cqw] max-w-[250px] items-center gap-2.5 rounded-[14px] bg-white p-3 text-left active:bg-white/80"
+      >
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3c4] text-[11px] font-bold text-[#a07800]" aria-hidden>
+          TXT
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[13.5px] font-semibold">{doc.fileName}</span>
+          <span className="block text-[11px] text-black/45">텍스트 · 눌러서 보기</span>
+        </span>
+      </button>
+    )
+  }
+
   if (message.kind === 'image') {
     const photo = findPhoto(message.attachmentId)
     if (photo) {

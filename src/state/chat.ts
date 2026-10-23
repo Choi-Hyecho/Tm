@@ -35,7 +35,9 @@ function pickerFor(state: GameState, chatId: ChatId): LinePicker {
   }
 }
 import { isMemberMission, missionLabel, missions, todoContent, type MissionId } from '../content/missions'
+import { dohyunQuest } from '../content/quests/dohyun'
 import { attachmentChecks } from '../missions/attachmentChecks'
+import { allBlanksFilled, isLyricsCorrect, lyricsFileName, renderLyrics } from '../missions/lyricsCheck'
 import { getActiveMissions, getMissionStatus, getProgress } from './selectors'
 import type { Banner, ChatMessage, GameState, ScheduledMessage } from './types'
 
@@ -48,6 +50,7 @@ export function getReplyContext(state: GameState): ReplyContext {
     availableMissions: getActiveMissions(state),
     activeMissionId: state.activeMissionId,
     missionStatuses: state.missionStatuses,
+    lyricsWrongCount: state.lyrics.submissions.filter((s) => !s.correct).length,
   }
 }
 
@@ -111,12 +114,22 @@ export function scheduleReplies(
   chatId: ChatId,
   replies: string[],
   now: number,
-  options: { reveal?: { missionId: MemberId; index: number }; hesitate?: boolean } = {},
+  options: {
+    reveal?: { missionId: MemberId; index: number }
+    hesitate?: boolean
+    /** 마지막 답장이 도착하면 이 업무 완료 */
+    completeAfter?: MemberId
+  } = {},
 ): GameState {
-  const { reveal, hesitate } = options
+  const { reveal, hesitate, completeAfter } = options
   let time = Math.max(now, ...state.scheduled.filter((s) => s.chatId === chatId).map((s) => s.deliverAt))
   const scheduled: ScheduledMessage[] = replies.map((text, i) => {
-    const base = { chatId, text, revealMission: reveal?.index === i ? reveal.missionId : undefined }
+    const base = {
+      chatId,
+      text,
+      revealMission: reveal?.index === i ? reveal.missionId : undefined,
+      completeMission: i === replies.length - 1 ? completeAfter : undefined,
+    }
     if (hesitate && i === 0) {
       // 입력 중… → 사라짐(고민) → 다시 입력 중… → 도착
       const start = time + HESITATE_START_MS
@@ -199,7 +212,12 @@ function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessag
  * 미션 완료 — 진행 중(active)인 업무만. 멤버 업무면 완료 인사를 보내고 activeMissionId 해제.
  * 숨김/잠김/이미 완료된 업무는 무시 (보상 중복 방지)
  */
-export function completeMission(state: GameState, id: MissionId, now: number): GameState {
+export function completeMission(
+  state: GameState,
+  id: MissionId,
+  now: number,
+  options: { /** 멤버가 이미 감사 답장을 보냈으면 기본 완료 인사 생략 */ skipDoneMessage?: boolean } = {},
+): GameState {
   if (getMissionStatus(state, id) !== 'active') return state
   let next: GameState = { ...state, missionStatuses: { ...state.missionStatuses, [id]: 'completed' } }
 
@@ -214,7 +232,7 @@ export function completeMission(state: GameState, id: MissionId, now: number): G
   if (!isMemberMission(id)) return next
 
   next = { ...next, activeMissionId: next.activeMissionId === id ? null : next.activeMissionId }
-  next = scheduleReplies(next, id, [memberScripts[id].missionDone], now)
+  if (!options.skipDoneMessage) next = scheduleReplies(next, id, [memberScripts[id].missionDone], now)
   // 다른 멤버들이 한꺼번에 답장하지 않도록, 지금 보고 있는 채팅방만 보류 메시지 처리
   if (next.activeChat && next.activeChat !== id) next = readPending(next, next.activeChat, now)
   return next
@@ -238,6 +256,40 @@ export function sendMessage(state: GameState, chatId: ChatId, rawText: string, n
   const text = rawText.trim()
   if (!text) return state
   return countAffection(addMyMessage(state, chatId, { kind: 'text', text }, now), chatId, text, now)
+}
+
+/**
+ * 도현 가사 검수 전송 — 메모 내용을 TXT 파일 메시지로 보내고 그때 채점.
+ * 틀리면 회차별 답장 (위치/정답은 알려주지 않음), 맞으면 감사 답장이 도착한 뒤 업무 완료
+ */
+export function submitLyrics(state: GameState, now: number): GameState {
+  const { inputs, submissions } = state.lyrics
+  if (getMissionStatus(state, 'dohyun') !== 'active' || !allBlanksFilled(inputs)) return state
+
+  const number = submissions.length + 1
+  const fileName = lyricsFileName(number)
+  const correct = isLyricsCorrect(inputs)
+  const thread = state.chats.dohyun
+  const message: ChatMessage = {
+    id: messageId('dohyun', thread.messages.length, now),
+    from: 'me',
+    kind: 'file',
+    text: chatContent.filePreview(fileName),
+    // 보낸 당시 내용 그대로 — 이후 메모를 고쳐도 이 파일은 바뀌지 않음
+    document: { fileName, content: renderLyrics(inputs) },
+    at: now,
+    read: true,
+  }
+  const next: GameState = {
+    ...state,
+    chats: { ...state.chats, dohyun: { ...thread, messages: [...thread.messages, message] } },
+    lyrics: { ...state.lyrics, submissions: [...submissions, { number, fileName, correct, at: now }] },
+  }
+
+  const { lines } = dohyunQuest
+  if (correct) return scheduleReplies(next, 'dohyun', lines.correct, now, { completeAfter: 'dohyun' })
+  const wrongCount = submissions.filter((s) => !s.correct).length + 1
+  return scheduleReplies(next, 'dohyun', [lines.wrong[Math.min(wrongCount, lines.wrong.length) - 1]], now)
 }
 
 /** 사진/파일 전송 — 존재하는 asset만 */
@@ -292,6 +344,8 @@ export function deliverDue(state: GameState, now: number): GameState {
   const rest = state.scheduled.filter((s) => s.deliverAt > now)
   return due.reduce((next, s) => {
     const delivered = deliverMessage(next, s.chatId, s.text, s.deliverAt)
+    // 답장이 도착한 뒤 업무 완료 (도현 가사 검수)
+    if (s.completeMission) return completeMission(delivered, s.completeMission, s.deliverAt, { skipDoneMessage: true })
     if (!s.revealMission || delivered.missionStatuses[s.revealMission] !== 'hidden') return delivered
     const revealed: GameState = { ...delivered, missionStatuses: { ...delivered.missionStatuses, [s.revealMission]: 'active' } }
     return pushTodoNotice(revealed, todoContent.notifications.addedTitle, missionLabel(s.revealMission), s.deliverAt)

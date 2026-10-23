@@ -1,7 +1,17 @@
 import { chatOrder, managerScript, type ChatId } from '../content/chats'
 import { missions, todoContent } from '../content/missions'
 import { initialFlows } from '../chat/scripts'
-import { completeMission, deliverDue, deliverMessage, pushTodoNotice, readPending, sendAttachment, sendMessage } from './chat'
+import { lyricBlanks } from '../missions/lyricsCheck'
+import {
+  completeMission,
+  deliverDue,
+  deliverMessage,
+  pushTodoNotice,
+  readPending,
+  sendAttachment,
+  sendMessage,
+  submitLyrics,
+} from './chat'
 import type { Banner, ChatThread, GameAction, GameState } from './types'
 
 function createThread(id: ChatId): ChatThread {
@@ -28,6 +38,7 @@ export function createInitialState(): GameState {
     },
     activeMissionId: null,
     released: false,
+    lyrics: { inputs: {}, submissions: [] },
     affection: { count: 0, warned: false },
     duolingoVisited: false,
   }
@@ -80,6 +91,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
     case 'COMPLETE_MISSION':
       return completeMission(state, action.id, action.now)
+    case 'SET_LYRIC_INPUT': {
+      // 검수가 끝난 뒤나 없는 빈칸은 무시
+      if (state.missionStatuses.dohyun === 'completed' || !lyricBlanks.some((b) => b.id === action.blankId)) return state
+      return { ...state, lyrics: { ...state.lyrics, inputs: { ...state.lyrics.inputs, [action.blankId]: action.value } } }
+    }
+    case 'SUBMIT_LYRICS':
+      return submitLyrics(state, action.now)
     case 'RELEASE': {
       if (!missions.every((m) => state.missionStatuses[m.id] === 'completed')) return state
       return { ...state, released: true }

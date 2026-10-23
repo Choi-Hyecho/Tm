@@ -36,6 +36,7 @@ export const chatContent = {
   attach: {
     album: '앨범',
     file: '파일',
+    notes: '메모',
     camera: '카메라',
     cancel: '취소',
     comingSoon: '준비 중',

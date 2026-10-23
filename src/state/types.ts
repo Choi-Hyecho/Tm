@@ -9,6 +9,8 @@ export interface ChatMessage {
   kind?: 'text' | 'image' | 'file'
   /** 사진/파일 메시지의 asset ID (content/gallery.ts, content/gameFiles.ts) */
   attachmentId?: string
+  /** 사용자가 만든 텍스트 파일 (가사 검수 TXT) — 보낸 당시 내용 그대로 보관, 이후 메모를 고쳐도 바뀌지 않음 */
+  document?: { fileName: string; content: string }
   /** 텍스트 메시지 내용. 첨부는 채팅 목록/알림에 보일 미리보기 문구 */
   text: string
   /** 실제 시각 (ms) */
@@ -37,6 +39,17 @@ export interface ScheduledMessage {
   revealMission?: MemberId
   /** '입력 중…' 표시 구간 [시작, 끝] — 없으면 도착할 때까지 계속 표시 */
   typingWindows?: [number, number][]
+  /** 이 메시지가 도착한 뒤 해당 업무 완료 (도현 가사 검수 — 답장 후 TODO 체크) */
+  completeMission?: MemberId
+}
+
+/** 도현 가사 검수 전송 기록 한 건 */
+export interface LyricsSubmission {
+  /** 몇 번째 전송인지 (1부터) */
+  number: number
+  fileName: string
+  correct: boolean
+  at: number
 }
 
 /** 화면 위에서 내려오는 알림 — 카카오톡 새 메시지 / TODO 업무 변경 */
@@ -75,6 +88,8 @@ export interface GameState {
   /** 지금 진행 중인 멤버 업무 — 한 번에 하나만. 업무 요청을 보내는 순간 예약됨 */
   activeMissionId: MemberId | null
   released: boolean
+  /** 도현 가사 검수 — 빈칸별 입력(임시 저장)과 전송 기록 */
+  lyrics: { inputs: Record<string, string>; submissions: LyricsSubmission[] }
   /** 이스터에그: 멤버에게 한 애정 표현 횟수와 팀장님 경고 여부 */
   affection: { count: number; warned: boolean }
   /** 보너스: 듀오링고 쇼츠 방문 여부 */
@@ -90,6 +105,10 @@ export type GameAction =
   | { type: 'OPEN_CHAT'; chatId: ChatId; now: number }
   | { type: 'CLOSE_CHAT'; chatId: ChatId }
   | { type: 'DISMISS_BANNER'; id: string }
+  /** 메모 앱 가사 빈칸 입력 (임시 저장, 입력 중에는 채점하지 않음) */
+  | { type: 'SET_LYRIC_INPUT'; blankId: string; value: string }
+  /** 메모 '전송하기' — 도현에게 TXT 파일 전송 후 채점 */
+  | { type: 'SUBMIT_LYRICS'; now: number }
   /** 미션 성공 이벤트로만 호출 (TODO 직접 체크 없음) */
   | { type: 'COMPLETE_MISSION'; id: MissionId; now: number }
   | { type: 'RELEASE' }
