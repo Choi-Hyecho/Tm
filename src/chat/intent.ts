@@ -21,9 +21,13 @@ export function isAffection(text: string) {
   return AFFECTION.test(t) || HEARTS.test(text)
 }
 
-/** "밥 먹었어요?", "식사하셨어요?" */
+// 밥/점심 + (사이에 짧은 말) + 먹다/드시다 — "점심 뭐 먹었어요?", "밥은 잘 챙겨 드셨어요?"
+const MEAL =
+  /(?:밥|점심|저녁|아침|식사|끼니|간식|야식)[가-힣]{0,6}?(?:먹|드셨|드시|드세|묵|하셨|했어|했나|했냐|챙기|챙겨|챙겼)|뭐(?:좀)?(?:먹었|드셨|먹을|드실|먹어|먹지)|끼니/
+
+/** "밥 먹었어요?", "점심 뭐 드셨어요?", "식사하셨어요?" */
 export function isMealQuestion(text: string) {
-  return /밥(?:은|을|좀)?(?:먹|드셨|드시)|식사(?:는|하셨|했|하셨나)|(?:점심|저녁|아침)(?:은|을)?(?:먹|드셨|드시)|끼니/.test(normalize(text))
+  return MEAL.test(normalize(text))
 }
 
 const GREETING = /안녕|하이|ㅎㅇ|ㅎ2|hi|hello|헬로|반갑|반가워|반가웡|처음뵙|첨뵙|인사드|잘부탁|굿모닝|좋은아침/

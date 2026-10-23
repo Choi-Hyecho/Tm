@@ -57,17 +57,9 @@ export function getReplyContext(state: GameState): ReplyContext {
   }
 }
 
-/**
- * 다른 멤버 업무가 진행 중이라 지금은 답장하지 않는 상대 — 아직 업무를 받기 전인 멤버만.
- * 팀장님과 업무를 끝낸 멤버는 언제든 대화 가능
- */
+/** 다른 멤버 업무가 진행 중이라 지금은 답장하지 않는 상대 (팀장님은 항상 답장) */
 export function isBusy(state: GameState, chatId: ChatId) {
-  return (
-    chatId !== 'manager' &&
-    state.activeMissionId !== null &&
-    state.activeMissionId !== chatId &&
-    state.missionStatuses[chatId] === 'hidden'
-  )
+  return chatId !== 'manager' && state.activeMissionId !== null && state.activeMissionId !== chatId
 }
 
 /** 답장 길이에 비례한 '입력 중' 시간 */
