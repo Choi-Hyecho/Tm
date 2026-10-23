@@ -22,13 +22,22 @@ export interface ShopItem {
 /** 쇼핑 탭 */
 export const shopItems: ShopItem[] = [
   {
-    id: 'album',
-    title: '터치드 정규앨범 「극야」 구매하기',
-    description: 'TOUCHED 1st Full Album 극야. 공식 판매처에서 구매할 수 있어요.',
+    id: 'album-special',
+    title: '터치드 정규앨범 「극야」 스페셜반',
+    description: 'TOUCHED 1st Full Album 극야 CD (Special ver.) — MPMG 공식 스토어',
     image: 'images/shop/album.jpg',
-    link: '',
-    cta: '앨범 구매하러 가기',
+    link: 'https://mpmgmusic.com/product/TCD-MMR2618-CD',
+    cta: '스페셜반 보러 가기',
     fallback: 'linear-gradient(135deg, #0f2c5e 0%, #2468d6 60%, #c8e0ff 100%)',
+  },
+  {
+    id: 'album-digipak',
+    title: '터치드 정규앨범 「극야」 디지팩',
+    description: 'TOUCHED 1st Full Album 극야 CD (Digipak ver.) — MPMG 공식 스토어',
+    image: 'images/shop/album-digipak.jpg',
+    link: 'https://mpmgmusic.com/product/TCD-MMR2619-CD',
+    cta: '디지팩 보러 가기',
+    fallback: 'linear-gradient(135deg, #1a1f3a 0%, #3b5bb3 60%, #c8e0ff 100%)',
   },
   {
     id: 'goods',
