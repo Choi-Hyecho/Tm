@@ -114,10 +114,11 @@ export const lockScreenPlayer = {
  */
 export const memberProfiles = {
   beforeRelease: {
-    yunmin: 'images/profiles/yunmin.png',
-    seungbin: 'images/profiles/seungbin.png',
-    dohyun: 'images/profiles/dohyun.png',
-    johnbekim: 'images/profiles/johnbekim.png',
+    yunmin: 'images/profiles/yunmin.jpg',
+    // 승빈 사진을 받으면 같은 이름(.jpg)으로 넣기 — 없으면 기본 프로필
+    seungbin: 'images/profiles/seungbin.jpg',
+    dohyun: 'images/profiles/dohyun.jpg',
+    johnbekim: 'images/profiles/johnbekim.jpg',
   },
   afterRelease: {
     yunmin: 'images/photos/polar/YM.jpg',
