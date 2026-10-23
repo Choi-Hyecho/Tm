@@ -64,6 +64,8 @@ export interface Promotion {
   image: string
   link: string
   fallback: string
+  /** 장난 광고 — 눌러도 아무 반응 없음 */
+  joke?: boolean
 }
 
 /** 친구/채팅 탭 상단 팬메이드 프로모션 배너 — 이 중 하나를 세션마다 랜덤 표시 */
@@ -107,5 +109,33 @@ export const promotions: Promotion[] = [
     image: 'images/promo/members.jpg',
     link: 'https://mpmgmusic.com/touched',
     fallback: 'linear-gradient(120deg, #1a4fa8, #6aa9ff)',
+  },
+  // ── 장난 광고 (눌러도 반응 없음) — 가상 문구, 실제 기사·광고 아님 ──
+  {
+    id: 'joke-yunmin',
+    title: '조윤민, 그녀는 고양이인가 여우인가?',
+    subtitle: '아니면 토끼? 강아지? 전문가들도 결론 못 내',
+    image: '',
+    link: '',
+    fallback: 'linear-gradient(120deg, #ff8fb1, #ffc06e)',
+    joke: true,
+  },
+  {
+    id: 'joke-door',
+    title: "유명 밴드 남성 멤버 '문짝설'… 그 주인공은?",
+    subtitle: '업계 관계자 "문을 열고 들어오는데 문이 두 개인 줄"',
+    image: '',
+    link: '',
+    fallback: 'linear-gradient(120deg, #3d3d3d, #8a7a6a)',
+    joke: true,
+  },
+  {
+    id: 'joke-dohyun',
+    title: '베토벤의 환생? 피아노 천재 채도현',
+    subtitle: '그는 과연 누구인가',
+    image: '',
+    link: '',
+    fallback: 'linear-gradient(120deg, #2b2140, #8c6bd1)',
+    joke: true,
   },
 ]

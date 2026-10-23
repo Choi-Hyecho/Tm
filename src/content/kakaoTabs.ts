@@ -3,6 +3,8 @@ export const kakaoTabsContent = {
   tabs: { friends: '친구', chats: '채팅', shopping: '쇼핑', more: '더보기' },
   friendsCount: (n: number) => `친구 ${n}`,
   promoLabel: '팬메이드',
+  /** 장난 광고 배지 */
+  adLabel: 'AD',
   shoppingNotice: '결제는 공식 판매처에서 진행돼요. 버튼을 누르면 새 탭으로 열려요.',
   more: {
     profile: {

@@ -16,6 +16,8 @@ export const links = {
   youtube: 'https://www.youtube.com/@touched_official/videos',
   /** TOUCHED 공식 X */
   x: 'https://x.com/band_touched',
+  /** TOUCHED 공식 Instagram (소속사 아티스트 페이지에 걸린 주소) */
+  instagram: 'https://www.instagram.com/touched_official/',
   /** TOUCHED 관련 공식 웹사이트 — 소속사 아티스트 소개 페이지 */
   safari: 'https://mpmgmusic.com/touched',
   /** 윤민 듀오링고 관련 YouTube Shorts (위젯과 앱 아이콘이 함께 사용) */

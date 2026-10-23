@@ -16,7 +16,8 @@ interface FallbackImageProps {
 export function FallbackImage({ src, fallback, children, className = '', fit = 'cover' }: FallbackImageProps) {
   const [failed, setFailed] = useState(false)
 
-  if (failed) {
+  // 이미지 경로가 비어 있으면 바로 임시 배경
+  if (failed || !src) {
     return (
       <div className={`flex items-center ${className}`} style={{ background: fallback }}>
         {children}

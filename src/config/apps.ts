@@ -18,7 +18,7 @@ export type AppId =
   | 'safari'
   | 'calendar'
   | 'clock'
-  | 'voiceMemos'
+  | 'instagram'
   | 'notes'
   | 'duolingo'
   | 'bstage'
@@ -154,12 +154,12 @@ export const apps: Record<AppId, AppDef> = {
     placeholder: { background: '#000000', color: '#ffffff', text: '시계' },
     open: { type: 'internal' },
   },
-  voiceMemos: {
-    id: 'voiceMemos',
-    name: '음성 메모',
-    icon: icon('voiceMemos'),
-    placeholder: { background: '#000000', color: '#ff453a', text: '음성메모' },
-    open: { type: 'internal' },
+  instagram: {
+    id: 'instagram',
+    name: 'Instagram',
+    icon: icon('instagram'),
+    placeholder: { background: 'linear-gradient(45deg, #feda75, #d62976, #4f5bd5)', color: '#ffffff', text: 'Insta' },
+    open: { type: 'external', link: links.instagram },
   },
   notes: {
     id: 'notes',
@@ -205,7 +205,7 @@ export const homeLayout: AppId[] = [
   'safari',
   'calendar',
   'clock',
-  'voiceMemos',
+  'instagram',
   'notes',
   'duolingo',
   'bstage',
