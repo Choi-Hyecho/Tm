@@ -120,15 +120,29 @@ export function CalendarApp() {
           <ul className="space-y-2">
             {selectedEvents.map((e) => {
               const past = e.date < todayKey
-              return (
-                <li key={e.title} className={`flex gap-3 rounded-xl bg-white p-3 ${past ? 'opacity-50' : ''}`}>
+              const body = (
+                <>
                   <span className="w-1 shrink-0 rounded-full" style={{ background: e.color }} />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-[15px] font-semibold">{e.title}</p>
                     <p className="text-[12px] text-black/45">
                       {formatTime(e.time)} · {calendarContent.calendarName}
                     </p>
+                    {e.link && <p className="mt-1 text-[13px] text-[#3b86f5]">{calendarContent.openLink} ↗</p>}
                   </div>
+                </>
+              )
+              const rowClass = `flex gap-3 rounded-xl bg-white p-3 ${past ? 'opacity-50' : ''}`
+              return (
+                <li key={e.title}>
+                  {/* 공식 게시물이 있는 일정은 눌러서 X로 이동 */}
+                  {e.link ? (
+                    <a href={e.link} target="_blank" rel="noopener noreferrer" className={`${rowClass} active:bg-black/5`}>
+                      {body}
+                    </a>
+                  ) : (
+                    <div className={rowClass}>{body}</div>
+                  )}
                 </li>
               )
             })}
