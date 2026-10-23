@@ -128,7 +128,7 @@ export function CalendarApp() {
                     <p className="text-[12px] text-black/45">
                       {formatTime(e.time)} · {calendarContent.calendarName}
                     </p>
-                    {e.link && <p className="mt-1 text-[13px] text-[#3b86f5]">{calendarContent.openLink} ↗</p>}
+                    {e.link && <p className="mt-1 text-[13px] text-[#3b86f5]">{/youtu\.?be/.test(e.link) ? calendarContent.openVideo : calendarContent.openLink} ↗</p>}
                   </div>
                 </>
               )

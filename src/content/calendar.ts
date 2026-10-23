@@ -7,7 +7,7 @@ export interface CalendarEvent {
   title: string
   /** 일정 색 (캘린더 점/막대) */
   color: string
-  /** 공식 게시물 링크 (X) — 있으면 일정을 눌러 이동 */
+  /** 공식 게시물 링크 (X / 유튜브) — 있으면 일정을 눌러 이동 */
   link?: string
 }
 
@@ -20,6 +20,8 @@ export const calendarContent = {
   noEvents: '일정 없음',
   /** 링크가 있는 일정에 보이는 문구 */
   openLink: '게시물 보러 가기',
+  /** 유튜브 링크일 때 */
+  openVideo: '영상 보러 가기',
   today: '오늘',
 }
 
@@ -30,7 +32,7 @@ export const calendarEvents: CalendarEvent[] = [
   { date: '2026-10-01', time: '00:00', title: 'Concept Photo 4', color: PROMO, link: 'https://x.com/band_touched/status/2105311725843083543' },
   { date: '2026-10-02', time: '00:00', title: 'Concept Photo 5', color: PROMO, link: 'https://x.com/band_touched/status/2105674101947802000' },
   { date: '2026-10-07', time: '00:00', title: 'Tracklist', color: PROMO, link: 'https://x.com/band_touched/status/2107486046254420325' },
-  { date: '2026-10-12', time: '00:00', title: 'Album Preview', color: PROMO },
+  { date: '2026-10-12', time: '00:00', title: 'Album Preview', color: PROMO, link: 'https://youtu.be/HljYmFwM-24' },
   { date: '2026-10-14', time: '00:00', title: 'MV Teaser', color: PROMO },
   { date: '2026-10-15', time: '12:00', title: 'Album Release', color: RELEASE },
 ]
