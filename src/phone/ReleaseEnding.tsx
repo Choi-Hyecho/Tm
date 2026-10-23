@@ -12,13 +12,14 @@ interface ReleaseEndingProps {
 }
 
 /**
- * 「극야」 X 헤더의 수채화 파랑 — 흰 번짐 없이 화면 전체를 파란 톤으로, 밝고 짙은 파랑이 자연스럽게 섞이게
+ * 「극야」 X 헤더의 수채화 색 — 짙은 청록 파랑 바탕에 연한 하늘색/흰 번짐.
+ * 맨 위 가장자리는 파랑으로 두어 휴대폰 상태 표시줄 색(theme.browserChrome.ending)과 이어지게
  */
 const WATERCOLOR = [
-  'radial-gradient(60% 34% at 12% 8%, rgba(76,140,184,0.7) 0%, rgba(76,140,184,0) 70%)',
-  'radial-gradient(50% 30% at 94% 18%, rgba(58,122,168,0.6) 0%, rgba(58,122,168,0) 70%)',
-  'radial-gradient(65% 32% at 0% 64%, rgba(20,70,108,0.55) 0%, rgba(20,70,108,0) 70%)',
-  'radial-gradient(60% 32% at 100% 90%, rgba(64,128,172,0.5) 0%, rgba(64,128,172,0) 70%)',
+  'radial-gradient(55% 30% at 8% 16%, rgba(232,243,248,0.85) 0%, rgba(232,243,248,0) 70%)',
+  'radial-gradient(45% 28% at 96% 22%, rgba(168,211,230,0.7) 0%, rgba(168,211,230,0) 70%)',
+  'radial-gradient(60% 30% at 0% 62%, rgba(120,182,212,0.55) 0%, rgba(120,182,212,0) 70%)',
+  'radial-gradient(55% 30% at 100% 88%, rgba(214,235,244,0.6) 0%, rgba(214,235,244,0) 70%)',
   'linear-gradient(180deg, #2a6f9f 0%, #1f5f8c 40%, #1a527c 100%)',
 ].join(', ')
 const SPARK_COLORS = ['#ffffff', '#e8f3f8', '#bcdcec', '#8ec3dc', '#5fa3c9']

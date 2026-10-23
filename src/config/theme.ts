@@ -42,6 +42,10 @@ export const theme = {
    */
   browserChrome: {
     lockAndHome: '#1a1a1a',
+    /** 극야 발매 후 잠금/홈 — 단체 자켓 사진 맨 위 색(어둡게 처리 포함) */
+    lockAndHomeReleased: '#4c8fb6',
+    /** 발매 엔딩 화면 맨 위 파랑 */
+    ending: '#2a6f9f',
     apps: { kakaotalk: '#ffffff', photos: '#ffffff', notes: '#ffffff', settings: '#f2f2f7', calendar: '#ffffff', todo: '#f3f8ff' } as Partial<Record<AppId, string>>,
     appDefault: '#f3f8ff',
   },

@@ -37,8 +37,12 @@ function App() {
   const closeTimer = useRef<number>(undefined)
 
   // Safari 상단 영역 색 — 잠금/홈 화면은 배경 사진 맨 위 색, 앱이 열려 있으면 그 앱의 상단 색
-  const { lockAndHome, apps: appChromeColors, appDefault } = theme.browserChrome
-  useBrowserChromeColor(openApp && appVisible ? (appChromeColors[openApp.id] ?? appDefault) : lockAndHome)
+  // 발매 엔딩이 떠 있으면 엔딩의 파란색, 발매 후 잠금/홈은 단체 자켓 사진 색
+  const { lockAndHome, lockAndHomeReleased, ending, apps: appChromeColors, appDefault } = theme.browserChrome
+  const homeChrome = state.released ? lockAndHomeReleased : lockAndHome
+  useBrowserChromeColor(
+    state.showEnding ? ending : openApp && appVisible ? (appChromeColors[openApp.id] ?? appDefault) : homeChrome,
+  )
 
   const { animation, durationMs, easing } = theme.unlock
   const preset = unlockTransitions[animation]
