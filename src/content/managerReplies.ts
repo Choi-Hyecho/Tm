@@ -32,6 +32,13 @@ export const missionHints: Partial<Record<MissionId, MissionHint>> = {
   },
   // 존비킴 베이스 믹싱 파일 — 저장 → 파일 앱에서 듣기 → 공유
   johnbekim: '존비킴님이 보낸 파일을 눌러서 저장하시고, 파일 앱에서 들어보세요! 베이스 빠진 파일은 공유 버튼으로 바로 보낼 수 있어요 ㅎㅎ',
+  // 트랙리스트 검수 — 틀릴수록 조금씩 구체적으로
+  tracklist: ({ tracklistSubmissions = 0 }) => {
+    if (tracklistSubmissions === 0)
+      return '제가 공유한 플레이리스트 열어서 앨범 순서대로 정리해주시면 돼요! 캘린더 7일 Tracklist 공개 게시물을 참고하셔도 좋아요 ㅎㅎ'
+    if (tracklistSubmissions === 1) return '더블 타이틀곡 Fallen Angel이랑 이 별은 2번, 3번이에요!'
+    return '첫 곡은 터널, 마지막 곡은 At Home이에요. 나머지는 Tracklist 공개 게시물로 한번 맞춰보세요 ㅎㅎ'
+  },
   // 마지막 — 팀장님 채팅방의 '앨범 발매하기'
   report: '모든 업무 끝나셨네요! 이 채팅방 아래 \'앨범 발매하기\'를 눌러서 최종 보고해주세요 ㅎㅎ',
   // 승빈 타이틀곡 선정 — 토론

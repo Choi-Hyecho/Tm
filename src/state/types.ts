@@ -5,8 +5,8 @@ export interface ChatMessage {
   id: string
   /** 'me' = 사용자, 그 외 = 채팅방 상대 */
   from: 'me' | ChatId
-  /** 메시지 종류 — 없으면 텍스트 (이전 저장 데이터 호환) */
-  kind?: 'text' | 'image' | 'file'
+  /** 메시지 종류 — 없으면 텍스트 (이전 저장 데이터 호환). playlist: 팀장님이 공유한 트랙리스트 검수 카드 */
+  kind?: 'text' | 'image' | 'file' | 'playlist'
   /** 사진/파일 메시지의 asset ID (content/gallery.ts, content/gameFiles.ts) */
   attachmentId?: string
   /** 텍스트 파일 (가사 검수 TXT) — 보낸 당시 내용 그대로 보관, 이후 메모를 고쳐도 바뀌지 않음 */
@@ -44,8 +44,8 @@ export interface ScheduledMessage {
   revealMission?: MemberId
   /** '입력 중…' 표시 구간 [시작, 끝] — 없으면 도착할 때까지 계속 표시 */
   typingWindows?: [number, number][]
-  /** 이 메시지가 도착한 뒤 해당 업무 완료 (도현 가사 검수 — 답장 후 TODO 체크) */
-  completeMission?: MemberId
+  /** 이 메시지가 도착한 뒤 해당 업무 완료 (멤버 감사 답장, 트랙리스트 검수 답장 후 TODO 체크) */
+  completeMission?: MissionId
   /** 파일 메시지로 도착 (상대가 보내는 파일) */
   attachment?: SharedFile
 }
@@ -56,6 +56,8 @@ export type SharedFile =
   | { action: 'openNotes'; fileName: string }
   /** 누르면 파일 앱에 저장 — 파일 정보는 content/gameFiles.ts */
   | { action: 'download'; fileId: string }
+  /** 트랙리스트 검수용 플레이리스트 카드 — 누르면 게임 속 편집 화면 */
+  | { action: 'playlist' }
 
 /** 도현 가사 검수 전송 기록 한 건 */
 export interface LyricsSubmission {
@@ -128,6 +130,8 @@ export interface GameState {
   userNotes: UserNote[]
   /** 기본 메모(At Home 등)를 고친 내용 — 메모 ID별 */
   noteEdits: Record<string, { body: string; updatedAt: number }>
+  /** 트랙리스트 검수 — 편집 중인 순서(곡 ID), 공유 카드 발송 여부, 저장(제출) 횟수 */
+  tracklist: { order: string[]; shared: boolean; submissions: number }
 }
 
 export interface UserNote {
@@ -150,6 +154,9 @@ export type GameAction =
   | { type: 'CREATE_NOTE'; id: string; now: number }
   | { type: 'UPDATE_NOTE'; id: string; body: string; now: number }
   | { type: 'DELETE_NOTE'; id: string }
+  /** 트랙리스트 편집 — 순서 바꾸기(자동 저장) / '검수본 저장하기'(채점) */
+  | { type: 'SET_TRACKLIST_ORDER'; order: string[] }
+  | { type: 'SUBMIT_TRACKLIST'; now: number }
   | { type: 'DELIVER_DUE'; now: number }
   | { type: 'OPEN_CHAT'; chatId: ChatId; now: number }
   | { type: 'CLOSE_CHAT'; chatId: ChatId }

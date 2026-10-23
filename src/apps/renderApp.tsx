@@ -15,6 +15,8 @@ export interface OpenAppRequest {
   chatId?: ChatId
   /** 메모: 바로 열 메모 ('lyrics' = 도현이 공유한 가사 메모) */
   noteId?: string
+  /** 카카오톡: 트랙리스트 검수 플레이리스트를 바로 열기 (TODO 5번) */
+  playlist?: boolean
 }
 
 interface AppScreenProps {
@@ -27,9 +29,9 @@ interface AppScreenProps {
 export function AppScreen({ request, onOpenApp }: AppScreenProps) {
   switch (request.id) {
     case 'kakaotalk':
-      return <KakaoApp chatId={request.chatId} onOpenApp={onOpenApp} />
+      return <KakaoApp chatId={request.chatId} playlist={request.playlist} onOpenApp={onOpenApp} />
     case 'todo':
-      return <TodoApp />
+      return <TodoApp onOpenApp={onOpenApp} />
     case 'photos':
       return <PhotosApp />
     case 'notes':

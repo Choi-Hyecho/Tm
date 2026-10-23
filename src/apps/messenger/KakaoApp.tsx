@@ -10,6 +10,7 @@ import { ChatRoom } from './ChatRoom'
 import { ChatsTab } from './ChatsTab'
 import { FriendsTab } from './FriendsTab'
 import { MoreTab } from './MoreTab'
+import { PlaylistEditor } from './PlaylistEditor'
 import { ShoppingTab } from './ShoppingTab'
 import { TabBar, type KakaoTab } from './TabBar'
 
@@ -24,9 +25,12 @@ interface KakaoAppProps {
   chatId?: ChatId
   /** 다른 앱으로 이동 (+ 메뉴의 메모) */
   onOpenApp: (request: OpenAppRequest) => void
+  /** 트랙리스트 검수 화면을 바로 열기 (TODO 5번) — chatId와 함께 팀장님 채팅방 위에 */
+  playlist?: boolean
 }
 
-export function KakaoApp({ chatId, onOpenApp }: KakaoAppProps) {
+export function KakaoApp({ chatId, onOpenApp, playlist = false }: KakaoAppProps) {
+  const [playlistOpen, setPlaylistOpen] = useState(playlist)
   const { state } = useGame()
   const [tab, setTab] = useState<KakaoTab>(chatId ? 'chats' : lastTab)
   const [chat, setChat] = useState<ChatId | null>(chatId ?? null)
@@ -91,8 +95,17 @@ export function KakaoApp({ chatId, onOpenApp }: KakaoAppProps) {
             onOpenNotes={() => onOpenApp({ id: 'notes', noteId: 'lyrics' })}
             onOpenFiles={() => onOpenApp({ id: 'files' })}
             onToast={showToast}
+            onOpenPlaylist={() => setPlaylistOpen(true)}
           />
         </div>
+      )}
+
+      {/* 트랙리스트 검수 플레이리스트 — 닫으면 아래 팀장님 채팅방이 그대로 */}
+      {playlistOpen && (
+        <PlaylistEditor
+          onBack={() => setPlaylistOpen(false)}
+          onSaved={() => setPlaylistOpen(false)}
+        />
       )}
 
       <Toast {...toast} />

@@ -9,6 +9,9 @@ import { StatusBar } from '../../phone/StatusBar'
 import { useGame } from '../../state/context'
 import { getMissionStatus, getVirtualDate } from '../../state/selectors'
 import { releaseContent } from '../../content/release'
+import { tracklistQuest } from '../../content/quests/tracklist'
+import { albumArt } from '../../config/media'
+import { assetUrl } from '../../lib/asset'
 import type { ChatMessage } from '../../state/types'
 import { PhotoTile } from '../photos/PhotoTile'
 import { PhotoViewer } from '../photos/PhotoViewer'
@@ -28,11 +31,13 @@ interface ChatRoomProps {
   /** 저장한 파일을 다시 누르면 파일 앱으로 이동 */
   onOpenFiles: () => void
   onToast: (text: string) => void
+  /** 팀장님이 공유한 트랙리스트 플레이리스트 카드 */
+  onOpenPlaylist: () => void
 }
 
 // 카카오톡 스타일 1:1 채팅방 (실제 카카오톡 서비스와 연결되지 않는 팬메이드 UI)
 // 채팅방이 바뀌면 KakaoApp이 key로 새로 그리므로 첨부 메뉴/사진 보기 상태도 함께 정리됨
-export function ChatRoom({ chatId, onBack, onOpenNotes, onOpenFiles, onToast }: ChatRoomProps) {
+export function ChatRoom({ chatId, onBack, onOpenNotes, onOpenFiles, onToast, onOpenPlaylist }: ChatRoomProps) {
   const { state, dispatch } = useGame()
   const chat = { ...chats[chatId], avatar: avatarOf(chatId, state.released) }
   const canRelease = chatId === 'manager' && !state.released && getMissionStatus(state, 'report') === 'active'
@@ -151,6 +156,7 @@ export function ChatRoom({ chatId, onBack, onOpenNotes, onOpenFiles, onToast }: 
               onOpenNotes={onOpenNotes}
               onDownload={download}
               saved={(id) => state.downloads.includes(id)}
+              onOpenPlaylist={onOpenPlaylist}
             />
           )
           return m.from === 'me' ? (
@@ -260,6 +266,7 @@ function MessageContent({
   onOpenNotes,
   onDownload,
   saved,
+  onOpenPlaylist,
 }: {
   message: ChatMessage
   mine: boolean
@@ -269,7 +276,31 @@ function MessageContent({
   onOpenNotes: () => void
   onDownload: (fileId: string) => void
   saved: (fileId: string) => boolean
+  onOpenPlaylist: () => void
 }) {
+  // 팀장님이 공유한 트랙리스트 검수 플레이리스트 — 카드 어디를 눌러도 게임 속 편집 화면
+  if (message.kind === 'playlist') {
+    const { card } = tracklistQuest
+    return (
+      <button
+        type="button"
+        onClick={onOpenPlaylist}
+        aria-label={`${card.title} ${card.button}`}
+        className="w-[64cqw] max-w-[260px] overflow-hidden rounded-[14px] bg-white text-left active:bg-white/85"
+      >
+        <img src={assetUrl(albumArt)} alt="" className="aspect-[16/10] w-full object-cover" draggable={false} />
+        <span className="block px-3 pt-2.5 pb-3">
+          <span className="block text-[11px] font-semibold tracking-wide text-black/45">{card.label}</span>
+          <span className="mt-0.5 block truncate text-[14.5px] font-bold">{card.title}</span>
+          <span className="block text-[12px] text-black/50">{card.meta}</span>
+          <span className="mt-2.5 block rounded-full bg-[#1ed760] py-2 text-center text-[13.5px] font-bold text-black">
+            {card.button}
+          </span>
+        </span>
+      </button>
+    )
+  }
+
   // TXT 파일 — 내가 보낸 검수 파일은 당시 내용 보기, 도현이 공유한 메모 파일은 메모 앱으로 이동
   if (message.document) {
     const doc = message.document

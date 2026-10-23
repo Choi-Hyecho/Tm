@@ -13,8 +13,11 @@ import {
   readPending,
   sendAttachment,
   sendMessage,
+  shareTracklist,
   submitLyrics,
+  submitTracklist,
 } from './chat'
+import { tracklistQuest } from '../content/quests/tracklist'
 import { getMissionStatus } from './selectors'
 import type { Banner, ChatThread, GameAction, GameState } from './types'
 
@@ -51,6 +54,7 @@ export function createInitialState(): GameState {
     downloads: [],
     userNotes: [],
     noteEdits: {},
+    tracklist: { order: tracklistQuest.initialOrder, shared: false, submissions: 0 },
   }
 }
 
@@ -85,7 +89,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         },
       }
       // 이전에 보내 둔 메시지가 있고 이제 답장할 수 있으면 읽고 답장 시작
-      return readPending(opened, action.chatId, action.now)
+      const read = readPending(opened, action.chatId, action.now)
+      // 멤버 업무가 다 끝났는데 플레이리스트를 아직 못 받았으면(예전 저장 데이터) 팀장님 채팅방에서 공유
+      return action.chatId === 'manager' ? shareTracklist(read, action.now) : read
     }
     case 'CLOSE_CHAT':
       return state.activeChat === action.chatId ? { ...state, activeChat: null } : state
@@ -157,6 +163,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
     case 'DELETE_NOTE':
       return { ...state, userNotes: state.userNotes.filter((n) => n.id !== action.id) }
+    case 'SET_TRACKLIST_ORDER': {
+      // 검수가 끝났거나 곡 목록이 맞지 않는 순서는 무시
+      const valid =
+        action.order.length === tracklistQuest.correctOrder.length &&
+        [...action.order].sort().join() === [...tracklistQuest.correctOrder].sort().join()
+      if (!valid || state.missionStatuses.tracklist === 'completed') return state
+      return { ...state, tracklist: { ...state.tracklist, order: action.order } }
+    }
+    case 'SUBMIT_TRACKLIST':
+      return submitTracklist(state, action.now)
     case 'VISIT_DUOLINGO':
       return state.duolingoVisited ? state : { ...state, duolingoVisited: true }
     case 'RESET':

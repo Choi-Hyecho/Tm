@@ -35,7 +35,8 @@ function pickerFor(state: GameState, chatId: ChatId): LinePicker {
     return line
   }
 }
-import { isMemberMission, missionLabel, missions, todoContent, type MissionId } from '../content/missions'
+import { isMemberMission, memberMissionIds, missionLabel, missions, todoContent, type MissionId } from '../content/missions'
+import { tracklistQuest } from '../content/quests/tracklist'
 import { dohyunQuest } from '../content/quests/dohyun'
 import { attachmentChecks } from '../missions/attachmentChecks'
 import { allBlanksFilled, isLyricsCorrect, lyricsFileName, renderLyrics } from '../missions/lyricsCheck'
@@ -54,6 +55,7 @@ export function getReplyContext(state: GameState): ReplyContext {
     missionStatuses: state.missionStatuses,
     lyricsWrongCount: state.lyrics.submissions.filter((s) => !s.correct).length,
     lastCompletedMission: state.lastCompletedMission,
+    tracklistSubmissions: state.tracklist.submissions,
   }
 }
 
@@ -108,6 +110,8 @@ export function deliverMessage(
     }),
     // 누르면 파일 앱에 저장되는 파일
     ...(attachment?.action === 'download' && { kind: 'file' as const, attachmentId: attachment.fileId, action: attachment.action }),
+    // 트랙리스트 검수용 플레이리스트 카드
+    ...(attachment?.action === 'playlist' && { kind: 'playlist' as const }),
   }
   const isActive = state.activeChat === chatId
 
@@ -124,11 +128,12 @@ export function deliverMessage(
 /** 파일 전송 예약 — 이미 예약된 답장 뒤에 잠깐 텀을 두고 도착 */
 function scheduleAttachment(state: GameState, chatId: ChatId, attachment: SharedFile, now: number): GameState {
   const after = Math.max(now, ...state.scheduled.filter((s) => s.chatId === chatId).map((s) => s.deliverAt))
-  const fileName = attachment.action === 'download' ? findFile(attachment.fileId)?.fileName : attachment.fileName
-  if (!fileName) return state
+  const fileName =
+    attachment.action === 'download' ? findFile(attachment.fileId)?.fileName : attachment.action === 'openNotes' ? attachment.fileName : ''
+  if (fileName === undefined) return state
   const message: ScheduledMessage = {
     chatId,
-    text: chatContent.filePreview(fileName),
+    text: attachment.action === 'playlist' ? tracklistQuest.card.preview : chatContent.filePreview(fileName),
     deliverAt: after + FILE_DELAY_MS,
     attachment,
   }
@@ -156,7 +161,7 @@ export function scheduleReplies(
     reveal?: { missionId: MemberId; index: number }
     hesitate?: boolean
     /** 마지막 답장이 도착하면 이 업무 완료 */
-    completeAfter?: MemberId
+    completeAfter?: MissionId
   } = {},
 ): GameState {
   const { reveal, hesitate, completeAfter } = options
@@ -344,9 +349,48 @@ export function completeMission(
 
   next = { ...next, activeMissionId: next.activeMissionId === id ? null : next.activeMissionId }
   if (!options.skipDoneMessage) next = scheduleReplies(next, id, [memberScripts[id].missionDone], now)
+  // 멤버 업무 4개가 모두 끝나면 팀장님이 트랙리스트 검수 플레이리스트 공유 (한 번만)
+  next = shareTracklist(next, (showAt ?? now) + tracklistQuest.manager.delayMs)
   // 다른 멤버들이 한꺼번에 답장하지 않도록, 지금 보고 있는 채팅방만 보류 메시지 처리
   if (next.activeChat && next.activeChat !== id) next = readPending(next, next.activeChat, now)
   return next
+}
+
+/** 팀장님 카톡: 안내 3줄 → 플레이리스트 카드 → "앨범 순서대로…" (멤버 업무가 모두 끝났을 때 한 번만) */
+export function shareTracklist(state: GameState, at: number): GameState {
+  if (state.tracklist.shared || !memberMissionIds.every((m) => state.missionStatuses[m] === 'completed')) return state
+  const { manager } = tracklistQuest
+  let next: GameState = { ...state, tracklist: { ...state.tracklist, shared: true } }
+  next = scheduleReplies(next, 'manager', manager.beforeCard, at)
+  next = scheduleAttachment(next, 'manager', { action: 'playlist' }, at)
+  return scheduleReplies(next, 'manager', manager.afterCard, at)
+}
+
+/**
+ * 트랙리스트 '검수본 저장하기' — 내 메시지를 남기고 순서 채점.
+ * 맞으면 팀장님 답장이 도착한 뒤 5번 완료(6번 열림), 틀리면 다시 확인 부탁. 확인 중이거나 끝났으면 무시
+ */
+export function submitTracklist(state: GameState, now: number): GameState {
+  const pending = state.scheduled.some((s) => s.completeMission === 'tracklist')
+  if (pending || getMissionStatus(state, 'tracklist') !== 'active') return state
+  const thread = state.chats.manager
+  const mine: ChatMessage = {
+    id: messageId('manager', thread.messages.length, now),
+    from: 'me',
+    text: tracklistQuest.mySubmit,
+    at: now,
+    read: true,
+  }
+  const next: GameState = {
+    ...state,
+    chats: { ...state.chats, manager: { ...thread, messages: [...thread.messages, mine] } },
+    tracklist: { ...state.tracklist, submissions: state.tracklist.submissions + 1 },
+  }
+  const correct = state.tracklist.order.join() === tracklistQuest.correctOrder.join()
+  const { manager } = tracklistQuest
+  return correct
+    ? scheduleReplies(next, 'manager', manager.correct, now, { completeAfter: 'tracklist' })
+    : scheduleReplies(next, 'manager', manager.wrong, now)
 }
 
 /** 내 메시지 추가 — 상대가 바쁘면 읽지 않음(1)으로 보류, 아니면 바로 읽고 답장 */

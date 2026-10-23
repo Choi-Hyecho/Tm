@@ -1,3 +1,4 @@
+import type { OpenAppRequest } from '../renderApp'
 import { meta } from '../../content/meta'
 import { missions, todoContent, type MissionDef } from '../../content/missions'
 import { releaseContent } from '../../content/release'
@@ -21,7 +22,7 @@ function missionLabel(mission: MissionDef, status: MissionStatus) {
 }
 
 // 업무는 사용자가 직접 체크할 수 없음 — 각 미션 성공 시 자동 완료
-export function TodoApp() {
+export function TodoApp({ onOpenApp }: { onOpenApp: (request: OpenAppRequest) => void }) {
   const { state, dispatch } = useGame()
   const { done, total, allDone } = getProgress(state)
   const date = formatDate(getVirtualDate(state), { month: 'long', day: 'numeric', weekday: 'long' })
@@ -71,8 +72,18 @@ export function TodoApp() {
           {missions.map((m, i) => {
             const missionStatus = getMissionStatus(state, m.id)
             const muted = missionStatus === 'hidden' || missionStatus === 'locked'
+            // 트랙리스트 검수 — 누르면 팀장님 채팅방 위로 검수 플레이리스트 (체크는 저장해서 맞혀야만)
+            const opensPlaylist = m.id === 'tracklist' && (missionStatus === 'active' || missionStatus === 'completed')
+            const Row = opensPlaylist ? 'button' : 'div'
             return (
-              <li key={m.id} className="flex items-center gap-3 px-4 py-3.5">
+              <li key={m.id}>
+                <Row
+                  {...(opensPlaylist && {
+                    type: 'button' as const,
+                    onClick: () => onOpenApp({ id: 'kakaotalk', chatId: 'manager', playlist: true }),
+                  })}
+                  className={`flex w-full items-center gap-3 px-4 py-3.5 text-left ${opensPlaylist ? 'active:bg-ice-50' : ''}`}
+                >
                 <StatusMark status={missionStatus} />
                 <div className="min-w-0 flex-1">
                   <p
@@ -96,6 +107,12 @@ export function TodoApp() {
                     </p>
                   )}
                 </div>
+                {opensPlaylist && (
+                  <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-ice-900/30" aria-hidden>
+                    <path d="m1 1 6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+                </Row>
               </li>
             )
           })}
