@@ -35,6 +35,11 @@ export const attachmentChecks: Partial<Record<MemberId, AttachmentCheck>> = {
   johnbekim: {
     kind: 'file',
     correctId: johnbekimQuest.correctFileId,
-    wrongReplies: (id) => (id && johnbekimQuest.lines.wrong[id]) || johnbekimQuest.lines.wrongDefault,
+    // 어떤 오답 파일이든 랜덤 반응 — 묶음의 첫 줄로 최근에 안 한 말을 고름
+    wrongReplies: (_, pick) => {
+      const groups = johnbekimQuest.lines.wrong
+      const first = pick(groups.map((g) => g[0]))
+      return groups.find((g) => g[0] === first) ?? groups[0]
+    },
   },
 }
