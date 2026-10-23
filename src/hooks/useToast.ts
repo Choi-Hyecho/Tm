@@ -25,5 +25,10 @@ export function openExternal(url: string, onMissing: () => void) {
     onMissing()
     return
   }
+  // 메일은 새 탭 대신 메일 앱으로 (새 탭으로 열면 빈 탭이 남음)
+  if (url.startsWith('mailto:')) {
+    window.location.href = url
+    return
+  }
   window.open(url, '_blank', 'noopener,noreferrer')
 }

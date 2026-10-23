@@ -19,4 +19,8 @@ export const links = {
   duolingoShorts: '',
   /** TOUCHED 공식 b.stage */
   bstage: 'https://touched.bstage.in/',
+  /** 설정 앱 '문의하기' — 구글 폼, 오픈채팅, 'mailto:주소' 등 */
+  contact: 'https://x.com/RecOfTouched',
+  /** 설정 앱 '버그 제보' — 구글 폼, 'mailto:주소' 등 */
+  bugReport: `mailto:recoftouching@gmail.com?subject=${encodeURIComponent('[TOUCHED MANAGER] 버그 제보')}`,
 }

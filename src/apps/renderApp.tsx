@@ -4,6 +4,7 @@ import { KakaoApp } from './messenger/KakaoApp'
 import { NotesApp } from './notes/NotesApp'
 import { PhotosApp } from './photos/PhotosApp'
 import { PlaceholderApp } from './PlaceholderApp'
+import { SettingsApp } from './settings/SettingsApp'
 import { TodoApp } from './todo/TodoApp'
 
 export interface OpenAppRequest {
@@ -29,6 +30,8 @@ export function AppScreen({ request, onOpenApp }: AppScreenProps) {
       return <PhotosApp />
     case 'notes':
       return <NotesApp onOpenApp={onOpenApp} />
+    case 'settings':
+      return <SettingsApp />
     default:
       return <PlaceholderApp app={apps[request.id]} />
   }

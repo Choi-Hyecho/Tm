@@ -21,6 +21,7 @@ export type AppId =
   | 'notes'
   | 'duolingo'
   | 'bstage'
+  | 'settings'
 
 export type AppOpen =
   /** 게임 속 앱 화면 */
@@ -36,7 +37,7 @@ export interface AppDef {
   /** 공식 아이콘 경로 (public/ 기준). 빈 문자열이면 builtinIcon 또는 임시 아이콘 사용 */
   icon: string
   /** 게임 자체 아이콘 — calendar: iOS처럼 게임 날짜 표시 / todo: 게임 전용 앱 */
-  builtinIcon?: 'calendar' | 'todo'
+  builtinIcon?: 'calendar' | 'todo' | 'settings'
   /** 임시 아이콘 (배경, 글자색, 표시 글자) */
   placeholder: { background: string; color: string; text: string }
   open: AppOpen
@@ -173,6 +174,14 @@ export const apps: Record<AppId, AppDef> = {
     placeholder: { background: '#ffffff', color: '#000000', text: 'b.stage' },
     open: { type: 'external', link: links.bstage },
   },
+  settings: {
+    id: 'settings',
+    name: '설정',
+    icon: '',
+    builtinIcon: 'settings',
+    placeholder: { background: '#8e8e93', color: '#ffffff', text: '설정' },
+    open: { type: 'internal' },
+  },
 }
 
 /** 홈 화면 아이콘 순서 (위젯 아래, 4열) */
@@ -191,6 +200,7 @@ export const homeLayout: AppId[] = [
   'notes',
   'duolingo',
   'bstage',
+  'settings',
 ]
 
 /** 하단 Dock 고정 앱 */
