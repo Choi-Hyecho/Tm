@@ -42,8 +42,14 @@ const PHOTOS_OLDEST_FIRST: PhotoInput[] = [
   { id: 'asset-polar-seungbin', owner: 'seungbin', album: 'polar', src: 'images/photos/polar/SB.jpg' },
   { id: 'asset-polar-yunmin', owner: 'yunmin', album: 'polar', src: 'images/photos/polar/YM.jpg' },
   { id: 'asset-polar-johnbekim', owner: 'johnbekim', album: 'polar', src: 'images/photos/polar/JB.jpg' },
-  // 단체 자켓 — 발매 후 잠금화면 배경과 같은 사진
+  // 「극야」 컨셉 포토 — 그림 덧칠 포스터 (TOUCHED 공식 X Concept Photo 1~4)
+  { id: 'asset-polar-seungbin-art', owner: 'seungbin', album: 'polar', src: 'images/photos/polar/SB_art.jpg' },
+  { id: 'asset-polar-johnbekim-art', owner: 'johnbekim', album: 'polar', src: 'images/photos/polar/JB_art.jpg' },
+  { id: 'asset-polar-dohyun-art', owner: 'dohyun', album: 'polar', src: 'images/photos/polar/CD_art.jpg' },
+  { id: 'asset-polar-yunmin-art', owner: 'yunmin', album: 'polar', src: 'images/photos/polar/YM_art.jpg' },
+  // 단체 자켓 — 발매 후 잠금화면 배경과 같은 사진 + 가로 단체 사진 (Concept Photo 5)
   { id: 'asset-polar-group', owner: 'group', album: 'polar', src: 'images/release/lock_group.jpg' },
+  { id: 'asset-polar-group-wide', owner: 'group', album: 'polar', src: 'images/photos/polar/GROUP_wide.jpg' },
 ]
 
 /** 화면 표시 순서: 최신 앨범부터 (같은 앨범 안의 순서는 유지) */

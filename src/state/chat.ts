@@ -260,7 +260,8 @@ function respondAttachment(state: GameState, chatId: ChatId, message: ChatMessag
   if (check && check.kind === kind && !completing && getMissionStatus(state, chatId as MemberId) === 'active') {
     const memberId = chatId as MemberId
     // 정답 — 감사 답장이 도착한 뒤 업무 완료 (TODO 알림은 그 다음)
-    return message.attachmentId === check.correctId
+    const correct = check.isCorrect ? check.isCorrect(message.attachmentId) : message.attachmentId === check.correctId
+    return correct
       ? scheduleReplies(state, chatId, check.correctReplies ?? [memberScripts[memberId].missionDone], now, { completeAfter: memberId })
       : scheduleReplies(state, chatId, check.wrongReplies(message.attachmentId, pickerFor(state, chatId)), now)
   }

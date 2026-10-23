@@ -10,6 +10,8 @@ export type AttachmentKind = 'image' | 'file'
 export interface AttachmentCheck {
   kind: AttachmentKind
   correctId: string
+  /** 정답이 여러 개일 때 — 없으면 correctId만 정답 */
+  isCorrect?: (attachmentId: string | undefined) => boolean
   /** 정답일 때 답장들 — 다 도착하면 업무 완료. 없으면 멤버의 missionDone 한 줄 */
   correctReplies?: string[]
   /** 오답일 때 답장들 (순서대로 전송) — 보낸 첨부에 따라 다르게, pick으로 최근에 안 한 말을 고름 */
@@ -20,6 +22,11 @@ export const attachmentChecks: Partial<Record<MemberId, AttachmentCheck>> = {
   yunmin: {
     kind: 'image',
     correctId: yunminQuest.correctPhotoId,
+    // 윤민의 「극야」 사진이면 실사 자켓이든 컨셉 포토(덧칠 포스터)든 정답
+    isCorrect: (id) => {
+      const photo = findPhoto(id)
+      return photo?.owner === 'yunmin' && photo.album === 'polar'
+    },
     correctReplies: yunminQuest.correct,
     wrongReplies: (id, pick) => {
       const photo = findPhoto(id)
