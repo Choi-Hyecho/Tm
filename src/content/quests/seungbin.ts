@@ -1,16 +1,17 @@
 // 승빈 미션: 타이틀곡 선정 토론 (카톡 입력창에 자유롭게 입력)
-// 곡 고르기 → 승빈이 이유를 물음 → 이유를 말하면 반대 곡 편을 들며 반박 → 계속 토론
+// 처음 곡을 고르면 승빈이 이유를 한 번 물음 → 이유를 말하면 반대 곡 편을 들며 반박 → 이후엔 곡을 말해도 바로 반박
 // 반박이 debateRounds번 나오면, 다음 말에 결국 지 맘대로 "둘 다 할게요" 더블 타이틀로 결정하고 업무 완료
+// 참고: Fallen Angel은 승빈 작사·작곡, 이 별은 윤민 작사·작곡
 // 가상 대화 — 실제 멤버의 발언이 아님
 
 export type TitleSong = 'fallen' | 'byeol'
 
 /** 이유 키워드 종류 — 키워드에 맞춰 반박 */
-export type ReasonKey = 'lyrics' | 'live' | 'performance' | 'emotion' | 'intensity' | 'mv' | 'sound'
+export type ReasonKey = 'creator' | 'lyrics' | 'live' | 'performance' | 'emotion' | 'intensity' | 'mv' | 'sound'
 
 export const seungbinQuest = {
   /** 반박 총 횟수 (두 곡 합쳐서) — 다 채우면 다음 말에 더블 타이틀 결정 */
-  debateRounds: 10,
+  debateRounds: 5,
 
   /** 대사 속 {song}에 들어갈 곡 이름 */
   songNames: { fallen: 'Fallen Angel', byeol: '이 별' } satisfies Record<TitleSong, string>,
@@ -28,8 +29,14 @@ export const seungbinQuest = {
   /** "아무거나", "못 고르겠어요" — 하나만 고르라고 함 */
   whateverPatterns: [/아무거나|상관없|알아서|맘대로|마음대로|모르겠|못고르|못정하|고르기힘|글쎄|몰라/],
 
-  /** 곡을 고르면 — 이유를 물음 */
-  askReason: ['오 {song}이요? 왜요?', '{song}… 이유가 뭐예요?', '왜 {song}이에요? 근거 듣고 싶어요.'],
+  /** 처음 곡을 고르면 — 이유를 한 번 물음 */
+  askReason: [
+    '오 {song}이요? 왜요?',
+    '{song}… 이유가 뭐예요?',
+    '왜 {song}이에요? 근거 듣고 싶어요.',
+    '{song} 고르신 이유가 궁금하네요.',
+    '음… {song}. 왜 그렇게 생각하세요?',
+  ],
   /** 두 곡이 다 나오거나 부정 표현 때문에 헷갈릴 때 */
   ambiguous: [
     '그래서… 어느 곡이요?',
@@ -58,6 +65,7 @@ export const seungbinQuest = {
    * 인식하지 못하면 아래 against에서 랜덤 반박
    */
   reasonPatterns: {
+    creator: /작사|작곡|자작곡|만든곡|만들었|직접만든|직접쓴|쓴곡|프로듀싱/,
     lyrics: /가사|노랫말|메시지|의미|이야기|스토리/,
     live: /라이브|떼창|합창|따라부르|따라부를/,
     performance: /공연|무대|페스티벌|페스타|콘서트|퍼포먼스|단콘/,
@@ -72,6 +80,17 @@ export const seungbinQuest = {
    * 한 묶음이 한 번의 반박 (여러 줄)
    */
   reasonRebuttals: {
+    // Fallen Angel = 승빈 작사·작곡, 이 별 = 윤민 작사·작곡
+    creator: {
+      fallen: [
+        ['제 곡이라서요? ㅋㅋ', '그건 반칙이죠. 이 별도 윤민이가 진짜 공들여서 쓴 곡이에요.'],
+        ['제가 쓴 거라 고르신 거면 좀 섭섭한데요?', '곡으로만 봐주세요. 그럼 이 별도 만만치 않아요.'],
+      ],
+      byeol: [
+        ['윤민이 곡 좋죠. 인정해요.', '근데 Fallen Angel도 제가 밤새 붙잡고 쓴 곡인데요…'],
+        ['작곡한 사람으로 고르면요,', 'Fallen Angel은 제가 쓴 거라 누구보다 자신 있어요.'],
+      ],
+    },
     lyrics: {
       fallen: [
         ['가사요?', '근데 가사는 이 별이 더 와닿지 않아요? 한 줄 한 줄 다 이야기잖아요.'],
@@ -244,7 +263,7 @@ export const seungbinQuest = {
   /** 승빈의 더블 타이틀 선언이 도착하고 delayMs 뒤 팀장님 카톡 */
   managerReaction: {
     text: '승빈 씨가 더블 타이틀로 간다던데… 매니저님이 정하신 거예요?',
-    delayMs: 4000,
+    delayMs: 3500,
   },
 
   /** 반박을 debateRounds번 한 뒤 매니저의 다음 말에 — 이 답장들이 도착한 뒤 TODO 완료 */

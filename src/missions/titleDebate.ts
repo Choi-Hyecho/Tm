@@ -142,16 +142,10 @@ export function respondTitleDebate({ flow, text, recent, turn }: DebateInput, pi
     return reply([pick(q.guide)], state, 'debateGuide')
   }
 
-  // 이유를 기다리는 중 / 토론 중 — 이유 키워드가 있으면 이유로 봄 ("이 별은 가사가 별로"도 이유)
+  // 이유를 기다리는 중 / 토론 중 — 이유는 처음에만 묻고, 이후엔 곡을 말해도 바로 반박
   const hasReason = reasonKey(t) !== undefined
-  if (!hasReason) {
-    // 다른 곡으로 바꿈 → 이유를 다시 물음
-    if (choice.kind === 'song' && choice.song !== state.side) return askReason(choice.song)
-    if (choice.kind === 'ambiguous') return reply([pick(q.ambiguous)], state, 'debateAmbiguous')
-    // 토론 중 같은 곡만 다시 말함 → 이유를 물음
-    if (state.stage === 'argue' && choice.kind === 'song') return askReason(choice.song)
-  }
-  // 이유와 함께 다른 곡 편으로 넘어간 경우 그 곡 기준으로 반박 — 단 "이 별은 가사가 별로"처럼 깎아내리는 말이면 편은 그대로
-  const switched = hasReason && choice.kind === 'song' && !NEGATIVE.test(withoutSongs(t))
+  if (!hasReason && choice.kind === 'ambiguous') return reply([pick(q.ambiguous)], state, 'debateAmbiguous')
+  // 다른 곡 편으로 넘어간 경우 그 곡 기준으로 반박 — 단 "이 별은 가사가 별로"처럼 깎아내리는 말이면 편은 그대로
+  const switched = choice.kind === 'song' && !(hasReason && NEGATIVE.test(withoutSongs(t)))
   return rebut(switched ? choice.song : state.side)
 }
