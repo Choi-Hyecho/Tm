@@ -25,6 +25,10 @@ export const attachmentChecks: Partial<Record<MemberId, AttachmentCheck>> = {
         const { reactions, comments } = yunminQuest.otherAlbum
         return [pick(reactions), pick(comments[photo.album] ?? comments.default)]
       }
+      // 단체 사진 → "개인 자켓으로 부탁드려요" + "단체 사진 잘 나왔네요~"
+      if (photo?.owner === 'group') {
+        return [pick(yunminQuest.groupPhoto.reactions), pick(yunminQuest.wrongPerson.comments.group)]
+      }
       // 다른 사람 사진 → "저 아닌 거 같은데요?" + 사진 속 사람 코멘트
       const { reactions, comments } = yunminQuest.wrongPerson
       const about = photo ? comments[photo.owner as keyof typeof comments] : undefined

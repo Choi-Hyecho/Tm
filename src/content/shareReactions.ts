@@ -25,7 +25,7 @@ export const shareReactions = {
       dohyun: ['앗 {owner} 사진이네요 ㅎㅎ 잘못 보내신 것 같아요!', '{owner} 사진 잘 나왔네요 ㅎㅎ'],
       johnbekim: ['오 {owner}다 ㅋㅋ 이거 저한테 보내신 거 맞아요?', '{owner} 사진이네요~'],
     } satisfies Record<MemberId, Lines>,
-    group: ['오 단체 사진이네요 ㅎㅎ', '이 사진 좋다~'],
+    group: ['오 단체 사진이네요 ㅎㅎ', '이 사진 좋다~', '단체 사진 잘 나왔네요~'],
   },
 
   /** 존비킴 믹싱 파일을 다른 사람에게 보냈을 때 */
