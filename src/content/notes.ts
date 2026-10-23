@@ -1,6 +1,16 @@
 // 메모 앱의 일반 메모 (읽기 전용) — 도현의 가사 메모는 quests/dohyun.ts
 import { calendarEvents } from './calendar'
 
+/** 메모 앱 문구 (가사 메모 문구는 quests/dohyun.ts) */
+export const notesContent = {
+  /** 내용이 없는 메모의 제목 */
+  untitled: '새로운 메모',
+  newNote: '새로운 메모',
+  deleteNote: '메모 삭제',
+  done: '완료',
+  placeholder: '메모를 입력하세요',
+}
+
 export interface StaticNote {
   id: string
   title: string

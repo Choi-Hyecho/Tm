@@ -5,7 +5,6 @@ import { responders } from '../chat/scripts'
 import { chatContent, type ChatId, type MemberId } from '../content/chats'
 import { findPhoto, PHOTO_OWNER_LABELS } from '../content/gallery'
 import { findFile } from '../content/gameFiles'
-import { staticNotes } from '../content/notes'
 import { shareReactions } from '../content/shareReactions'
 import { affectionWarning } from '../content/managerReplies'
 import { affectionHesitation, memberScripts } from '../content/members'
@@ -40,6 +39,7 @@ import { isMemberMission, missionLabel, missions, todoContent, type MissionId } 
 import { dohyunQuest } from '../content/quests/dohyun'
 import { attachmentChecks } from '../missions/attachmentChecks'
 import { allBlanksFilled, isLyricsCorrect, lyricsFileName, renderLyrics } from '../missions/lyricsCheck'
+import { findNote } from './notes'
 import { getActiveMissions, getMissionStatus, getProgress } from './selectors'
 import type { Banner, ChatMessage, GameState, ScheduledMessage, ShareKind, SharedFile } from './types'
 
@@ -381,8 +381,8 @@ export function sendAttachment(state: GameState, chatId: ChatId, kind: ShareKind
     if (!file) return state
     return addMyMessage(state, chatId, { kind, attachmentId, text: chatContent.filePreview(file.fileName) }, now)
   }
-  // 메모 — 보낸 당시 내용 그대로 TXT 파일로
-  const note = staticNotes.find((n) => n.id === attachmentId)
+  // 메모 — 보낸 당시 내용 그대로 TXT 파일로 (고친 내용/내가 만든 메모 포함)
+  const note = findNote(state, attachmentId)
   if (!note) return state
   const fileName = `${note.title}.txt`
   const document = { fileName, content: note.body }

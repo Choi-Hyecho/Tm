@@ -1,6 +1,7 @@
 import { chatOrder, managerScript, type ChatId } from '../content/chats'
 import { findFile } from '../content/gameFiles'
 import { missions, todoContent } from '../content/missions'
+import { staticNotes } from '../content/notes'
 import { initialFlows } from '../chat/scripts'
 import { lyricBlanks } from '../missions/lyricsCheck'
 import {
@@ -43,6 +44,8 @@ export function createInitialState(): GameState {
     affection: { count: 0, warned: false },
     duolingoVisited: false,
     downloads: [],
+    userNotes: [],
+    noteEdits: {},
   }
 }
 
@@ -107,6 +110,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'DOWNLOAD_FILE':
       if (!findFile(action.fileId) || state.downloads.includes(action.fileId)) return state
       return { ...state, downloads: [...state.downloads, action.fileId] }
+    case 'CREATE_NOTE':
+      if (state.userNotes.some((n) => n.id === action.id)) return state
+      return { ...state, userNotes: [...state.userNotes, { id: action.id, body: '', updatedAt: action.now }] }
+    case 'UPDATE_NOTE': {
+      if (state.userNotes.some((n) => n.id === action.id)) {
+        return {
+          ...state,
+          userNotes: state.userNotes.map((n) => (n.id === action.id ? { ...n, body: action.body, updatedAt: action.now } : n)),
+        }
+      }
+      // 기본 메모는 고친 내용만 따로 저장 (원문은 content/notes.ts)
+      if (!staticNotes.some((n) => n.id === action.id)) return state
+      return { ...state, noteEdits: { ...state.noteEdits, [action.id]: { body: action.body, updatedAt: action.now } } }
+    }
+    case 'DELETE_NOTE':
+      return { ...state, userNotes: state.userNotes.filter((n) => n.id !== action.id) }
     case 'VISIT_DUOLINGO':
       return state.duolingoVisited ? state : { ...state, duolingoVisited: true }
     case 'RESET':

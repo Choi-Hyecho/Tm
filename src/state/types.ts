@@ -117,6 +117,16 @@ export interface GameState {
   duolingoVisited: boolean
   /** 파일 앱에 저장한 파일 ID (카톡으로 받은 파일을 눌러서 저장) */
   downloads: string[]
+  /** 사용자가 메모 앱에서 직접 만든 메모 — 첫 줄이 제목 */
+  userNotes: UserNote[]
+  /** 기본 메모(At Home 등)를 고친 내용 — 메모 ID별 */
+  noteEdits: Record<string, { body: string; updatedAt: number }>
+}
+
+export interface UserNote {
+  id: string
+  body: string
+  updatedAt: number
 }
 
 /** 공유 시트로 카톡에 보내는 것 — 사진 / 파일 / 메모 */
@@ -129,6 +139,10 @@ export type GameAction =
   | { type: 'SEND_ATTACHMENT'; chatId: ChatId; kind: ShareKind; attachmentId: string; now: number }
   /** 카톡으로 받은 파일을 파일 앱에 저장 */
   | { type: 'DOWNLOAD_FILE'; fileId: string }
+  /** 메모 앱 — 새 메모 (ID는 화면에서 만들어 넘김) / 내용 수정 (내 메모 또는 기본 메모) / 내 메모 삭제 */
+  | { type: 'CREATE_NOTE'; id: string; now: number }
+  | { type: 'UPDATE_NOTE'; id: string; body: string; now: number }
+  | { type: 'DELETE_NOTE'; id: string }
   | { type: 'DELIVER_DUE'; now: number }
   | { type: 'OPEN_CHAT'; chatId: ChatId; now: number }
   | { type: 'CLOSE_CHAT'; chatId: ChatId }
