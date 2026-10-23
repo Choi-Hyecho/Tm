@@ -37,6 +37,14 @@ const PHOTOS_OLDEST_FIRST: PhotoInput[] = [
   { id: 'asset-album3-yunmin-3', owner: 'yunmin', album: 'album3', src: 'images/photos/3/YM3.webp' },
   { id: 'asset-album4-yunmin-2', owner: 'yunmin', album: 'album4', src: 'images/photos/4/YM2.webp' },
   { id: 'asset-album5-yunmin-4', owner: 'yunmin', album: 'album5', src: 'images/photos/5/YM4.webp' },
+  // 다른 멤버들의 예전 활동 사진 (나무위키 터치드 멤버 문서에서 가져옴)
+  { id: 'asset-addiction-dohyun', owner: 'dohyun', album: 'addiction', src: 'images/photos/addiction/CD.webp' },
+  { id: 'asset-lastday-dohyun', owner: 'dohyun', album: 'lastday', src: 'images/photos/lastday/CD.webp' },
+  { id: 'asset-redsignal-seungbin', owner: 'seungbin', album: 'redsignal', src: 'images/photos/redsignal/SB.webp' },
+  { id: 'asset-redsignal-seungbin-2', owner: 'seungbin', album: 'redsignal', src: 'images/photos/redsignal/SB2.webp' },
+  { id: 'asset-redsignal-johnbekim', owner: 'johnbekim', album: 'redsignal', src: 'images/photos/redsignal/JB.webp' },
+  { id: 'asset-redsignal-johnbekim-2', owner: 'johnbekim', album: 'redsignal', src: 'images/photos/redsignal/JB2.webp' },
+  { id: 'asset-redsignal-dohyun', owner: 'dohyun', album: 'redsignal', src: 'images/photos/redsignal/CD.webp' },
   // 정규 1집 「극야」 자켓
   { id: 'asset-polar-dohyun', owner: 'dohyun', album: 'polar', src: 'images/photos/polar/CD.jpg' },
   { id: 'asset-polar-seungbin', owner: 'seungbin', album: 'polar', src: 'images/photos/polar/SB.jpg' },
