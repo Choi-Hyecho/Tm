@@ -3,12 +3,12 @@ import { johnbekimQuest } from '../quests/johnbekim'
 import type { MemberScript } from './types'
 
 export const johnbekim: MemberScript = {
-  names: ['존비킴', '비킴', '김병무', '병무'],
+  names: ['존비킴', '비킴', '김병무', '병무', '존비', '존비님', '존비씨', '존비형', '존비오빠', '존비오빠님', '존비형님', '존비형씨'],
   greeting: ['매니저님 안녕하세요~', '궁금한 거 있으시면 편하게 톡 주세요 ㅎㅎ'],
   request: [
     '매니저님 혹시 시간 괜찮으세요?',
-    '믹싱 파일이 네 개가 왔는데 제 베이스가 제대로 들어간 건 하나뿐이래요… 🥲',
-    '파일 보내드릴게요! 들어보시고 정상 파일만 저한테 다시 보내주실 수 있을까요?',
+    '딴따라 믹싱 파일이 네 개 왔는데 그중 하나는 제 베이스가 통째로 빠졌대요… 🥲',
+    '파일 보내드릴게요! 들어보시고 베이스 빠진 파일만 저한테 다시 보내주실 수 있을까요?',
   ],
   // 업무 요청 다음에 믹싱 파일 4개 — 누르면 파일 앱에 저장
   requestAttachments: johnbekimQuest.fileIds.map((fileId) => ({ action: 'download' as const, fileId })),
@@ -38,11 +38,11 @@ export const johnbekim: MemberScript = {
   ],
   missionIdle: [
     '파일 다 들어보시면 바로 아실 거예요!',
-    '베이스가 살아있는 걸로 부탁드려요 ㅎㅎ',
+    '베이스가 텅 빈 걸로 부탁드려요 🥲',
     '이어폰 끼고 들으면 더 잘 들려요!',
     '파일 눌러서 저장하시고 파일 앱에서 들어보시면 돼요~',
   ],
-  missionDone: '이거예요!! 베이스 살아있네요 ㅎㅎ 감사합니다 👍',
+  missionDone: '이거예요!! 제 베이스 여기서 사라졌네요 😇 바로 다시 요청할게요. 감사합니다 👍',
   afterMission: [
     '오 그래요? ㅎㅎ',
     '넵넵 알겠습니다~',

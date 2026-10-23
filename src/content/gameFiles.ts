@@ -16,29 +16,30 @@ export const gameFiles: GameFile[] = [
     id: 'asset-bass-mix-1',
     fileName: 'bass_mix_최종.wav',
     audio: 'audio/johnbekim/mix_1.mp3',
-    sizeLabel: '5.2MB',
-    durationLabel: '00:30',
+    sizeLabel: '3.3MB',
+    durationLabel: '00:19',
   },
   {
     id: 'asset-bass-mix-2',
     fileName: 'bass_mix_최종2.wav',
     audio: 'audio/johnbekim/mix_2.mp3',
-    sizeLabel: '5.2MB',
-    durationLabel: '00:30',
+    sizeLabel: '3.0MB',
+    durationLabel: '00:17',
   },
   {
     id: 'asset-bass-mix-3',
     fileName: 'bass_mix_진짜최종.wav',
+    // 베이스가 빠진 파일 (정답)
     audio: 'audio/johnbekim/mix_3.mp3',
-    sizeLabel: '5.3MB',
-    durationLabel: '00:30',
+    sizeLabel: '3.1MB',
+    durationLabel: '00:18',
   },
   {
     id: 'asset-bass-mix-4',
     fileName: 'bass_mix_최종_수정.wav',
     audio: 'audio/johnbekim/mix_4.mp3',
-    sizeLabel: '5.2MB',
-    durationLabel: '00:30',
+    sizeLabel: '4.2MB',
+    durationLabel: '00:25',
   },
 ]
 
