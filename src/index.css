@@ -96,6 +96,28 @@
   button {
     cursor: pointer;
   }
+
+  /* 재생 위치 바 손잡이 — 막대를 직접 꾸미면(appearance: none) 브라우저가 손잡이를 안 그려서 직접 그림 */
+  input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  }
+  input[type='range']::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border: 0;
+    border-radius: 9999px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  }
 }
 
 /* ── 극야 발매 엔딩 (phone/ReleaseEnding.tsx) ── 지연 시간은 요소마다 style의 animation-delay로 */

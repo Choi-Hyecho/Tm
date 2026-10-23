@@ -8,8 +8,11 @@ import { StatusBar } from '../../phone/StatusBar'
 import { Toast } from '../../phone/Toast'
 import { useGame } from '../../state/context'
 import { FileIcon } from '../messenger/AttachmentSheet'
+import { SkipButton } from '../notes/RecordingPlayer'
 
 const BLUE = '#007aff'
+/** 뒤로/앞으로 이동하는 초 */
+const SKIP_SECONDS = 5
 
 const formatTime = (seconds: number) => {
   const s = Math.max(0, Math.floor(seconds))
@@ -70,7 +73,7 @@ export function FilesApp() {
 
 /** 파일 보기 — 재생/위치 이동 + 아래 공유 버튼 */
 function FileDetail({ file, onBack, onSent }: { file: GameFile; onBack: () => void; onSent: (name: string) => void }) {
-  const { playing, currentTime, duration, error, toggle, seek } = useAudioPlayer(file.audio)
+  const { playing, currentTime, duration, error, toggle, seek, skip } = useAudioPlayer(file.audio)
   const [sharing, setSharing] = useState(false)
 
   return (
@@ -119,7 +122,8 @@ function FileDetail({ file, onBack, onSent }: { file: GameFile; onBack: () => vo
               <span>{formatTime(currentTime)}</span>
               <span>-{formatTime(duration - currentTime)}</span>
             </div>
-            <div className="mt-3 flex justify-center">
+            <div className="mt-3 flex items-center justify-center gap-8">
+              <SkipButton seconds={-SKIP_SECONDS} onPress={() => skip(-SKIP_SECONDS)} />
               <button
                 type="button"
                 onClick={toggle}
@@ -138,6 +142,7 @@ function FileDetail({ file, onBack, onSent }: { file: GameFile; onBack: () => vo
                   </svg>
                 )}
               </button>
+              <SkipButton seconds={SKIP_SECONDS} onPress={() => skip(SKIP_SECONDS)} />
             </div>
           </div>
         )}

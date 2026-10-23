@@ -86,7 +86,8 @@ export function RecordingPlayer() {
   )
 }
 
-function SkipButton({ seconds, onPress }: { seconds: number; onPress: () => void }) {
+/** 몇 초 뒤로/앞으로 — 파일 앱 플레이어도 같이 사용 */
+export function SkipButton({ seconds, onPress }: { seconds: number; onPress: () => void }) {
   const back = seconds < 0
   return (
     <button
