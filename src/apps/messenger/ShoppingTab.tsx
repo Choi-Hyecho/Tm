@@ -16,7 +16,7 @@ export function ShoppingTab({ onToast }: { onToast: (text: string) => void }) {
       <div className="flex flex-col gap-4 px-4 pt-1 pb-4">
         {shopItems.map((item) => (
           <section key={item.id} className="overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
-            <FallbackImage src={item.image} fallback={item.fallback} className="aspect-[16/9] w-full justify-center">
+            <FallbackImage src={item.image} fallback={item.fallback} className={`${item.square ? 'aspect-square' : 'aspect-[16/9]'} w-full justify-center`}>
               <p className="px-6 text-center text-[20px] font-bold text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.25)]">
                 {item.title}
               </p>

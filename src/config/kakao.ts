@@ -17,9 +17,11 @@ export interface ShopItem {
   link: string
   cta: string
   fallback: string
+  /** 정사각형 이미지 (상품 사진) — 없으면 가로형 16:9 */
+  square?: boolean
 }
 
-/** 쇼핑 탭 */
+/** 쇼핑 탭 — 앨범 사진은 MPMG 공식 스토어 상품 이미지 */
 export const shopItems: ShopItem[] = [
   {
     id: 'album-special',
@@ -28,6 +30,7 @@ export const shopItems: ShopItem[] = [
     image: 'images/shop/album.jpg',
     link: 'https://mpmgmusic.com/product/TCD-MMR2618-CD',
     cta: '스페셜반 보러 가기',
+    square: true,
     fallback: 'linear-gradient(135deg, #0f2c5e 0%, #2468d6 60%, #c8e0ff 100%)',
   },
   {
@@ -37,6 +40,7 @@ export const shopItems: ShopItem[] = [
     image: 'images/shop/album-digipak.jpg',
     link: 'https://mpmgmusic.com/product/TCD-MMR2619-CD',
     cta: '디지팩 보러 가기',
+    square: true,
     fallback: 'linear-gradient(135deg, #1a1f3a 0%, #3b5bb3 60%, #c8e0ff 100%)',
   },
   {
